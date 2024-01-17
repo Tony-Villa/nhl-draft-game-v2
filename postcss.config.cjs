@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const autoprefixer = require('autoprefixer');
 const postcssJitProps = require('postcss-jit-props');
 const openProps = require('open-props');
