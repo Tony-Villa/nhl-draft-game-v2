@@ -8,6 +8,9 @@
 		<div class="position__container">
 			<h2>{position.draftPosition}</h2>
 			<img class="position__logo" src={position.teamLogo} alt="" />
+			{#if position.prospect}
+				<p>{position.prospect.name}</p>
+			{/if}
 		</div>
 	{/each}
 </div>
