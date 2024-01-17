@@ -8,7 +8,7 @@
 <h2>Prospects</h2>
 <div class="prospect-container">
 	{#each draftEngine.topProspects as prospect}
-		<ProspectCard {prospect} />
+		<ProspectCard {prospect} draftProspect={draftEngine.addProspectToBoard} />
 	{/each}
 </div>
 
