@@ -1,8 +1,20 @@
 <script lang="ts">
-	const { prospect, draftProspect } = $props();
+	import Modal from '$lib/components/Modal.svelte';
+
+	let showModal = $state(false);
+
+	const { prospect, draftProspect, board } = $props();
+
+	function draft(prospect, draftPosition) {
+		draftProspect(prospect, draftPosition);
+		showModal = !showModal;
+	}
 </script>
 
 <div class="prospect-card">
+	<Modal bind:showModal>
+		{@render DraftPosition(board)}
+	</Modal>
 	<div class="prospect-card__header">
 		<p>{prospect.rank !== '-' ? 'Rank: ' + prospect.rank : 'NR'}</p>
 		<div class="prospect-card__position">
@@ -30,21 +42,23 @@
 		</div>
 	</div>
 	<div class="prospect-card__options">
-		<button on:click={() => draftProspect(prospect)}>Draft</button>
+		<button on:click={() => (showModal = !showModal)}>Draft</button>
 		<button>Favorite</button>
 	</div>
 </div>
 
-<!-- rank, -->
-<!-- name, -->
-<!-- position, -->
-<!-- nation, -->
-<!-- team, -->
-<!-- league, -->
-<!-- birthDay, -->
-<!-- height, -->
-<!-- weight, -->
-<!-- shoots -->
+{#snippet DraftPosition(board)}
+	<div class="draft-position">
+		{#each board as cell}
+			<button on:click={() => draft(prospect, cell.draftPosition)} class="draft-position__cell">
+				<h3>
+					{cell.draftPosition}
+				</h3>
+				<img src={cell.teamLogo} />
+			</button>
+		{/each}
+	</div>
+{/snippet}
 
 <style lang="postcss">
 	.prospect-card {
@@ -97,6 +111,26 @@
 			align-items: flex-end;
 			gap: 10px;
 			flex: 1;
+		}
+
+		.draft-position {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			max-width: 700px;
+			margin: 0 auto;
+
+			.draft-position__cell {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 10px;
+				border: 1px solid black;
+				border-radius: 5px;
+				padding: 10px;
+				width: 100px;
+				height: 100px;
+			}
 		}
 	}
 </style>

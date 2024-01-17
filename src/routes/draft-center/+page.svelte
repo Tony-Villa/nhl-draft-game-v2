@@ -22,6 +22,7 @@
 	.draft-center {
 		display: flex;
 		gap: 20px;
+		padding: 20px;
 	}
 	.draft-board {
 		flex: 1;

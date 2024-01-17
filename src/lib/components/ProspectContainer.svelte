@@ -7,8 +7,14 @@
 
 <h2>Prospects</h2>
 <div class="prospect-container">
-	{#each draftEngine.topProspects as prospect}
-		<ProspectCard {prospect} draftProspect={draftEngine.addProspectToBoard} />
+	{#each draftEngine.shownProspects as prospect}
+		{#if !prospect.drafted}
+			<ProspectCard
+				{prospect}
+				board={draftEngine.draftBoard}
+				draftProspect={draftEngine.addProspectToBoard}
+			/>
+		{/if}
 	{/each}
 </div>
 
