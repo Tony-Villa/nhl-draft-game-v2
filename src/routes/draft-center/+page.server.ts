@@ -86,7 +86,8 @@ async function setInitialDraftBoard() {
 	for (let i = data.standings.length - 1; i >= 0; i--) {
 		draftboard.push({
 			draftPosition: count,
-			teamLogo: data.standings[i]?.teamLogo
+			teamLogo: data.standings[i]?.teamLogo.replace('light', 'dark'),
+			prospect: null
 		});
 		count++;
 	}

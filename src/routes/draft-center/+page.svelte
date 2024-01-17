@@ -19,15 +19,12 @@
 </div>
 
 <style lang="postcss">
-	:global(body) {
-		max-width: 100vw;
-	}
 	.draft-center {
 		display: flex;
 		gap: 20px;
 	}
 	.draft-board {
-		flex: 2;
+		flex: 1;
 	}
 	.prospects {
 		flex: 3;
