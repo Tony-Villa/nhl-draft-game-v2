@@ -26,10 +26,13 @@
 
 <style lang="postcss">
 	dialog {
-		max-width: 32em;
+		margin: auto;
+		width: 80%;
+		height: 70%;
 		border-radius: 0.2em;
 		border: none;
-		padding: 0;
+		padding: 20px;
+		max-width: 1100px;
 	}
 	dialog::backdrop {
 		background: rgba(0, 0, 0, 0.3);

@@ -13,7 +13,17 @@
 
 <div class="prospect-card">
 	<Modal bind:showModal>
-		{@render DraftPosition(board)}
+		<!-- {@render DraftPosition(board)} -->
+		<div class="draft-position">
+			{#each board as cell}
+				<button class="draft-position__cell" on:click={() => draft(prospect, cell.draftPosition)}>
+					<h3>
+						{cell.draftPosition}
+					</h3>
+					<img src={cell.teamLogo} />
+				</button>
+			{/each}
+		</div>
 	</Modal>
 	<div class="prospect-card__header">
 		<p>{prospect.rank !== '-' ? 'Rank: ' + prospect.rank : 'NR'}</p>
@@ -46,19 +56,6 @@
 		<button>Favorite</button>
 	</div>
 </div>
-
-{#snippet DraftPosition(board)}
-	<div class="draft-position">
-		{#each board as cell}
-			<button on:click={() => draft(prospect, cell.draftPosition)} class="draft-position__cell">
-				<h3>
-					{cell.draftPosition}
-				</h3>
-				<img src={cell.teamLogo} />
-			</button>
-		{/each}
-	</div>
-{/snippet}
 
 <style lang="postcss">
 	.prospect-card {
@@ -117,20 +114,17 @@
 			display: flex;
 			flex-wrap: wrap;
 			gap: 10px;
-			max-width: 700px;
-			margin: 0 auto;
-
-			.draft-position__cell {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				gap: 10px;
-				border: 1px solid black;
-				border-radius: 5px;
-				padding: 10px;
-				width: 100px;
-				height: 100px;
-			}
+		}
+		.draft-position__cell {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 10px;
+			border: 1px solid black;
+			border-radius: 5px;
+			padding: 10px;
+			width: 100px;
+			height: 100px;
 		}
 	}
 </style>
