@@ -39,13 +39,14 @@ export const load: PageServerLoad = async ({ setHeaders }) => {
 					.find('.player')
 					.text()
 					.trim()
-					.match(/^[^\(]+/)[0]
+					.match(/^[^(]+/)?.[0]
 					.trim();
 				const position = $(tr)
 					.find('.player')
 					.text()
-					.match(/\(([^\)]+)\)/)[1]
+					.match(/\(([^)]+)\)/)?.[1]
 					.trim();
+
 				const nation = $(tr).find('.nation > i > img').attr('src');
 				const team = $(tr).find('.team').text().trim();
 				const league = $(tr).find('.league > .txt-blue').text().trim();
