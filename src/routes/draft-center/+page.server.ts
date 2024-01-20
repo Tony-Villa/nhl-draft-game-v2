@@ -63,7 +63,8 @@ export const load: PageServerLoad = async ({ setHeaders }) => {
 					birthDay,
 					height,
 					weight,
-					shoots
+					shoots,
+					drafted: false
 				});
 			});
 		});
