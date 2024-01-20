@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { DraftSystem } from '$lib/stores/prospects/draftSystem.svelte';
 	import ProspectCard from './ProspectCard.svelte';
 	const { draftEngine } = $props();
 
@@ -7,12 +8,12 @@
 
 <h2>Prospects</h2>
 <div class="prospect-container">
-	{#each draftEngine.shownProspects as prospect}
+	{#each (draftEngine as DraftSystem)?.shownProspects as prospect}
 		{#if !prospect.drafted}
 			<ProspectCard
 				{prospect}
-				board={draftEngine.draftBoard}
-				draftProspect={draftEngine.addProspectToBoard}
+				board={(draftEngine as DraftSystem)?.draftBoard}
+				draftProspect={(draftEngine as DraftSystem)?.addProspectToBoard}
 			/>
 		{/if}
 	{/each}
