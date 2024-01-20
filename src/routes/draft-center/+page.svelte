@@ -3,9 +3,11 @@
 	import ProspectContainer from '$lib/components/ProspectContainer.svelte';
 	import DraftBoard from '$lib/components/DraftBoard.svelte';
 
+	import type { DraftSystem } from '$lib/stores/prospects/draftSystem.svelte.js';
+
 	const { data } = $props();
 
-	const draftEngine = draftSystem(data.prospects, data.draftboard);
+	const draftEngine: DraftSystem = draftSystem(data.prospects, data.draftboard);
 </script>
 
 <h1>draft center</h1>

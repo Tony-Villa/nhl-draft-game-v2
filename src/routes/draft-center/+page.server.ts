@@ -3,6 +3,7 @@ import type { PageServerLoad } from './$types';
 import { PROSPECTS_URL, CURRENT_STANDINGS } from '$env/static/private';
 // import { janStandingsData } from '../../static/janStandings';
 import * as cheerio from 'cheerio';
+import type { Prospect } from '$lib/types';
 
 const CACHE_TTL = 86_400_000; // 24 hours
 
@@ -16,7 +17,7 @@ export const load: PageServerLoad = async ({ setHeaders }) => {
 		topProspects = JSON.parse(cached);
 	} else {
 		console.log('CACHE MISS: top_prospects');
-		const prospects = [];
+		const prospects: Prospect[] = [];
 		let count = 0;
 		const response = await fetch(PROSPECTS_URL);
 		const data = await response.text();
@@ -63,7 +64,6 @@ export const load: PageServerLoad = async ({ setHeaders }) => {
 					height,
 					weight,
 					shoots
-					// drafted: false
 				});
 			});
 		});
