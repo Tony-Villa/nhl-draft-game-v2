@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { showModal, children } = $props(); // boolean
+	let { showModal, children }: { showModal: boolean | unknown; children: any | unknown } = $props(); // boolean
 
 	let dialog: HTMLDialogElement | null = $state(null); // HTMLDialogElement
 
@@ -20,7 +20,7 @@
 	<div on:click|stopPropagation>
 		{@render children()}
 		<!-- svelte-ignore a11y-autofocus -->
-		<button autofocus on:click={() => dialog?.close()}>close modal</button>
+		<button on:click={() => dialog?.close()}>close modal</button>
 	</div>
 </dialog>
 
@@ -35,7 +35,7 @@
 		max-width: 1100px;
 	}
 	dialog::backdrop {
-		background: rgba(0, 0, 0, 0.3);
+		background: rgba(0, 0, 0, 0.8);
 	}
 	dialog > div {
 		padding: 1em;
