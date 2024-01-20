@@ -9,6 +9,7 @@ export interface Prospect {
 	height: string;
 	weight: string;
 	shoots: string;
+	drafted: boolean;
 }
 
 export interface DraftBoard {
