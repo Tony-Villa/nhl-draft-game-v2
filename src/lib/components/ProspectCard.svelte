@@ -1,54 +1,69 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
+	import type { DraftSystem } from '$lib/stores/prospects/draftSystem.svelte';
+
+	import type { Prospect, DraftBoard } from '$lib/types';
 
 	let showModal = $state(false);
 
-	const { prospect, draftProspect, board } = $props();
+	let {
+		prospect,
+		draftProspect,
+		board
+	}: {
+		prospect: Prospect | unknown;
+		draftProspect: DraftSystem['addProspectToBoard'] | unknown;
+		board: DraftBoard[] | unknown;
+	} = $props();
 
-	function draft(prospect, draftPosition) {
-		draftProspect(prospect, draftPosition);
+	let typedBoard = board as DraftBoard[] | [];
+
+	function draft(prospect: Prospect, draftPosition: number) {
+		(draftProspect as DraftSystem['addProspectToBoard'])(prospect, draftPosition);
 		showModal = !showModal;
 	}
 </script>
 
 <div class="prospect-card">
 	<Modal bind:showModal>
-		<!-- {@render DraftPosition(board)} -->
 		<div class="draft-position">
-			{#each board as cell}
-				<button class="draft-position__cell" on:click={() => draft(prospect, cell.draftPosition)}>
+			{#each typedBoard as cell}
+				<button
+					class="draft-position__cell"
+					on:click={() => draft(prospect as Prospect, (cell as DraftBoard)?.draftPosition)}
+				>
 					<h3>
-						{cell.draftPosition}
+						{(cell as DraftBoard)?.draftPosition}
 					</h3>
-					<img src={cell.teamLogo} />
+					<img class="logo" src={(cell as DraftBoard)?.teamLogo} alt="team logo" />
 				</button>
 			{/each}
 		</div>
 	</Modal>
 	<div class="prospect-card__header">
-		<p>{prospect.rank !== '-' ? 'Rank: ' + prospect.rank : 'NR'}</p>
+		<p>{(prospect as Prospect)?.rank !== '-' ? 'Rank: ' + (prospect as Prospect)?.rank : 'NR'}</p>
 		<div class="prospect-card__position">
-			<p>{prospect.position}</p>
+			<p>{(prospect as Prospect)?.position}</p>
 			<p>|</p>
-			<p>{prospect.shoots}</p>
+			<p>{(prospect as Prospect)?.shoots}</p>
 		</div>
 	</div>
-	<h3>{prospect.name}</h3>
+	<h3>{(prospect as Prospect)?.name}</h3>
 	<div class="prospect-card__league">
-		<p>{prospect.league}</p>
+		<p>{(prospect as Prospect)?.league}</p>
 		<p>|</p>
-		<p>{prospect.team}</p>
+		<p>{(prospect as Prospect)?.team}</p>
 	</div>
 	<div class="prospect-card__personal-stats">
 		<div class="prospect-card__measurements">
-			<img src={prospect.nation} />
+			<img src={(prospect as Prospect)?.nation} alt="nationality" />
 			<p>|</p>
-			<p>{prospect.birthDay}</p>
+			<p>{(prospect as Prospect)?.birthDay}</p>
 		</div>
 		<div class="prospect-card__measurements">
-			<p>{prospect.weight} lbs</p>
+			<p>{(prospect as Prospect)?.weight} lbs</p>
 			<p>|</p>
-			<p>{prospect.height}</p>
+			<p>{(prospect as Prospect)?.height}</p>
 		</div>
 	</div>
 	<div class="prospect-card__options">
@@ -117,6 +132,7 @@
 		}
 		.draft-position__cell {
 			display: flex;
+			flex-direction: column;
 			align-items: center;
 			justify-content: center;
 			gap: 10px;
@@ -125,6 +141,11 @@
 			padding: 10px;
 			width: 100px;
 			height: 100px;
+
+			.logo {
+				width: 70px;
+				height: auto;
+			}
 		}
 	}
 </style>
