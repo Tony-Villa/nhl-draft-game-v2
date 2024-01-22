@@ -1,6 +1,5 @@
 <script lang="ts">
-	export let value: string | undefined = '';
-	export let placeholder: string | undefined = '';
+	let { value, placeholder } = $props();
 </script>
 
-<input type="text" bind:value {placeholder} />
+<input type="text" bind:value placeholder={placeholder ? placeholder : ''} />
