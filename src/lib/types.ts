@@ -1,7 +1,7 @@
 export interface Prospect {
 	rank: string;
-	name: string;
-	position: string;
+	name: string | undefined;
+	position: string | undefined;
 	nation: string | undefined;
 	team: string;
 	league: string;
@@ -16,4 +16,9 @@ export interface DraftBoard {
 	draftPosition: number;
 	teamLogo: string | undefined;
 	prospect: Prospect | null;
+	teamName: string | undefined;
+}
+
+export interface PositionFilter {
+	[key: string]: boolean;
 }
