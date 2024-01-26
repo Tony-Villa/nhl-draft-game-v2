@@ -1,14 +1,14 @@
 <script lang="ts">
-	import type { DraftSystem } from '$lib/stores/prospects/draftSystem.svelte';
+	import type { DraftSystem } from '$lib/globalState/prospects/draftSystem.svelte';
+	import { getProspects } from '$lib/globalState/prospects/prospectsState.svelte';
 	import type { PositionFilter } from '$lib/types';
 	import MultipleSelect from './MultipleSelect.svelte';
 	import ProspectCard from './ProspectCard.svelte';
 	import Searchbar from './Searchbar.svelte';
-	const { draftEngine } = $props();
+
+	const prospectList = getProspects();
 
 	let searchInput: string = $state('');
-
-	// console.log(draftEngine.topProspects);
 
 	let sortFilter = $state({
 		C: false,
@@ -22,9 +22,9 @@
 		(options as PositionFilter)[option] = !(options as PositionFilter)[option];
 	};
 
-	$effect(() => {
-		console.log(sortFilter);
-	});
+	// $effect(() => {
+	// 	console.log(sortFilter);
+	// });
 </script>
 
 <h2>Prospects</h2>
@@ -34,13 +34,9 @@
 	<MultipleSelect bind:sortFilter sortPosition={sortByPosition} />
 </div>
 <div class="prospect-container">
-	{#each (draftEngine as DraftSystem)?.shownProspects as prospect}
+	{#each prospectList.prospects as prospect}
 		{#if !prospect.drafted && prospect.name.toLowerCase().includes(searchInput.toLowerCase())}
-			<ProspectCard
-				{prospect}
-				board={(draftEngine as DraftSystem)?.draftBoard}
-				draftProspect={(draftEngine as DraftSystem)?.addProspectToBoard}
-			/>
+			<ProspectCard {prospect} />
 		{/if}
 	{/each}
 </div>

@@ -1,22 +1,17 @@
 <script lang="ts">
-	import { draftSystem } from '$lib/stores/prospects/draftSystem.svelte.js';
 	import ProspectContainer from '$lib/components/ProspectContainer.svelte';
 	import DraftBoard from '$lib/components/DraftBoard.svelte';
 
-	import type { DraftSystem } from '$lib/stores/prospects/draftSystem.svelte.js';
-
 	const { data } = $props();
-
-	const draftEngine: DraftSystem = draftSystem(data.prospects, data.draftboard);
 </script>
 
 <h1>draft center</h1>
 <div class="draft-center">
 	<div class="draft-board">
-		<DraftBoard {draftEngine} />
+		<DraftBoard />
 	</div>
 	<div class="prospects">
-		<ProspectContainer {draftEngine} />
+		<ProspectContainer />
 	</div>
 </div>
 

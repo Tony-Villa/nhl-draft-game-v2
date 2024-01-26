@@ -1,4 +1,4 @@
-import { supabase } from '$lib/supabase';
+import { supabase } from '$lib/supabaseClient';
 import type { Prospect, DraftBoard } from '$lib/types';
 
 //#region types
@@ -27,8 +27,6 @@ export function draftSystem(prospectList: Prospect[], draftboard: DraftBoard[]):
 				p.drafted = true;
 			}
 		});
-
-		console.log(draftBoard);
 	}
 
 	function removeProspectFromBoard(prospect: Prospect, position = 1) {
@@ -43,31 +41,32 @@ export function draftSystem(prospectList: Prospect[], draftboard: DraftBoard[]):
 	function filterProspects(searchTerm: string) {
 		shownProspects = topProspects.filter(
 			(prospect) =>
-				searchTerm !== '' && prospect.name.toLowerCase().includes(searchTerm.toLowerCase())
+				searchTerm !== '' && prospect?.name.toLowerCase().includes(searchTerm.toLowerCase())
 		);
 	}
 
 	async function submitDraftBoard(draftboard: DraftBoard[]) {
-		const filteredDraftBoard = draftboard
-			.filter((p) => p.prospect !== null)
-			.map((p) => {
-				return {
-					user_id: '9137db17-9737-4ee9-ac1b-781761d5fbc4',
-					prospect: p.prospect,
-					team_name: p.teamName,
-					position_drafted: p.draftPosition
-				};
-			});
+		// const user = supabase.auth.user();
+		const { data, error } = await supabase.auth.getSession();
+		console.log('user: ', data);
 
-		console.log('filtered draft board: ', filteredDraftBoard);
-
-		const { data, error } = await supabase.from('user_draft').insert(filteredDraftBoard).select();
-
-		if (error) {
-			console.log(error);
-		} else {
-			console.log(data);
-		}
+		// const filteredDraftBoard = draftboard
+		// 	.filter((p) => p.prospect !== null)
+		// 	.map((p) => {
+		// 		return {
+		// 			user_id: '9137db17-9737-4ee9-ac1b-781761d5fbc4',
+		// 			prospect: p.prospect,
+		// 			team_name: p.teamName,
+		// 			position_drafted: p.draftPosition
+		// 		};
+		// 	});
+		// console.log('filtered draft board: ', filteredDraftBoard);
+		// const { data, error } = await supabase.from('user_draft').insert(filteredDraftBoard).select();
+		// if (error) {
+		// 	console.log(error);
+		// } else {
+		// 	console.log(data);
+		// }
 	}
 
 	return {

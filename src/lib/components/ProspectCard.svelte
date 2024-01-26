@@ -1,25 +1,25 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
-	import type { DraftSystem } from '$lib/stores/prospects/draftSystem.svelte';
+	import { getDraftBoard } from '$lib/globalState/prospects/draftBoardState.svelte';
+	import type { DraftSystem } from '$lib/globalState/prospects/draftSystem.svelte';
+	import { getProspects } from '$lib/globalState/prospects/prospectsState.svelte';
 
 	import type { Prospect, DraftBoard } from '$lib/types';
 
 	let showModal = $state(false);
 
+	const draftSystem = getDraftBoard();
+	const prospectSystem = getProspects();
+
 	let {
-		prospect,
-		draftProspect,
-		board
+		prospect
 	}: {
 		prospect: Prospect | unknown;
-		draftProspect: DraftSystem['addProspectToBoard'] | unknown;
-		board: DraftBoard[] | unknown;
 	} = $props();
 
-	let typedBoard = board as DraftBoard[] | [];
-
 	function draft(prospect: Prospect, draftPosition: number) {
-		(draftProspect as DraftSystem['addProspectToBoard'])(prospect, draftPosition);
+		prospectSystem.draftProspect(prospect);
+		draftSystem.addProspectToBoard(prospect, draftPosition);
 		showModal = !showModal;
 	}
 </script>
@@ -27,7 +27,7 @@
 <div class="prospect-card">
 	<Modal bind:showModal>
 		<div class="draft-position">
-			{#each typedBoard as cell}
+			{#each draftSystem.draftBoard as cell}
 				<button
 					class="draft-position__cell"
 					on:click={() => draft(prospect as Prospect, (cell as DraftBoard)?.draftPosition)}

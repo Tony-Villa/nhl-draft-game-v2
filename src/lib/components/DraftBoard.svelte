@@ -1,21 +1,31 @@
 <script lang="ts">
-	import type { DraftSystem } from '$lib/stores/prospects/draftSystem.svelte';
+	import { getDraftBoard } from '$lib/globalState/prospects/draftBoardState.svelte';
+	import { getProspects } from '$lib/globalState/prospects/prospectsState.svelte';
 	import type { Prospect } from '$lib/types';
 
-	const { draftEngine }: { draftEngine: DraftSystem | unknown } = $props();
+	const d = getDraftBoard();
+	const p = getProspects();
+
+	function undraftProspect(prospect: Prospect, position: number) {
+		p.undraftProspect(prospect);
+		d.removeProspectFromBoard(prospect);
+	}
 </script>
 
 <div class="draft-board">
 	<h2>Draft Board</h2>
-
-	{#each (draftEngine as DraftSystem)?.draftBoard || [] as position}
+	<!-- <button
+		on:click={() => (draftEngine as DraftSystem)?.submitDraftBoard((draftEngine as DraftSystem)?.draftBoard)}
+		>SUBMIT</button
+	> -->
+	{#each d?.draftBoard || [] as position}
 		<div class="position__container">
 			<h2>{position.draftPosition}</h2>
 			<img class="position__logo" src={position.teamLogo} alt="" />
 			{#if position.prospect}
 				<p>{position.prospect.name}</p>
 				<button
-					on:click={() => (draftEngine as DraftSystem)?.removeProspectFromBoard(position.prospect as Prospect, position.draftPosition)}
+					on:click={() => undraftProspect(position.prospect as Prospect, position.draftPosition)}
 					class="position__remove"
 				>
 					X
