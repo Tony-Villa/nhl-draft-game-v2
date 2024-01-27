@@ -1,11 +1,23 @@
-import type { Prospect } from '$lib/types';
+import type { DraftBoard as DraftBoardType, Prospect } from '$lib/types';
 import { getContext, setContext } from 'svelte';
 
-class Prospects {
+class ProspectDraftSystem {
 	prospects: Prospect[] = $state([]);
+	draftBoard: DraftBoardType[] = $state([]);
 
-	constructor(initialProspects: Prospect[]) {
+	constructor(initialProspects: Prospect[], initialDraftBoard: DraftBoardType[]) {
 		this.prospects = initialProspects;
+		this.draftBoard = initialDraftBoard;
+	}
+
+	addProspectToBoard(prospect: Prospect, position = 1) {
+		this.draftProspect(prospect);
+		this.draftBoard[position - 1].prospect = prospect;
+	}
+
+	removeProspectFromBoard(prospect: Prospect, position = 1) {
+		this.undraftProspect(prospect);
+		this.draftBoard[position - 1].prospect = null;
 	}
 
 	draftProspect(prospect: Prospect) {
@@ -27,12 +39,12 @@ class Prospects {
 
 const PROSPECT_CTX = 'PROSPECT_CTX';
 
-export function setProspects(prospects: Prospect[]) {
-	const prospectsState = new Prospects(prospects);
+export function setDraftSystem(prospects: Prospect[], draftBoard: DraftBoardType[]) {
+	const prospectsState = new ProspectDraftSystem(prospects, draftBoard);
 	setContext(PROSPECT_CTX, prospectsState);
 	return prospectsState;
 }
 
-export function getProspects() {
-	return getContext<Prospects>(PROSPECT_CTX);
+export function getDraftSystem() {
+	return getContext<ProspectDraftSystem>(PROSPECT_CTX);
 }

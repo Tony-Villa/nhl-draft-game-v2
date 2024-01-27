@@ -1,14 +1,11 @@
 <script lang="ts">
-	import { getDraftBoard } from '$lib/globalState/prospects/draftBoardState.svelte';
-	import { getProspects } from '$lib/globalState/prospects/prospectsState.svelte';
+	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
 	import type { Prospect } from '$lib/types';
 
-	const d = getDraftBoard();
-	const p = getProspects();
+	const draftSystem = getDraftSystem();
 
 	function undraftProspect(prospect: Prospect, position: number) {
-		p.undraftProspect(prospect);
-		d.removeProspectFromBoard(prospect);
+		draftSystem.removeProspectFromBoard(prospect);
 	}
 </script>
 
@@ -18,7 +15,7 @@
 		on:click={() => (draftEngine as DraftSystem)?.submitDraftBoard((draftEngine as DraftSystem)?.draftBoard)}
 		>SUBMIT</button
 	> -->
-	{#each d?.draftBoard || [] as position}
+	{#each draftSystem?.draftBoard || [] as position}
 		<div class="position__container">
 			<h2>{position.draftPosition}</h2>
 			<img class="position__logo" src={position.teamLogo} alt="" />

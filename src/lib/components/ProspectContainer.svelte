@@ -1,12 +1,12 @@
 <script lang="ts">
 	import type { DraftSystem } from '$lib/globalState/prospects/draftSystem.svelte';
-	import { getProspects } from '$lib/globalState/prospects/prospectsState.svelte';
+	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
 	import type { PositionFilter } from '$lib/types';
 	import MultipleSelect from './MultipleSelect.svelte';
 	import ProspectCard from './ProspectCard.svelte';
 	import Searchbar from './Searchbar.svelte';
 
-	const prospectList = getProspects();
+	const prospectList = getDraftSystem();
 
 	let searchInput: string = $state('');
 

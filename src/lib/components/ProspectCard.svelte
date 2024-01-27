@@ -1,15 +1,14 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
-	import { getDraftBoard } from '$lib/globalState/prospects/draftBoardState.svelte';
+
 	import type { DraftSystem } from '$lib/globalState/prospects/draftSystem.svelte';
-	import { getProspects } from '$lib/globalState/prospects/prospectsState.svelte';
+	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
 
 	import type { Prospect, DraftBoard } from '$lib/types';
 
 	let showModal = $state(false);
 
-	const draftSystem = getDraftBoard();
-	const prospectSystem = getProspects();
+	const draftSystem = getDraftSystem();
 
 	let {
 		prospect
@@ -18,7 +17,6 @@
 	} = $props();
 
 	function draft(prospect: Prospect, draftPosition: number) {
-		prospectSystem.draftProspect(prospect);
 		draftSystem.addProspectToBoard(prospect, draftPosition);
 		showModal = !showModal;
 	}
