@@ -4,12 +4,26 @@ import { PROSPECTS_URL, CURRENT_STANDINGS } from '$env/static/private';
 // import { janStandingsData } from '../../static/janStandings';
 import * as cheerio from 'cheerio';
 import type { Prospect } from '$lib/types';
+import { kindeAuthClient, type SessionManager } from '@kinde-oss/kinde-auth-sveltekit';
+import type { RequestEvent } from '@sveltejs/kit';
 
 const CACHE_TTL = 86_400_000; // 24 hours
 
-export const load: LayoutServerLoad = async ({ request, setHeaders }) => {
+export const load: LayoutServerLoad = async ({ request, setHeaders }: RequestEvent) => {
 	const cached = await redis.get('top_prospects');
 	let topProspects;
+
+	const isAuthenticated = await kindeAuthClient.isAuthenticated(
+		request as unknown as SessionManager
+	); // Boolean: true or false
+
+	// If I need to do something based on the user's authentication status, I can do it here
+	if (isAuthenticated) {
+		const user = await kindeAuthClient.getUser(request as unknown as SessionManager);
+		console.log(user);
+	} else {
+		// Need to implement, e.g: redirect user to sign in, etc..
+	}
 
 	if (cached) {
 		console.log('CACHE HIT');
@@ -80,7 +94,7 @@ export const load: LayoutServerLoad = async ({ request, setHeaders }) => {
 
 	const draftBoard = await setInitialDraftBoard();
 
-	return { prospects: topProspects, draftBoard };
+	return { prospects: topProspects, draftBoard, isAuthenticated };
 };
 
 async function setInitialDraftBoard() {
