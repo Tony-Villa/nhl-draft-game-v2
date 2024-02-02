@@ -35,7 +35,9 @@
 </div>
 <div class="prospect-container">
 	{#each prospectList.prospects as prospect}
-		{#if !prospect.drafted && prospect.name.toLowerCase().includes(searchInput.toLowerCase())}
+		{#if !prospect.drafted && (prospect?.name ?? '')
+				.toLowerCase()
+				.includes(searchInput.toLowerCase())}
 			<ProspectCard {prospect} />
 		{/if}
 	{/each}

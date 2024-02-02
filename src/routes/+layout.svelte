@@ -2,7 +2,10 @@
 	import { setDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
 	import '../app.pcss';
 
-	let { children, data } = $props();
+	let { children, data } = $props<{
+		children: any;
+		data: any;
+	}>();
 
 	const draftSystem = setDraftSystem(data.prospects, data.draftBoard);
 </script>

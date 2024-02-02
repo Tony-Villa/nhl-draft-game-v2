@@ -3,16 +3,19 @@
 
 	// import { sortFilter } from '~stores/prospectStore';
 
-	let { sortFilter, sortPosition } = $props();
+	let { sortFilter, sortPosition } = $props<{
+		sortFilter: PositionFilter;
+		sortPosition: (options: PositionFilter, option: string) => void;
+	}>();
 
 	// const handleClick = (option: string) => {
 	// 	newOptions = { [option]: !$options[option] };
 	// };
 </script>
 
-{#each Object.keys((sortFilter as PositionFilter)) as option (option)}
+{#each Object.keys(sortFilter) as option (option)}
 	<button
-		class="tertiary multiple-select {(sortFilter as PositionFilter)[option] ? 'selected' : ''}"
+		class="tertiary multiple-select {sortFilter[option] ? 'selected' : ''}"
 		on:click={() => sortPosition(sortFilter, option)}>{option}</button
 	>
 {/each}

@@ -2,7 +2,9 @@
 	import ProspectContainer from '$lib/components/ProspectContainer.svelte';
 	import DraftBoard from '$lib/components/DraftBoard.svelte';
 
-	const { data } = $props();
+	const { data } = $props<{
+		data: any;
+	}>();
 </script>
 
 <h1>draft center</h1>

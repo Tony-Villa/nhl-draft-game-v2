@@ -1,5 +1,8 @@
 <script lang="ts">
-	let { showModal, children }: { showModal: boolean | unknown; children: any | unknown } = $props(); // boolean
+	let { showModal, children } = $props<{
+		showModal: boolean;
+		children: any;
+	}>(); // boolean
 
 	let dialog: HTMLDialogElement | null = $state(null); // HTMLDialogElement
 

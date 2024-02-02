@@ -10,11 +10,9 @@
 
 	const draftSystem = getDraftSystem();
 
-	let {
-		prospect
-	}: {
-		prospect: Prospect | unknown;
-	} = $props();
+	let { prospect } = $props<{
+		prospect: Prospect;
+	}>();
 
 	function draft(prospect: Prospect, draftPosition: number) {
 		draftSystem.addProspectToBoard(prospect, draftPosition);
