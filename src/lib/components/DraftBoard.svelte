@@ -1,20 +1,30 @@
 <script lang="ts">
 	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
-	import type { Prospect } from '$lib/types';
+	import type { DraftBoard, Prospect } from '$lib/types';
+	import { json } from '@sveltejs/kit';
 
 	const draftSystem = getDraftSystem();
 
 	function undraftProspect(prospect: Prospect, position: number) {
 		draftSystem.removeProspectFromBoard(prospect);
 	}
+
+	async function submitDraftBoard() {
+		const draft = await fetch('/api/draft', {
+			method: 'POST',
+			body: JSON.stringify({ data: draftSystem.draftBoard }),
+			headers: {
+				'content-type': 'application/json'
+			}
+		});
+
+		const response = await draft.json();
+	}
 </script>
 
 <div class="draft-board">
 	<h2>Draft Board</h2>
-	<!-- <button
-		on:click={() => (draftEngine as DraftSystem)?.submitDraftBoard((draftEngine as DraftSystem)?.draftBoard)}
-		>SUBMIT</button
-	> -->
+	<button on:click={submitDraftBoard}> submit draft </button>
 	{#each draftSystem?.draftBoard || [] as position}
 		<div class="position__container">
 			<h2>{position.draftPosition}</h2>
