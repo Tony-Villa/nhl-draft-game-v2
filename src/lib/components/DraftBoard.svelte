@@ -6,7 +6,7 @@
 	const draftSystem = getDraftSystem();
 
 	function undraftProspect(prospect: Prospect, position: number) {
-		draftSystem.removeProspectFromBoard(prospect);
+		draftSystem.removeProspectFromBoard(prospect, position);
 	}
 
 	async function submitDraftBoard() {
@@ -20,6 +20,10 @@
 
 		const response = await draft.json();
 	}
+
+	$effect(() => {
+		console.log(draftSystem.draftBoard);
+	});
 </script>
 
 <div class="draft-board">

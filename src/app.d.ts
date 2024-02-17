@@ -2,8 +2,14 @@
 // for information about these interfaces
 declare global {
 	namespace App {
-		// interface Locals
-		// interface PageData
+		interface Locals {
+			user: import('lucia').User | null;
+			session: import('lucia').Session | null;
+		}
+		interface PageData {
+			// pageMetaTags?: MetaTagsProps;
+			// isLoggedIn: boolean;
+		}
 		// interface Error {}
 		// interface Platform {}
 	}
