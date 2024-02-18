@@ -22,7 +22,7 @@ class ProspectDraftSystem {
 
 	draftProspect(prospect: Prospect) {
 		for (const p of this.prospects) {
-			if (p.name === prospect.name) {
+			if (p.name === prospect?.name) {
 				p.drafted = true;
 			}
 		}
@@ -30,7 +30,7 @@ class ProspectDraftSystem {
 
 	undraftProspect(prospect: Prospect) {
 		for (const p of this.prospects) {
-			if (p.name === prospect.name) {
+			if (p.name === prospect?.name) {
 				p.drafted = false;
 			}
 		}

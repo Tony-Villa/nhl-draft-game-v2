@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
 
-	import type { DraftSystem } from '$lib/globalState/prospects/draftSystem.svelte';
 	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
 
 	import type { Prospect, DraftBoard } from '$lib/types';
@@ -27,6 +26,7 @@
 				<button
 					class="draft-position__cell"
 					on:click={() => draft(prospect as Prospect, (cell as DraftBoard)?.draftPosition)}
+					disabled={!!(cell as DraftBoard)?.prospect}
 				>
 					<h3>
 						{(cell as DraftBoard)?.draftPosition}

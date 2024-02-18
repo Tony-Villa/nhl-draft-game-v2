@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
-	import type { DraftBoard, Prospect } from '$lib/types';
-	import { json } from '@sveltejs/kit';
+	import type { Prospect } from '$lib/types';
 
 	const draftSystem = getDraftSystem();
 
-	function undraftProspect(prospect: Prospect, position: number) {
+	function removeProspect(prospect: Prospect, position: number) {
 		draftSystem.removeProspectFromBoard(prospect, position);
 	}
 
@@ -20,10 +19,6 @@
 
 		const response = await draft.json();
 	}
-
-	$effect(() => {
-		console.log(draftSystem.draftBoard);
-	});
 </script>
 
 <div class="draft-board">
@@ -34,9 +29,9 @@
 			<h2>{position.draftPosition}</h2>
 			<img class="position__logo" src={position.teamLogo} alt="" />
 			{#if position.prospect}
-				<p>{position.prospect.name}</p>
+				<p>{position?.prospect?.name}</p>
 				<button
-					on:click={() => undraftProspect(position.prospect as Prospect, position.draftPosition)}
+					on:click={() => removeProspect(position.prospect as Prospect, position.draftPosition)}
 					class="position__remove"
 				>
 					X
