@@ -1,13 +1,21 @@
-import { eq } from 'drizzle-orm';
-import { db } from './db';
-import { users, type UserSchema } from './db/schema/users';
+import type { Cookies } from '@sveltejs/kit';
+import type { Lucia } from 'lucia';
 
-export const checkIfEmailExists = async (email: string) => {
-	const user = await db.select().from(users).where(eq(users.email, email));
+export const createAndSetSession = async (lucia: Lucia, userId: string, cookies: Cookies) => {
+	const session = await lucia.createSession(userId, {});
+	const sessionCookie = lucia.createSessionCookie(session.id);
 
-	return user.length > 0;
+	cookies.set(sessionCookie.name, sessionCookie.value, {
+		path: '.',
+		...sessionCookie.attributes
+	});
 };
 
-export const insertNewUser = async (user: UserSchema) => {
-	return await db.insert(users).values(user);
+export const deleteSessionCookie = async (lucia: Lucia, cookies: Cookies) => {
+	const sessionCookie = lucia.createBlankSessionCookie();
+
+	cookies.set(sessionCookie.name, sessionCookie.value, {
+		path: '.',
+		...sessionCookie.attributes
+	});
 };

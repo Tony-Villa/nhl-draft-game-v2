@@ -22,3 +22,8 @@ export interface DraftBoard {
 export interface PositionFilter {
 	[key: string]: boolean;
 }
+
+export type AlertMessageType = {
+	alertType: 'success' | 'error' | 'warning' | 'info';
+	alertText: string;
+};
