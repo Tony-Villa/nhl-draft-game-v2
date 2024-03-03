@@ -59,8 +59,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 					// Update the user's keys list
 					await trx.update(users).set({
-						keys: authKeys,
-						thisdoesntexits: 'yayaya'
+						keys: authKeys
 					}).where(eq(users.id, existingUser.id));
 				});
 			}
