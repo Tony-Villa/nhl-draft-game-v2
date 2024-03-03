@@ -9,7 +9,7 @@
 	// console.log(data);
 </script>
 
-<h1>draft center</h1>
+<h1>draft center Hello</h1>
 <div class="draft-center">
 	<div class="draft-board">
 		<DraftBoard />
