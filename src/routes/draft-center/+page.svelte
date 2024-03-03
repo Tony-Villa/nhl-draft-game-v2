@@ -5,6 +5,8 @@
 	const { data } = $props<{
 		data: any;
 	}>();
+
+	// console.log(data);
 </script>
 
 <h1>draft center</h1>

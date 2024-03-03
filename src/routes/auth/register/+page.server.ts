@@ -13,6 +13,9 @@ import { checkIfEmailExists, insertNewUser } from '$lib/server/dbAuthUtils';
 import { logError } from '$lib/utils';
 import { RegisterUserZodSchema } from '$lib/validations/AuthZodSchemas';
 import type { AlertMessageType } from '$lib/types';
+import { eq } from 'drizzle-orm';
+import { users } from '$lib/server/db/schema';
+import { db } from '$lib/server/db';
 
 export const load = (async () => {
 	return {
@@ -32,21 +35,36 @@ export const actions: Actions = {
 		}
 
 		try {
-			const isEmailAlreadyRegistered = await checkIfEmailExists(registerUserFormData.data.email);
+			const userEmail = registerUserFormData.data.email;
+			const existingUser = await checkIfEmailExists(userEmail);
 
-			if (isEmailAlreadyRegistered === true) {
-				return setError(registerUserFormData, 'email', 'Email already registered');
+			if(existingUser && existingUser.keys.includes('email')){
+				return message(registerUserFormData, {
+					alertType: 'error',
+					alertText: 'Email already registered'
+				})
 			}
 
-			const userId = generateId(15);
+			const userId = existingUser?.id ?? generateId(15);
 			const hashedPassword = await new Argon2id().hash(registerUserFormData.data.password);
 
-			await insertNewUser({
-				id: userId,
-				name: registerUserFormData.data.name,
-				email: registerUserFormData.data.email,
-				password: hashedPassword
-			});
+			if(!existingUser){
+				await insertNewUser({
+					id: userId,
+					name: registerUserFormData.data.name,
+					email: registerUserFormData.data.email,
+					password: hashedPassword,
+					keys: ['email']
+				});
+			} else {
+				const authKeys = existingUser.keys || [];
+				authKeys.push('email');
+
+				await db.update(users).set({
+					password: hashedPassword,
+					keys: authKeys,
+				}).where(eq(users.email, userEmail));
+			}
 
 			await createAndSetSession(lucia, userId, cookies);
 		} catch (error) {

@@ -8,6 +8,8 @@
 	}>();
 
 	const draftSystem = setDraftSystem(data.prospects, data.draftBoard);
+
+	console.log(data?.user);
 </script>
 
 <svelte:head>
@@ -18,19 +20,19 @@
 	{#if data.isAuthenticated}
 		<nav>
 			<ul>
-				<li>
-					<a href="/api/auth/logout">Sign out</a>
-				</li>
+				<form method="post" action="/draft-center?/logout">
+					<button>Sign out</button>
+				</form>
 			</ul>
 		</nav>
 	{:else}
 		<nav>
 			<ul>
 				<li>
-					<a href="/api/auth/login">Sign in</a>
+					<a href="/auth/login">Sign in</a>
 				</li>
 				<li>
-					<a href="/api/auth/register">Sign up</a>
+					<a href="/auth/register">Sign up</a>
 				</li>
 			</ul>
 		</nav>

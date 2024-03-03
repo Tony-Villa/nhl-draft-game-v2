@@ -48,6 +48,7 @@
 	"dependencies": {
 		"@libsql/client": "^0.4.0",
 		"@lucia-auth/adapter-drizzle": "^1.0.1",
+		"arctic": "^1.2.0",
 		"better-sqlite3": "^9.4.0",
 		"cheerio": "1.0.0-rc.12",
 		"dotenv": "^16.4.1",

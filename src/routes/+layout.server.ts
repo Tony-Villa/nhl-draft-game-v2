@@ -4,11 +4,11 @@ import { PROSPECTS_URL, CURRENT_STANDINGS } from '$env/static/private';
 // import { janStandingsData } from '../../static/janStandings';
 import * as cheerio from 'cheerio';
 import type { Prospect } from '$lib/types';
-import type { RequestEvent } from '@sveltejs/kit';
+import { redirect, type RequestEvent } from '@sveltejs/kit';
 
 const CACHE_TTL = 86_400_000; // 24 hours
 
-export const load: LayoutServerLoad = async ({ request, setHeaders }: RequestEvent) => {
+export const load: LayoutServerLoad = async ({ request, setHeaders, locals }: RequestEvent) => {
 	const cached = await redis.get('top_prospects');
 	let topProspects;
 
@@ -81,7 +81,7 @@ export const load: LayoutServerLoad = async ({ request, setHeaders }: RequestEve
 
 	const draftBoard = await setInitialDraftBoard();
 
-	return { prospects: topProspects, draftBoard };
+	return { prospects: topProspects, draftBoard, user: locals, isAuthenticated: locals.session !== null, };
 };
 
 async function setInitialDraftBoard() {
@@ -104,3 +104,4 @@ async function setInitialDraftBoard() {
 
 	return draftboard || {};
 }
+

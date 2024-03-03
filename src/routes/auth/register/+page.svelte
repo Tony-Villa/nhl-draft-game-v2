@@ -37,6 +37,9 @@
 		<input type="password" id="password" name="password" bind:value={$form.password} />
 		<button class="submit">Login</button>
 	</form>
+	<div class="o-auth">
+		<a href="/auth/login/discord"> discord </a>
+	</div>
 </section>
 
 <style lang="postcss">

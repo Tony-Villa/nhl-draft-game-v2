@@ -3,9 +3,14 @@ import { db } from './db';
 import { users, type UserSchema } from './db/schema/users';
 
 export const checkIfEmailExists = async (email: string) => {
-	const user = await db.select().from(users).where(eq(users.email, email));
+	const [existingUser] = await db.select({
+		id: users.id,
+		email: users.email,
+		password: users.password,
+		keys: users.keys,
+	}).from(users).where(eq(users.email, email));
 
-	return user.length > 0;
+	return existingUser;
 };
 
 export const insertNewUser = async (user: UserSchema) => {

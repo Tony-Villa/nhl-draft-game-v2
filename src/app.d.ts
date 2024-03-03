@@ -19,7 +19,7 @@ declare global {
 		}
 		interface PageData {
 			// pageMetaTags?: MetaTagsProps;
-			// isLoggedIn: boolean;
+			isLoggedIn: boolean;
 		}
 		// interface Error {}
 		// interface Platform {}

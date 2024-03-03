@@ -4,8 +4,16 @@ import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
 import { db } from './db';
 import { users } from './db/schema/users';
 import { sessions } from './db/schema/sessions';
+import { Discord } from 'arctic';
+import { DISCORD_APP_ID, DISCORD_PUBLIC_KEY } from '$env/static/private';
 
 const adapter = new DrizzleSQLiteAdapter(db, sessions, users); // your adapter
+
+export const discord = new Discord(
+	DISCORD_APP_ID,
+	DISCORD_PUBLIC_KEY,
+	'http://localhost:5173/draft-center'
+);
 
 export const lucia = new Lucia(adapter, {
 	sessionCookie: {
@@ -18,8 +26,9 @@ export const lucia = new Lucia(adapter, {
 	getUserAttributes: (attributes) => {
 		return {
 			name: attributes?.name,
-			username: attributes?.username
-			// email: attributes?.email
+			email: attributes?.email,
+			keys: attributes?.keys,
+			avatarUrl: attributes?.avatarUrl,
 		};
 	}
 });
@@ -33,6 +42,7 @@ declare module 'lucia' {
 
 export type DatabaseUserAttributes = {
 	name: string;
-	username: string;
-	// email: string;
+	email: string;
+	keys: string[];
+	avatarUrl: string;
 };
