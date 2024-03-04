@@ -5,14 +5,14 @@ import { db } from './db';
 import { users } from './db/schema/users';
 import { sessions } from './db/schema/sessions';
 import { Discord } from 'arctic';
-import { DISCORD_APP_ID, DISCORD_PUBLIC_KEY } from '$env/static/private';
+import { DISCORD_APP_ID, DISCORD_SECRET } from '$env/static/private';
 
 const adapter = new DrizzleSQLiteAdapter(db, sessions, users); // your adapter
 
 export const discord = new Discord(
 	DISCORD_APP_ID,
-	DISCORD_PUBLIC_KEY,
-	'http://localhost:5173/draft-center'
+	DISCORD_SECRET,
+	'http://localhost:5173/auth/login/discord/callback'
 );
 
 export const lucia = new Lucia(adapter, {

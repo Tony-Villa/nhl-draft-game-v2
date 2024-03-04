@@ -7,7 +7,7 @@ import type { RequestEvent } from '@sveltejs/kit';
 export async function GET(event: RequestEvent): Promise<Response> {
 	const state = generateState();
 	const url = await discord.createAuthorizationURL(state, {
-		scopes: ['identify', 'email']
+		scopes: ['identify']
 	});
 
 	event.cookies.set('discord_oauth_state', state, {

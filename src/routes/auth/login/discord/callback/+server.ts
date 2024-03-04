@@ -15,7 +15,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const storedState = event.cookies.get('discord_oauth_state') ?? null;
 
 	if (!code || !state || !storedState || state !== storedState) {
-		return new Response(null, {
+		return new Response('Invalid OAuth state or code verifier', {
 			status: 400
 		});
 	}
@@ -23,7 +23,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	try {
 		console.log('hello from discord callback')
 		const tokens = await discord.validateAuthorizationCode(code);
-		const discordUserResponse = await fetch('"https://discord.com/api/users/@me"', {
+		const discordUserResponse = await fetch("https://discord.com/api/users/@me", {
 			headers: {
 				Authorization: `Bearer ${tokens.accessToken}`
 			}
@@ -99,6 +99,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		);
 		
 	} catch (e) {
+		console.log('error: ', e);
 		// the specific error message depends on the provider
 		if (e instanceof OAuth2RequestError) {
 			// invalid code

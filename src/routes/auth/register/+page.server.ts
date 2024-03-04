@@ -2,7 +2,7 @@ import { redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { zod } from 'sveltekit-superforms/adapters';
 
-import { message, setError, superValidate } from 'sveltekit-superforms/server';
+import { message,  superValidate } from 'sveltekit-superforms/server';
 
 import { lucia } from '$lib/server/auth';
 import { generateId } from 'lucia';
@@ -12,7 +12,6 @@ import { createAndSetSession } from '$lib/server/authUtils';
 import { checkIfEmailExists, insertNewUser } from '$lib/server/dbAuthUtils';
 import { logError } from '$lib/utils';
 import { RegisterUserZodSchema } from '$lib/validations/AuthZodSchemas';
-import type { AlertMessageType } from '$lib/types';
 import { eq } from 'drizzle-orm';
 import { users } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
