@@ -40,6 +40,9 @@
 	<div class="o-auth">
 		<a href="/auth/login/discord"> discord </a>
 	</div>
+	<div class="o-auth">
+		<a href="/auth/login/google"> google </a>
+	</div>
 </section>
 
 <style lang="postcss">

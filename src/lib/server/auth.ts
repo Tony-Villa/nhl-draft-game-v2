@@ -4,8 +4,8 @@ import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
 import { db } from './db';
 import { users } from './db/schema/users';
 import { sessions } from './db/schema/sessions';
-import { Discord } from 'arctic';
-import { DISCORD_APP_ID, DISCORD_SECRET } from '$env/static/private';
+import { Discord, Google } from 'arctic';
+import { DISCORD_APP_ID, DISCORD_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '$env/static/private';
 
 const adapter = new DrizzleSQLiteAdapter(db, sessions, users); // your adapter
 
@@ -14,6 +14,8 @@ export const discord = new Discord(
 	DISCORD_SECRET,
 	'http://localhost:5173/auth/login/discord/callback'
 );
+
+export const googleOauth = new Google(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, 'http://localhost:5173/auth/login/google/callback');
 
 export const lucia = new Lucia(adapter, {
 	sessionCookie: {
