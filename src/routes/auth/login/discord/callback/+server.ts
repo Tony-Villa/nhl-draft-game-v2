@@ -5,8 +5,7 @@ import { discord, lucia } from '$lib/server/auth';
 import type { RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { and, eq } from 'drizzle-orm';
-import { keys } from '$lib/server/db/schema/keys';
-import { users } from '$lib/server/db/schema';
+import { users, keys } from '$lib/server/db/schema';
 import { createAndSetSession } from '$lib/server/authUtils';
 
 export async function GET(event: RequestEvent): Promise<Response> {
