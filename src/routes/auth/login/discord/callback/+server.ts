@@ -20,7 +20,6 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	}
 
 	try {
-		console.log('hello from discord callback')
 		const tokens = await discord.validateAuthorizationCode(code);
 		const discordUserResponse = await fetch("https://discord.com/api/users/@me", {
 			headers: {
@@ -42,7 +41,6 @@ export async function GET(event: RequestEvent): Promise<Response> {
 					)
 				);
 
-				console.log('existingKey: ', existingKey);
 
 			if(!existingKey) {
 				const authKeys = existingUser.keys || [];
@@ -67,8 +65,6 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 		} else {
 			const userId = generateId(15);
-
-			console.log('no key found, creating new user: ', discordUser);
 
 			await db.transaction(async (trx) => {
 				await trx.insert(users).values({
