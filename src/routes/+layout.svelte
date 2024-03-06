@@ -1,6 +1,9 @@
 <script lang="ts">
+	import '../app.pcss';
+	import '../app.pcss';
 	import { setDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
 	import '../app.pcss';
+	import '../tailwind.css';
 
 	let { children, data } = $props<{
 		children: any;
@@ -39,3 +42,4 @@
 	{/if}
 	{@render children()}
 </main>
+<slot />
