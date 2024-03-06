@@ -4,6 +4,7 @@
 	import { setDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
 	import '../app.pcss';
 	import '../tailwind.css';
+	import { setCurrentUser } from '$lib/globalState/user/userState.svelte';
 
 	let { children, data } = $props<{
 		children: any;
@@ -11,8 +12,7 @@
 	}>();
 
 	const draftSystem = setDraftSystem(data.prospects, data.draftBoard);
-
-	console.log(data?.user);
+	const currentUser = setCurrentUser(data?.user?.user);
 </script>
 
 <svelte:head>

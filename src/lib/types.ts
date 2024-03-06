@@ -19,6 +19,14 @@ export interface DraftBoard {
 	teamName: string | undefined;
 }
 
+export interface User {
+	name: string;
+	email: string;
+	keys: string[];
+	avatarUrl: string;
+	id: string;
+}
+
 export interface PositionFilter {
 	[key: string]: boolean;
 }

@@ -1,17 +1,24 @@
 <script lang="ts">
 	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
+	import { getCurrentUser } from '$lib/globalState/user/userState.svelte';
 	import type { Prospect } from '$lib/types';
 
 	const draftSystem = getDraftSystem();
+	const currentUser = getCurrentUser();
 
 	function removeProspect(prospect: Prospect, position: number) {
 		draftSystem.removeProspectFromBoard(prospect, position);
 	}
 
 	async function submitDraftBoard() {
+		const payload = {
+			draftboard: draftSystem.draftBoard,
+			user: currentUser.user
+		};
+
 		const draft = await fetch('/api/draft', {
 			method: 'POST',
-			body: JSON.stringify({ data: draftSystem.draftBoard }),
+			body: JSON.stringify({ data: payload }),
 			headers: {
 				'content-type': 'application/json'
 			}

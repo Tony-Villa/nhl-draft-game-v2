@@ -9,13 +9,15 @@ export async function POST({ request }) {
 	// console.log('draftboard: ', data);
 	// const hello = await request.json();
 
-	data.forEach(async (draft: DraftBoard) => {
+	const {draftboard, user} = data;
+
+	draftboard.forEach(async (draft: DraftBoard) => {
 		if (!draft.prospect) return;
 
 		const positionDraftedExists = await db
 			.select()
 			.from(drafts)
-			.where(and(eq(drafts.positionDrafted, draft.draftPosition), eq(drafts.userId, '123')));
+			.where(and(eq(drafts.positionDrafted, draft.draftPosition), eq(drafts.userId, user.id)));
 
 		if (positionDraftedExists.length > 0) {
 			if (positionDraftedExists[0].prospect === JSON.stringify(draft.prospect)) {
@@ -26,11 +28,11 @@ export async function POST({ request }) {
 					.set({
 						prospect: JSON.stringify(draft.prospect)
 					})
-					.where(and(eq(drafts.positionDrafted, draft.draftPosition), eq(drafts.userId, '123')));
+					.where(and(eq(drafts.positionDrafted, draft.draftPosition), eq(drafts.userId, user.id)));
 			}
 		} else {
 			await db.insert(drafts).values({
-				userId: '123',
+				userId: user.id,
 				positionDrafted: draft.draftPosition,
 				prospect: JSON.stringify(draft.prospect)
 			});
