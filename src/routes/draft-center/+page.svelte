@@ -9,7 +9,7 @@
 	// console.log(data);
 </script>
 
-<h1 class="text-5xl font-bold underline">draft center</h1>
+<h1 class="text-center text-6xl font-bold uppercase">draft center</h1>
 <div class="draft-center">
 	<div class="draft-board">
 		<DraftBoard />

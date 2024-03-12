@@ -5,4 +5,4 @@
 	}>();
 </script>
 
-<input type="text" bind:value placeholder={placeholder ? placeholder : ''} />
+<input class="text-black" type="text" bind:value placeholder={placeholder ? placeholder : ''} />
