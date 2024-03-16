@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { DraftSystem } from '$lib/globalState/prospects/draftSystem.svelte';
 	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
 	import type { PositionFilter } from '$lib/types';
 	import MultipleSelect from './MultipleSelect.svelte';
@@ -9,6 +8,7 @@
 	const prospectList = getDraftSystem();
 
 	let searchInput: string = $state('');
+	let positions: string[] = $state([]);
 
 	let sortFilter = $state({
 		C: false,
@@ -19,12 +19,16 @@
 	});
 
 	const sortByPosition = (options: PositionFilter, option: string) => {
-		(options as PositionFilter)[option] = !(options as PositionFilter)[option];
+		options[option] = !options[option];
+		for (const position of positions) {
+			if (position === option && !options[option]) {
+				positions = positions.filter((pos) => pos !== option);
+			}
+		}
+		if (options[option]) {
+			positions.push(option);
+		}
 	};
-
-	// $effect(() => {
-	// 	console.log(sortFilter);
-	// });
 </script>
 
 <h2>Prospects</h2>
@@ -35,9 +39,13 @@
 </div>
 <div class="prospect-container">
 	{#each prospectList.prospects as prospect}
-		{#if !prospect.drafted && (prospect?.name ?? '')
+		{#if !prospect.drafted && positions.length === 0 && (prospect?.name ?? '')
 				.toLowerCase()
 				.includes(searchInput.toLowerCase())}
+			<ProspectCard {prospect} />
+		{:else if positions.length > 0 && !prospect.drafted && (prospect?.name ?? '')
+				.toLowerCase()
+				.includes(searchInput.toLowerCase()) && positions.includes(prospect?.position ?? '')}
 			<ProspectCard {prospect} />
 		{/if}
 	{/each}
