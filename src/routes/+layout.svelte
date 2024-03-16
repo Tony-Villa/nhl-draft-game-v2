@@ -42,4 +42,3 @@
 	{/if}
 	{@render children()}
 </main>
-<slot />
