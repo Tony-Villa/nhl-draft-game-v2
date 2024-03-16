@@ -3,14 +3,18 @@ import type { LayoutServerLoad } from './$types';
 import { PROSPECTS_URL, CURRENT_STANDINGS } from '$env/static/private';
 // import { janStandingsData } from '../../static/janStandings';
 import * as cheerio from 'cheerio';
-import type { Prospect } from '$lib/types';
-import { redirect, type RequestEvent } from '@sveltejs/kit';
+import type { DraftBoard, Prospect } from '$lib/types';
+import { type RequestEvent } from '@sveltejs/kit';
+import { drafts } from '$lib/server/db/schema';
+import { db } from '$lib/server/db';
+import { eq } from 'drizzle-orm';
 
 const CACHE_TTL = 86_400_000; // 24 hours
 
 export const load: LayoutServerLoad = async ({ request, setHeaders, locals }: RequestEvent) => {
 	const cached = await redis.get('top_prospects');
-	let topProspects;
+	let topProspects: Prospect[] = [];
+
 
 	if (cached) {
 		console.log('CACHE HIT');
@@ -79,18 +83,33 @@ export const load: LayoutServerLoad = async ({ request, setHeaders, locals }: Re
 		redis.set('top_prospects', JSON.stringify(topProspects), 'PX', CACHE_TTL);
 	}
 
-	const draftBoard = await setInitialDraftBoard();
+	let draftBoard: DraftBoard[] = [];
 
-	return { prospects: topProspects, draftBoard, user: locals, isAuthenticated: locals.session !== null, };
-};
+	if(locals?.user) {
+		draftBoard = await setInitialDraftBoard(locals?.user?.id)
+	} else {
+		draftBoard = await setInitialDraftBoard()
+	}
 
-async function setInitialDraftBoard() {
-	// console.log('initial draft board');
+	draftBoard.forEach((draftPick) => {
+		if (draftPick.prospect) {
+			const draftedProspect = draftPick.prospect;
+			for (const prospect of topProspects) {
+				if (prospect.name === draftedProspect.name) {
+					prospect.drafted = true;
+				}
+			}
+		}
+	})
+
+	return { prospects: topProspects , draftBoard, user: locals, isAuthenticated: locals.session !== null };
+}
+
+async function setInitialDraftBoard(userId: string | undefined = undefined) {
 	const draftboard = [];
 	let count = 1;
 	const response = await fetch(CURRENT_STANDINGS);
 	const data = await response.json();
-	// const data = janStandingsData;
 
 	for (let i = data.standings.length - 1; i >= 0; i--) {
 		draftboard.push({
@@ -101,6 +120,20 @@ async function setInitialDraftBoard() {
 		});
 		count++;
 	}
+
+	if(userId) { 
+		const savedDraftBoard = await db
+		.select()
+		.from(drafts)
+		.where(eq(drafts.userId, userId));
+
+		if(savedDraftBoard.length > 0) {
+			for (let i = 0; i < savedDraftBoard.length; i++) {
+				draftboard[savedDraftBoard[i].positionDrafted - 1].prospect = JSON.parse(savedDraftBoard[i].prospect as string);
+			}
+		}
+	 }
+
 
 	return draftboard || {};
 }
