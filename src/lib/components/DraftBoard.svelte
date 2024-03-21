@@ -32,14 +32,14 @@
 	<h2>Draft Board</h2>
 	<button on:click={submitDraftBoard}> submit draft </button>
 	{#each draftSystem?.draftBoard || [] as position}
-		<div class="position__container">
+		<div class="container">
 			<h2>{position.draftPosition}</h2>
-			<img class="position__logo" src={position.teamLogo} alt="" />
+			<img class="logo" src={position.teamLogo} alt="" />
 			{#if position.prospect}
 				<p>{position?.prospect?.name}</p>
 				<button
 					on:click={() => removeProspect(position.prospect as Prospect, position.draftPosition)}
-					class="position__remove"
+					class="remove"
 				>
 					X
 				</button>
@@ -49,7 +49,7 @@
 </div>
 
 <style lang="postcss">
-	.position__container {
+	.container {
 		border: 1px solid black;
 		border-radius: 10px;
 		padding: 10px;
@@ -57,12 +57,12 @@
 		display: flex;
 		flex: 1;
 		align-items: center;
-		.position__logo {
+		.logo {
 			width: 50px;
 			height: 50px;
 		}
 
-		.position__remove {
+		.remove {
 			margin-left: auto;
 		}
 	}
