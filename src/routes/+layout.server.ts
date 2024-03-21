@@ -115,7 +115,8 @@ async function setInitialDraftBoard(userId: string | undefined = undefined) {
 		draftboard.push({
 			draftPosition: count,
 			teamName: data.standings[i]?.teamName?.default,
-			teamLogo: data.standings[i]?.teamLogo.replace('light', 'dark'),
+			// teamLogo: data.standings[i]?.teamLogo.replace('light', 'dark'),
+			teamLogo: data.standings[i]?.teamLogo,
 			prospect: null
 		});
 		count++;

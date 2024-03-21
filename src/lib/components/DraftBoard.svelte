@@ -28,7 +28,7 @@
 	}
 </script>
 
-<div class="draft-board">
+<div class="draft-board flex-[1]">
 	<h2>Draft Board</h2>
 	<button on:click={submitDraftBoard}> submit draft </button>
 	{#each draftSystem?.draftBoard || [] as position}
