@@ -6,10 +6,10 @@
 	import '../tailwind.css';
 	import { setCurrentUser } from '$lib/globalState/user/userState.svelte';
 
-	let { children, data } = $props<{
+	let { children, data }: {
 		children: any;
 		data: any;
-	}>();
+	} = $props();
 
 	const draftSystem = setDraftSystem(data.prospects, data.draftBoard);
 	const currentUser = setCurrentUser(data?.user?.user);
@@ -19,7 +19,7 @@
 	<title>Draft Center</title>
 </svelte:head>
 
-<main>
+<main class="bg-orange-200">
 	{#if data.isAuthenticated}
 		<nav>
 			<ul>
