@@ -3,10 +3,13 @@
 
 	// import { sortFilter } from '~stores/prospectStore';
 
-	let { sortFilter, sortPosition } = $props<{
+	let {
+		sortFilter,
+		sortPosition
+	}: {
 		sortFilter: PositionFilter;
 		sortPosition: (options: PositionFilter, option: string) => void;
-	}>();
+	} = $props();
 
 	// const handleClick = (option: string) => {
 	// 	newOptions = { [option]: !$options[option] };
