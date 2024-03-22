@@ -19,7 +19,7 @@
 	<title>Draft Center</title>
 </svelte:head>
 
-<main class="bg-orange-200">
+<main class="bg-[#FFF4E8] font-medium">
 	{#if data.isAuthenticated}
 		<nav>
 			<ul>

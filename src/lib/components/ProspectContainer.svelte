@@ -39,7 +39,7 @@
 	};
 </script>
 
-<div class="prospect-container flex-[3]">
+<div class="prospect-container flex-[3] pb-4">
 	<h2>Prospects</h2>
 	<div class="prospect-options">
 		<Searchbar bind:value={searchInput} placeholder="Search Prospect" />

@@ -28,42 +28,37 @@
 	}
 </script>
 
-<div class="draft-board flex-[1]">
+<div class="draft-board flex w-full flex-[1] flex-col">
 	<h2>Draft Board</h2>
 	<button on:click={submitDraftBoard}> submit draft </button>
-	{#each draftSystem?.draftBoard || [] as position}
-		<div class="container">
-			<h2>{position.draftPosition}</h2>
-			<img class="logo" src={position.teamLogo} alt="" />
-			{#if position.prospect}
-				<p>{position?.prospect?.name}</p>
-				<button
-					on:click={() => removeProspect(position.prospect as Prospect, position.draftPosition)}
-					class="remove"
-				>
-					X
-				</button>
-			{/if}
-		</div>
-	{/each}
+	<div class="flex flex-wrap gap-2">
+		{#each draftSystem?.draftBoard || [] as position}
+			<div class="container basis-[48%]">
+				<h2>{position.draftPosition}</h2>
+				<img class="h-[50px] w-[50px]" src={position.teamLogo} alt="" />
+				{#if position.prospect}
+					<p>{position?.prospect?.name}</p>
+					<button
+						on:click={() => removeProspect(position.prospect as Prospect, position.draftPosition)}
+						class="ml-auto"
+					>
+						X
+					</button>
+				{/if}
+			</div>
+		{/each}
+	</div>
 </div>
 
 <style lang="postcss">
 	.container {
 		border: 1px solid black;
 		border-radius: 10px;
+		width: 100%;
 		padding: 10px;
 		margin: 10px 0;
 		display: flex;
-		flex: 1;
+		/* flex: 1; */
 		align-items: center;
-		.logo {
-			width: 50px;
-			height: 50px;
-		}
-
-		.remove {
-			margin-left: auto;
-		}
 	}
 </style>
