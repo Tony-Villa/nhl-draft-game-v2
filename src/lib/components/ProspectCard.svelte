@@ -4,14 +4,17 @@
 	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
 
 	import type { Prospect, DraftBoard } from '$lib/types';
+	import Button from './Button.svelte';
 
 	let showModal = $state(false);
 
 	const draftSystem = getDraftSystem();
 
-	let { prospect } = $props<{
+	let {
+		prospect
+	}: {
 		prospect: Prospect;
-	}>();
+	} = $props();
 
 	function draft(prospect: Prospect, draftPosition: number) {
 		draftSystem.addProspectToBoard(prospect, draftPosition);
@@ -37,34 +40,34 @@
 		</div>
 	</Modal>
 	<div class="prospect-card__header">
-		<p>{(prospect as Prospect)?.rank !== '-' ? 'Rank: ' + (prospect as Prospect)?.rank : 'NR'}</p>
+		<p>{prospect?.rank !== '-' ? 'Rank: ' + prospect?.rank : 'NR'}</p>
 		<div class="prospect-card__position">
-			<p>{(prospect as Prospect)?.position}</p>
+			<p>{prospect?.position}</p>
 			<p>|</p>
-			<p>{(prospect as Prospect)?.shoots}</p>
+			<p>{prospect?.shoots}</p>
 		</div>
 	</div>
-	<h3>{(prospect as Prospect)?.name}</h3>
+	<h3>{prospect?.name}</h3>
 	<div class="prospect-card__league">
-		<p>{(prospect as Prospect)?.league}</p>
+		<p>{prospect?.league}</p>
 		<p>|</p>
-		<p>{(prospect as Prospect)?.team}</p>
+		<p>{prospect?.team}</p>
 	</div>
 	<div class="prospect-card__personal-stats">
 		<div class="prospect-card__measurements">
-			<img src={(prospect as Prospect)?.nation} alt="nationality" />
+			<img src={prospect?.nation} alt="nationality" />
 			<p>|</p>
-			<p>{(prospect as Prospect)?.birthDay}</p>
+			<p>{prospect?.birthDay}</p>
 		</div>
 		<div class="prospect-card__measurements">
-			<p>{(prospect as Prospect)?.weight} lbs</p>
+			<p>{prospect?.weight} lbs</p>
 			<p>|</p>
-			<p>{(prospect as Prospect)?.height}</p>
+			<p>{prospect?.height}</p>
 		</div>
 	</div>
 	<div class="prospect-card__options">
-		<button on:click={() => (showModal = !showModal)}>Draft</button>
-		<button>Favorite</button>
+		<Button on:click={() => (showModal = !showModal)}>Draft</Button>
+		<Button variant="secondary">Favorite</Button>
 	</div>
 </div>
 
