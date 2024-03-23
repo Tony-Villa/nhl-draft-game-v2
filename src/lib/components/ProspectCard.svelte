@@ -22,7 +22,13 @@
 	}
 </script>
 
-<div class="prospect-card">
+<div class="prospect-card relative">
+	<!-- TODO: play with this idea (probably dumb af tho) -->
+	<img
+		src={prospect?.nation}
+		alt="nationality"
+		class="flag absolute left-0 top-0 w-10 object-cover opacity-40"
+	/>
 	<Modal bind:showModal>
 		<div class="draft-position">
 			{#each draftSystem.draftBoard as cell}
@@ -40,7 +46,7 @@
 		</div>
 	</Modal>
 	<div class="prospect-card__header">
-		<p>{prospect?.rank !== '-' ? 'Rank: ' + prospect?.rank : 'NR'}</p>
+		<p class="font-semibold">{prospect?.rank !== '-' ? 'Rank: ' + prospect?.rank : 'NR'}</p>
 		<div class="prospect-card__position">
 			<p>{prospect?.position}</p>
 			<p>|</p>
@@ -55,8 +61,8 @@
 	</div>
 	<div class="prospect-card__personal-stats">
 		<div class="prospect-card__measurements">
-			<img src={prospect?.nation} alt="nationality" />
-			<p>|</p>
+			<!-- <img src={prospect?.nation} alt="nationality" />
+			<p>|</p> -->
 			<p>{prospect?.birthDay}</p>
 		</div>
 		<div class="prospect-card__measurements">
@@ -72,6 +78,10 @@
 </div>
 
 <style lang="postcss">
+	.flag {
+		mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 40%, transparent 100%);
+	}
+
 	.prospect-card {
 		border: 1px solid black;
 		border-radius: 5px;

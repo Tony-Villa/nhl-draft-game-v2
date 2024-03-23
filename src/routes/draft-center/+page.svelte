@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ProspectContainer from '$lib/components/ProspectContainer.svelte';
 	import DraftBoard from '$lib/components/DraftBoard.svelte';
+	import SliderSwitch from '$lib/components/SliderSwitch.svelte';
 
 	const {
 		data
@@ -10,6 +11,10 @@
 
 	let selectedTab = $state('prospects');
 	let innerWidth = $state(0);
+
+	const switchScreens = (tab: string) => {
+		selectedTab = tab;
+	};
 
 	// console.log(data);
 </script>
@@ -30,9 +35,12 @@
 		<ProspectContainer />
 	{/if}
 </div>
-<div
+<div class="h-15 fixed bottom-0 flex w-full justify-center bg-[#FFF4E8] md:hidden lg:hidden">
+	<SliderSwitch bind:selectedTab switchVariable={switchScreens} />
+</div>
+<!-- <div
 	class="fixed bottom-0 flex h-10 w-full flex-row justify-around bg-orange-600 md:hidden lg:hidden"
 >
 	<button onclick={() => (selectedTab = 'draftboard')}>Draft Board</button>
 	<button onclick={() => (selectedTab = 'prospects')}>Prospects</button>
-</div>
+</div> -->
