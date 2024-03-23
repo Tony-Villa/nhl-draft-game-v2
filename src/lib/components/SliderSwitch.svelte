@@ -3,12 +3,16 @@
 
 	function switchLeft() {
 		const btn = document.getElementById('btn');
-		btn.style.left = '0';
+		if (btn?.style) {
+			btn.style.left = '0';
+		}
 	}
 
 	function switchRight() {
 		const btn = document.getElementById('btn');
-		btn.style.left = '50%';
+		if (btn?.style) {
+			btn.style.left = '50%';
+		}
 	}
 </script>
 
