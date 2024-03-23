@@ -5,6 +5,7 @@
 
 	import type { Prospect, DraftBoard } from '$lib/types';
 	import Button from './Button.svelte';
+	import Card from './Card.svelte';
 
 	let showModal = $state(false);
 
@@ -22,139 +23,69 @@
 	}
 </script>
 
-<div class="prospect-card relative">
-	<!-- TODO: play with this idea (probably dumb af tho) -->
-	<img
-		src={prospect?.nation}
-		alt="nationality"
-		class="flag absolute left-0 top-0 w-10 object-cover opacity-40"
-	/>
-	<Modal bind:showModal>
-		<div class="draft-position">
-			{#each draftSystem.draftBoard as cell}
-				<button
-					class="draft-position__cell"
-					on:click={() => draft(prospect as Prospect, (cell as DraftBoard)?.draftPosition)}
-					disabled={!!(cell as DraftBoard)?.prospect}
-				>
-					<h3>
-						{(cell as DraftBoard)?.draftPosition}
-					</h3>
-					<img class="logo" src={(cell as DraftBoard)?.teamLogo} alt="team logo" />
-				</button>
-			{/each}
+<Card>
+	<div class="prospect-card relative flex w-40 flex-col content-between gap-2 md:w-52 ">
+		<!-- TODO: play with this idea (probably dumb af tho) -->
+		<img
+			src={prospect?.nation}
+			alt="nationality"
+			class="flag absolute left-0 top-0 w-10 object-cover opacity-40"
+		/>
+		<Modal bind:showModal>
+			<div class="flex flex-wrap gap-2">
+				{#each draftSystem.draftBoard as cell}
+					{@render teamPicker(cell)}
+				{/each}
+			</div>
+		</Modal>
+		<div class="flex justify-between">
+			<p class="font-semibold">{prospect?.rank !== '-' ? 'Rank: ' + prospect?.rank : 'NR'}</p>
+			<div class="flex content-end justify-end gap-2">
+				<p>{prospect?.position}</p>
+				<p>|</p>
+				<p>{prospect?.shoots}</p>
+			</div>
 		</div>
-	</Modal>
-	<div class="prospect-card__header">
-		<p class="font-semibold">{prospect?.rank !== '-' ? 'Rank: ' + prospect?.rank : 'NR'}</p>
-		<div class="prospect-card__position">
-			<p>{prospect?.position}</p>
+		<h3 class="text-center">{prospect?.name}</h3>
+		<div class="flex content-center justify-center gap-2">
+			<p>{prospect?.league}</p>
 			<p>|</p>
-			<p>{prospect?.shoots}</p>
+			<p>{prospect?.team}</p>
+		</div>
+		<div class="flex flex-col gap-2">
+			<div class="flex content-center justify-center gap-2">
+				<!-- <img src={prospect?.nation} alt="nationality" />
+				<p>|</p> -->
+				<p>{prospect?.birthDay}</p>
+			</div>
+			<div class="flex content-center justify-center gap-2">
+				<p>{prospect?.weight} lbs</p>
+				<p>|</p>
+				<p>{prospect?.height}</p>
+			</div>
+		</div>
+		<div class="flex flex-1 content-end justify-center gap-2">
+			<Button on:click={() => (showModal = !showModal)}>Draft</Button>
+			<Button variant="secondary">Favorite</Button>
 		</div>
 	</div>
-	<h3>{prospect?.name}</h3>
-	<div class="prospect-card__league">
-		<p>{prospect?.league}</p>
-		<p>|</p>
-		<p>{prospect?.team}</p>
-	</div>
-	<div class="prospect-card__personal-stats">
-		<div class="prospect-card__measurements">
-			<!-- <img src={prospect?.nation} alt="nationality" />
-			<p>|</p> -->
-			<p>{prospect?.birthDay}</p>
-		</div>
-		<div class="prospect-card__measurements">
-			<p>{prospect?.weight} lbs</p>
-			<p>|</p>
-			<p>{prospect?.height}</p>
-		</div>
-	</div>
-	<div class="prospect-card__options">
-		<Button on:click={() => (showModal = !showModal)}>Draft</Button>
-		<Button variant="secondary">Favorite</Button>
-	</div>
-</div>
+</Card>
+
+{#snippet teamPicker(cell)}
+	<button
+		class="flex flex-col content-center justify-center gap-2 border border-black rounded-md p-2 w-20 h-20 md:w-28 md:h-28"
+		on:click={() => draft(prospect as Prospect, cell?.draftPosition)}
+		disabled={!!cell?.prospect}
+	>
+		<h3 class="text-center">
+			{cell?.draftPosition}
+		</h3>
+		<img class="w-16 md:w-20" src={cell?.teamLogo} alt="team logo" />
+	</button>
+{/snippet}
 
 <style lang="postcss">
 	.flag {
 		mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 40%, transparent 100%);
-	}
-
-	.prospect-card {
-		border: 1px solid black;
-		border-radius: 5px;
-		padding: 10px;
-		width: 200px;
-		display: flex;
-		flex-direction: column;
-		align-items: space-between;
-		gap: 10px;
-
-		h3 {
-			text-align: center;
-		}
-
-		.prospect-card__header {
-			display: flex;
-			justify-content: space-between;
-		}
-
-		.prospect-card__position {
-			display: flex;
-			justify-content: flex-end;
-			align-items: flex-end;
-			gap: 10px;
-		}
-
-		.prospect-card__league {
-			display: flex;
-			align-items: center;
-			gap: 10px;
-		}
-
-		.prospect-card__personal-stats {
-			display: flex;
-			flex-direction: column;
-			gap: 10px;
-		}
-		.prospect-card__measurements {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			gap: 10px;
-		}
-
-		.prospect-card__options {
-			display: flex;
-			justify-content: center;
-			align-items: flex-end;
-			gap: 10px;
-			flex: 1;
-		}
-
-		.draft-position {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 10px;
-		}
-		.draft-position__cell {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			gap: 10px;
-			border: 1px solid black;
-			border-radius: 5px;
-			padding: 10px;
-			width: 100px;
-			height: 100px;
-
-			.logo {
-				width: 70px;
-				height: auto;
-			}
-		}
 	}
 </style>
