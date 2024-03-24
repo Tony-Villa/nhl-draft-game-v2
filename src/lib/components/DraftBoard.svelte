@@ -2,6 +2,7 @@
 	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
 	import { getCurrentUser } from '$lib/globalState/user/userState.svelte';
 	import type { Prospect } from '$lib/types';
+	import Card from './Card.svelte';
 
 	const draftSystem = getDraftSystem();
 	const currentUser = getCurrentUser();
@@ -31,9 +32,10 @@
 <div class="draft-board flex w-full flex-[1] flex-col">
 	<h2>Draft Board</h2>
 	<button on:click={submitDraftBoard}> submit draft </button>
-	<div class="flex flex-wrap gap-2">
+	<div class="flex flex-wrap justify-center gap-2 mb-16">
 		{#each draftSystem?.draftBoard || [] as position}
-			<div class="container basis-[48%]">
+		<Card variant='small' class='basis-[48%]' >
+			<div class="flex items-center px-2 py-2">
 				<h2>{position.draftPosition}</h2>
 				<img class="h-[50px] w-[50px]" src={position.teamLogo} alt="" />
 				{#if position.prospect}
@@ -46,19 +48,7 @@
 					</button>
 				{/if}
 			</div>
+		</Card>
 		{/each}
 	</div>
 </div>
-
-<style lang="postcss">
-	.container {
-		border: 1px solid black;
-		border-radius: 10px;
-		width: 100%;
-		padding: 10px;
-		margin: 10px 0;
-		display: flex;
-		/* flex: 1; */
-		align-items: center;
-	}
-</style>
