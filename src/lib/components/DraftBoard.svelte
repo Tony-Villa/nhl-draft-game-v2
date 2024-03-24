@@ -2,6 +2,7 @@
 	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
 	import { getCurrentUser } from '$lib/globalState/user/userState.svelte';
 	import type { Prospect } from '$lib/types';
+	import Button from './Button.svelte';
 	import Card from './Card.svelte';
 
 	const draftSystem = getDraftSystem();
@@ -29,9 +30,9 @@
 	}
 </script>
 
-<div class="draft-board flex w-full flex-[1] flex-col">
-	<h2>Draft Board</h2>
-	<button on:click={submitDraftBoard}> submit draft </button>
+<div class="draft-board flex w-full flex-[1] flex-col gap-2">
+	<!-- <h2>Draft Board</h2> -->
+	<Button on:click={submitDraftBoard}> Submit Draft </Button>
 	<div class="flex flex-wrap justify-center gap-2 mb-16">
 		{#each draftSystem?.draftBoard || [] as position}
 		<Card variant='small' class='basis-[48%]' >
