@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PositionFilter } from '$lib/types';
+	import Button from './Button.svelte';
 
 	// import { sortFilter } from '~stores/prospectStore';
 
@@ -16,12 +17,15 @@
 	// };
 </script>
 
-{#each Object.keys(sortFilter) as option (option)}
-	<button
-		class="tertiary multiple-select {sortFilter[option] ? 'selected' : ''}"
-		on:click={() => sortPosition(sortFilter, option)}>{option}</button
-	>
-{/each}
+<div class="flex gap-2">
+
+	{#each Object.keys(sortFilter) as option (option)}
+		<Button
+			variant="{sortFilter[option] ? 'primary' : 'secondary'}"
+			on:click={() => sortPosition(sortFilter, option)}>{option}</Button
+		>
+	{/each}
+</div>
 
 <style lang="postcss">
 	.multiple-select {
