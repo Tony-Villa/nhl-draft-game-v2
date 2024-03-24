@@ -38,9 +38,3 @@
 <div class="h-15 fixed bottom-0 flex w-full justify-center bg-[#FFF4E8] md:hidden lg:hidden">
 	<SliderSwitch bind:selectedTab switchVariable={switchScreens} />
 </div>
-<!-- <div
-	class="fixed bottom-0 flex h-10 w-full flex-row justify-around bg-orange-600 md:hidden lg:hidden"
->
-	<button onclick={() => (selectedTab = 'draftboard')}>Draft Board</button>
-	<button onclick={() => (selectedTab = 'prospects')}>Prospects</button>
-</div> -->
