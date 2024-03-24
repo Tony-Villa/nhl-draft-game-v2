@@ -35,8 +35,8 @@ export const load: LayoutServerLoad = async ({ request, setHeaders, locals }: Re
 		const $tbody = $('table tbody');
 		$tbody.each((i, tbody) => {
 			const $tr = $(tbody).find('tr');
-			$tr.each((i, tr) => {
-				const rank = $(tr).find('.rank').text().trim();
+			$tr.each((j, tr) => {
+				let rank = $(tr).find('.rank').text().trim();
 				if (!rank) {
 					return;
 				}
@@ -45,6 +45,11 @@ export const load: LayoutServerLoad = async ({ request, setHeaders, locals }: Re
 				if (count > 100) {
 					return;
 				}
+
+				if (rank.includes('-')) {
+					rank = (count).toString();
+				}
+
 				const name = $(tr)
 					.find('.player')
 					.text()
