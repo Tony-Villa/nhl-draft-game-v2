@@ -24,7 +24,7 @@
 </script>
 
 <Card variant='small'>
-	<div class="prospect-card relative flex w-48 flex-col content-between gap-2 pb-4 px-4 md:w-52 ">
+	<div class="prospect-card relative flex w-48 flex-col content-between gap-2 pb-4 px-4 h-full md:w-52 ">
 		<!-- TODO: play with this idea (probably dumb af tho) -->
 		<img
 			src={prospect?.nation}
@@ -64,7 +64,7 @@
 				<p>{prospect?.height}</p>
 			</div>
 		</div>
-		<div class="flex flex-1 content-end justify-center gap-2">
+		<div class="flex flex-1 items-end justify-center gap-2">
 			<Button on:click={() => (showModal = !showModal)}>Draft</Button>
 			<Button variant="secondary">Favorite</Button>
 		</div>
