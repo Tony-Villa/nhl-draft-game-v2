@@ -16,7 +16,7 @@
 	}
 </script>
 
-<div class="button-box h-full my-5 relative outline-2 outline-black rounded-[30px] bg-orange-200 flex justify-center">
+<div class="button-box h-full my-5 relative border-2 border-black rounded-[30px] bg-orange-200 flex justify-center">
 	<div id="btn"></div>
 	<button
 		onclick={() => {
