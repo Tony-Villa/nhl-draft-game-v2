@@ -40,7 +40,7 @@
 				<h2>{position.draftPosition}</h2>
 				<img class="h-[50px] w-[50px]" src={position.teamLogo} alt="" />
 				{#if position.prospect}
-					<p>{position?.prospect?.name}</p>
+					<p class="font-bold">{position?.prospect?.name}</p>
 					<button
 						on:click={() => removeProspect(position.prospect as Prospect, position.draftPosition)}
 						class="ml-auto"
