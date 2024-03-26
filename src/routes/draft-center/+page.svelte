@@ -20,7 +20,7 @@
 </script>
 
 <svelte:window bind:innerWidth />
-<h1 class="text-center text-6xl font-bold uppercase">draft center</h1>
+<h1 class="text-center text-6xl font-bold uppercase mb-10">draft center</h1>
 <div class=" flex gap-5 px-2">
 	{#if innerWidth < 768}
 		<div class="w-full pb-10">
