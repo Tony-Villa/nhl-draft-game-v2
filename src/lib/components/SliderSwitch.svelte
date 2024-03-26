@@ -4,19 +4,19 @@
 	function switchLeft() {
 		const btn = document.getElementById('btn');
 		if (btn?.style) {
-			btn.style.left = '0';
+			btn.style.left = '-2px';
 		}
 	}
 
 	function switchRight() {
 		const btn = document.getElementById('btn');
 		if (btn?.style) {
-			btn.style.left = '50%';
+			btn.style.left = 'calc(50% + 2px)';
 		}
 	}
 </script>
 
-<div class="button-box flex justify-center">
+<div class="button-box h-full my-5 relative outline-2 outline-black rounded-[30px] bg-orange-200 flex justify-center">
 	<div id="btn"></div>
 	<button
 		onclick={() => {
@@ -37,18 +37,6 @@
 </div>
 
 <style lang="postcss">
-	.button-box {
-		/* width: 100%; */
-		height: 100%;
-		margin: 20px auto;
-		/* margin: 35px auto; */
-		/* margin: 10px auto; */
-		position: relative;
-		outline: 2px solid black;
-		border-radius: 30px;
-		background-color: #fed7aa;
-	}
-
 	.toggle-btn {
 		padding: 10px 40px;
 		cursor: pointer;
@@ -60,20 +48,18 @@
 		outline: none;
 		position: relative;
 		text-align: center;
-		/* margin-bottom: 10px; */
 	}
 
 	#btn {
-		left: 0;
-		top: 0;
+		left: -3px;
+		top: -2px;
 		position: absolute;
 		width: 50%;
-		height: 100%;
+		height: calc(100% + 4px);
 		background: #e67e22;
 		border: 2px solid black;
-		border-bottom: 4px solid black;
-		border-right: 4px solid black;
+		box-shadow: 2px 2px 0px 0px #000000;
 		border-radius: 30px;
-		transition: 0.5s;
+		transition: 0.75s;
 	}
 </style>
