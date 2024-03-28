@@ -66,7 +66,7 @@
 		</div>
 		<div class="flex flex-1 items-end justify-center gap-2">
 			<Button on:click={() => (showModal = !showModal)}>Draft</Button>
-			<Button variant="secondary">Favorite</Button>
+			<!-- <Button variant="secondary">Favorite</Button> -->
 		</div>
 	</div>
 </Card>
