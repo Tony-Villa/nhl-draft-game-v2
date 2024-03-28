@@ -1,5 +1,4 @@
 import { redis } from '$lib/server/redis';
-import type { LayoutServerLoad } from './$types';
 import { PROSPECTS_URL, CURRENT_STANDINGS } from '$env/static/private';
 // import { janStandingsData } from '../../static/janStandings';
 import * as cheerio from 'cheerio';
@@ -11,7 +10,7 @@ import { eq } from 'drizzle-orm';
 
 const CACHE_TTL = 86_400_000; // 24 hours
 
-export const load: LayoutServerLoad = async ({ request, setHeaders, locals }: RequestEvent) => {
+export const load = async ({ request, setHeaders, locals }: RequestEvent) => {
 	const cached = await redis.get('top_prospects');
 	let topProspects: Prospect[] = [];
 
