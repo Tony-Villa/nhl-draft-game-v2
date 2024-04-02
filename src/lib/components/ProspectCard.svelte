@@ -46,11 +46,10 @@
 				<p>{prospect?.shoots}</p>
 			</div>
 		</div>
-		<h3 class="text-center">{prospect?.name}</h3>
-		<div class="flex content-center justify-center gap-2">
-			<p>{prospect?.league}</p>
-			<p>|</p>
-			<p>{prospect?.team}</p>
+		<h3 class="text-center font-bold text-lg whitespace-break-spaces	leading-6 max-w-[14ch]">{prospect?.name}</h3>
+		<div class="flex flex-col text-center mt-2 content-center justify-center gap-[0]">
+			<p class="text-sm font-semibold">{prospect?.league}</p>
+			<p class="text-xs opacity-55">{prospect?.team}</p>
 		</div>
 		<div class="flex flex-col gap-2">
 			<div class="flex content-center justify-center gap-2">

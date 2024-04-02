@@ -30,7 +30,7 @@
 	}
 </script>
 
-<div class="draft-board flex w-full flex-[1] flex-col gap-2">
+<div class="draft-board flex w-full flex-[2] min-w-[450px] flex-col gap-2">
 	<!-- <h2>Draft Board</h2> -->
 	<Button on:click={submitDraftBoard}> Submit Draft </Button>
 	<div class="flex flex-wrap justify-center gap-2 mb-16">

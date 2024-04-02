@@ -39,7 +39,7 @@
 	};
 </script>
 
-<div class="flex flex-[3] flex-wrap flex-col gap-2 pb-4">
+<div class="flex flex-[4] flex-wrap flex-col gap-2 pb-4">
 	<!-- <h2>Prospects</h2> -->
 	<div class="flex flex-col gap-2 md:flex-row lg:flex-row">
 		<Searchbar bind:value={searchInput} placeholder="Search Prospect" />
