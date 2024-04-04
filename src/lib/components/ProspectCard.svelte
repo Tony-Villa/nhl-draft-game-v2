@@ -32,7 +32,7 @@
 			class="flag absolute left-0 top-0 w-10 object-cover opacity-40"
 		/>
 		<Modal bind:showModal>
-			<div class="flex flex-wrap gap-2">
+			<div class="flex flex-wrap justify-center gap-2">
 				{#each draftSystem.draftBoard as cell}
 					{@render teamPicker(cell)}
 				{/each}

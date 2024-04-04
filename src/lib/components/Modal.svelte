@@ -20,10 +20,16 @@
 	on:click|self={() => dialog?.close()}
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div on:click|stopPropagation>
-		{@render children()}
+	<div class="relative" on:click|stopPropagation>
+		<div class="absolute right-0 top-0 border-black border-[1px] px-2 py-0 rounded-md shadow-brut-shadow-sm">
+			<button  on:click={() => dialog?.close()}>X</button>
+		</div>
+
+		<div class="mt-5">
+			{@render children()}
+		</div>
 		<!-- svelte-ignore a11y-autofocus -->
-		<button on:click={() => dialog?.close()}>close modal</button>
+		<!-- <button on:click={() => dialog?.close()}>close modal</button> -->
 	</div>
 </dialog>
 
@@ -32,13 +38,15 @@
 		margin: auto;
 		width: 80%;
 		height: 70%;
-		border-radius: 0.2em;
+		border-radius: 20px;
 		border: none;
 		padding: 20px;
 		max-width: 1100px;
+		box-shadow: 8px 8px 0px 0px #000000;
+		background-color: #fff7ed;
 	}
 	dialog::backdrop {
-		background: rgba(0, 0, 0, 0.8);
+		background: rgba(0, 0, 0, 0.7);
 	}
 	dialog > div {
 		padding: 1em;

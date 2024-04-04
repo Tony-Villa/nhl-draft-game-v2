@@ -30,9 +30,11 @@
 	}
 </script>
 
-<div class="draft-board flex w-full flex-[2] min-w-[450px] flex-col gap-2">
+<div class="draft-board flex w-full flex-[2] flex-col gap-2 md:min-w-[450px] ">
 	<!-- <h2>Draft Board</h2> -->
-	<Button on:click={submitDraftBoard}> Submit Draft </Button>
+	<div class="w-20">
+		<Button on:click={submitDraftBoard}>Submit Draft</Button>
+	</div>
 	<div class="flex flex-wrap justify-center gap-2 mb-16">
 		{#each draftSystem?.draftBoard || [] as position}
 		<Card variant='small' class='basis-[48%]' >
