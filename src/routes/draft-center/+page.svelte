@@ -35,6 +35,6 @@
 		<ProspectContainer />
 	{/if}
 </div>
-<div class="h-15 fixed bottom-0 flex w-full justify-center bg-[#FFF4E8] md:hidden lg:hidden">
+<div class="h-15 fixed bottom-0 flex w-full justify-center bg-[#FFF4E8] md:hidden lg:hidden border-t-2  shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)]">
 	<SliderSwitch bind:selectedTab switchVariable={switchScreens} />
 </div>
