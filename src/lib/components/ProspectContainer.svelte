@@ -41,7 +41,7 @@
 
 <div class="flex flex-[4] flex-wrap flex-col gap-2 pb-4">
 	<!-- <h2>Prospects</h2> -->
-	<div class="flex flex-col gap-2 lg:flex-row">
+	<div class="flex flex-col gap-2 lg:flex-row lg:justify-between">
 		<Searchbar bind:value={searchInput} placeholder="Search Prospect" />
 		<MultipleSelect bind:sortFilter sortPosition={sortByPosition} />
 	</div>
