@@ -40,7 +40,7 @@
 		</Modal>
 		<div class="flex justify-between">
 			<p class="font-semibold">{prospect?.rank !== '-' ? 'Rank: ' + prospect?.rank : 'NR'}</p>
-			<div class="flex content-end justify-end gap-2">
+			<div class="flex content-end justify-end gap-2 text-xs opacity-55">
 				<p>{prospect?.position}</p>
 				<p>|</p>
 				<p>{prospect?.shoots}</p>
