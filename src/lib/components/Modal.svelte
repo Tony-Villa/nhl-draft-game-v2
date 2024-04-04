@@ -2,7 +2,7 @@
 	let { showModal, children }: {
 		showModal: boolean;
 		children: any;
-	} = $props(); // boolean
+	} = $props();
 
 	let dialog: HTMLDialogElement | null = $state(null); // HTMLDialogElement
 
