@@ -32,8 +32,8 @@
 
 <div class="draft-board flex w-full flex-[2] flex-col gap-2 md:min-w-[450px] ">
 	<!-- <h2>Draft Board</h2> -->
-	<div class="w-20">
-		<Button on:click={submitDraftBoard}>Submit Draft</Button>
+	<div class="w-auto self-end pr-2">
+		<Button on:click={submitDraftBoard} class="py-2">Submit Draft</Button>
 	</div>
 	<div class="flex flex-wrap justify-center gap-2 mb-16">
 		{#each draftSystem?.draftBoard || [] as position}
