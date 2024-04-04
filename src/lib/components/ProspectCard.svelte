@@ -72,14 +72,14 @@
 
 {#snippet teamPicker(cell)}
 	<button
-		class="flex flex-col content-center justify-center gap-2 border border-black rounded-md p-2 w-20 h-20 md:w-28 md:h-28"
+		class={`flex flex-col content-center justify-center gap-2 border border-black rounded-md p-2 w-20 h-20 md:w-28 md:h-28 bg-orange-100 ${!!cell?.prospect && 'bg-neutral-400'}`}
 		on:click={() => draft(prospect as Prospect, cell?.draftPosition)}
 		disabled={!!cell?.prospect}
 	>
-		<h3 class="text-center">
+		<h3 class="text-center self-center font-semibold">
 			{cell?.draftPosition}
 		</h3>
-		<img class="w-16 md:w-20" src={cell?.teamLogo} alt="team logo" />
+		<img class="w-16 md:w-20 self-center" src={cell?.teamLogo} alt="team logo" />
 	</button>
 {/snippet}
 
