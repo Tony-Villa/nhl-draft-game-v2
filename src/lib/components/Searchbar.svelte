@@ -25,8 +25,8 @@
 		class="flex-grow bg-transparent placeholder-gray-950 focus:outline-none"
 		type="text"
 		bind:value
-		on:focus={() => (isFocused = true)}
-		on:blur={() => (isFocused = false)}
+		onfocus={() => (isFocused = true)}
+		onblur={() => (isFocused = false)}
 		placeholder={placeholder ? placeholder : ''}
 	/>
 
