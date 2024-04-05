@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 
-import { integer, sqliteTable, blob, index, text } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable, blob, index, text, unique } from 'drizzle-orm/sqlite-core';
 
 export const drafts = sqliteTable(
 	'drafts',
@@ -14,8 +14,12 @@ export const drafts = sqliteTable(
 			.default(sql`(cast (unixepoch() as int))`)
 	},
 	(table) => {
+
+		
 		return {
-			userIdIndex: index('drafts_user_id_index').on(table.userId)
+			userIdIndex: index('drafts_user_id_index').on(table.userId),
+			unq: unique().on(table.userId, table.positionDrafted)
 		};
 	}
 );
+ 
