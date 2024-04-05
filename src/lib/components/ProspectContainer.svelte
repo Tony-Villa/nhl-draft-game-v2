@@ -39,13 +39,13 @@
 	};
 </script>
 
-<div class="flex flex-[4] flex-wrap flex-col gap-2 pb-4">
+<div class="flex max-w-[880px] flex-[4] flex-col flex-wrap gap-2 pb-4">
 	<!-- <h2>Prospects</h2> -->
-	<div class="flex flex-col gap-2 lg:flex-row lg:justify-between">
+	<div class="flex flex-col gap-5 lg:flex-row">
 		<Searchbar bind:value={searchInput} placeholder="Search Prospect" />
 		<MultipleSelect bind:sortFilter sortPosition={sortByPosition} />
 	</div>
-	<div class="flex flex-wrap justify-between gap-2 mb-12">
+	<div class="mb-12 flex flex-wrap justify-start gap-2">
 		{#each prospectList.prospects as prospect}
 			{#if !prospect.drafted && positions.length === 0 && (prospect?.name ?? '')
 					.toLowerCase()
@@ -59,5 +59,3 @@
 		{/each}
 	</div>
 </div>
-
-
