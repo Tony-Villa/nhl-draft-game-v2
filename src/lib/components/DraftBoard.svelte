@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
 	import { getCurrentUser } from '$lib/globalState/user/userState.svelte';
+	import Close from '$lib/icons/Close.svelte';
 	import type { Prospect } from '$lib/types';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
@@ -47,7 +48,7 @@
 						on:click={() => removeProspect(position.prospect as Prospect, position.draftPosition)}
 						class="ml-auto"
 					>
-						X
+						<Close size={24} />
 					</button>
 				{/if}
 			</div>
