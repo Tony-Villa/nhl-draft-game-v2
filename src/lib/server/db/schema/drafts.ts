@@ -14,8 +14,6 @@ export const drafts = sqliteTable(
 			.default(sql`(cast (unixepoch() as int))`)
 	},
 	(table) => {
-
-		
 		return {
 			userIdIndex: index('drafts_user_id_index').on(table.userId),
 			unq: unique().on(table.userId, table.positionDrafted)
