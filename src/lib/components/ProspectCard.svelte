@@ -24,7 +24,7 @@
 </script>
 
 <Card variant='small'>
-	<div class="prospect-card relative flex w-48 flex-col content-between gap-2 pb-4 px-4 h-full md:w-52 ">
+	<div class="prospect-card relative flex w-48 flex-col content-between gap-2 pb-4 px-4 min-h-[235px] h-full md:w-52 ">
 		<!-- TODO: play with this idea (probably dumb af tho) -->
 		<img
 			src={prospect?.nation}
@@ -51,18 +51,15 @@
 			<p class="text-sm font-semibold">{prospect?.league}</p>
 			<p class="text-xs opacity-55">{prospect?.team}</p>
 		</div>
-		<div class="flex flex-col gap-2">
-			<div class="flex content-center justify-center gap-2">
-				<!-- <img src={prospect?.nation} alt="nationality" />
-				<p>|</p> -->
-				<p>{prospect?.birthDay}</p>
-			</div>
-			<div class="flex content-center justify-center gap-2">
-				<p>{prospect?.weight} lbs</p>
-				<p>|</p>
-				<p>{prospect?.height}</p>
-			</div>
+
+		<div class="flex flex-1 content-end justify-between gap-2 text-xs opacity-55">
+			<!-- <img src={prospect?.nation} alt="nationality" />
+			<p>|</p> -->
+			<p>{prospect?.birthDay}</p>
+			<p>{prospect?.height}</p>
+			<p>{prospect?.weight} lbs</p>
 		</div>
+
 		<div class="flex flex-1 items-end justify-center gap-2">
 			<Button on:click={() => (showModal = !showModal)}>Draft</Button>
 			<!-- <Button variant="secondary">Favorite</Button> -->
