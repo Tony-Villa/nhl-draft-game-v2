@@ -49,8 +49,6 @@
 		</div>
 
 		<div class="flex  flex-1 flex-col justify-between">
-
-
 				<h3 class="text-center font-bold text-lg mt-3 whitespace-break-spaces leading-6 max-w-[14ch]">{prospect?.name}</h3>
 	
 				<div class="flex flex-col text-center mt-2 content-center justify-center gap-[0]">
@@ -61,8 +59,6 @@
 				<div class="flex flex-col gap-3 justify-end">
 	
 				<div class="flex content-end justify-between gap-2 text-xs opacity-55">
-					<!-- <img src={prospect?.nation} alt="nationality" />
-					<p>|</p> -->
 					<p>{prospect?.birthDay}</p>
 					<p>{prospect?.height}</p>
 					<p>{prospect?.weight} lbs</p>
@@ -70,11 +66,9 @@
 		
 				<div class="flex items-end justify-center gap-2">
 					<Button on:click={() => (showModal = !showModal)}>Draft</Button>
-					<!-- <Button variant="secondary">Favorite</Button> -->
 				</div>
 			</div>
 		</div>
-
 	</div>
 </Card>
 
