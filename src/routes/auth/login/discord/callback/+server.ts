@@ -114,4 +114,5 @@ interface DiscordUser {
 	login: string;
 	email: string;
 	avatar: string;
+	username: string;
 }
