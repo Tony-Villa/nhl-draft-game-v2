@@ -74,7 +74,7 @@
 
 {#snippet teamPicker(cell)}
 	<button
-		class={`flex flex-col content-center justify-center gap-2 border border-black rounded-md p-2 w-20 h-20 md:w-28 md:h-28 bg-orange-100 ${!!cell?.prospect && 'bg-neutral-400'}`}
+		class={`flex flex-col content-center justify-center gap-2 border border-black rounded-md p-2 w-20 h-20 md:w-28 md:h-28 ${!!cell?.prospect ? 'bg-neutral-400' : 'bg-orange-100'}`}
 		on:click={() => draft(prospect as Prospect, cell?.draftPosition)}
 		disabled={!!cell?.prospect}
 	>

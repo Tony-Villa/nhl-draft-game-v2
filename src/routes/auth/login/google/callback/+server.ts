@@ -1,5 +1,3 @@
-import type { RequestHandler } from './$types';
-
 import { OAuth2RequestError } from 'arctic';
 import { and, eq } from 'drizzle-orm';
 import { generateId } from 'lucia';
@@ -25,7 +23,7 @@ type GoogleUser = {
 	locale: string;
 };
 
-export const GET: RequestHandler = async (event : RequestEvent) => {
+export const GET = async (event : RequestEvent) => {
 	const code = event.url.searchParams.get('code');
 	const state = event.url.searchParams.get('state');
 

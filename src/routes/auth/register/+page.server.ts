@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
+import type { Actions } from './$types';
 import { zod } from 'sveltekit-superforms/adapters';
 
 import { message,  superValidate } from 'sveltekit-superforms/server';
@@ -20,7 +20,7 @@ export const load = (async () => {
 	return {
 		registerUserFormData: await superValidate(zod(RegisterUserZodSchema))
 	};
-}) satisfies PageServerLoad;
+});
 
 export const actions: Actions = {
 	registerUser: async ({ request, cookies }) => {

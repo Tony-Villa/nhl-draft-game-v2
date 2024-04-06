@@ -8,21 +8,26 @@ export async function POST({ request }) {
 
 	const {draftboard, user} = data;
 
-	draftboard.forEach(async (draft: DraftBoard) => {
-		if (!draft.prospect) return;
+	try {
+		draftboard.forEach(async (draft: DraftBoard) => {
+			if (!draft.prospect) return;
+	
+			await db
+			.insert(drafts)
+			.values({
+						userId: user.id,
+						positionDrafted: draft.draftPosition,
+						prospect: JSON.stringify(draft.prospect)
+					})
+			.onConflictDoUpdate({
+				target: [drafts.positionDrafted, drafts.userId],
+				set: { prospect: JSON.stringify(draft.prospect) },
+			});
+		});
+	} catch (error) {
+		console.log(error);
+	}
 
-		await db
-		.insert(drafts)
-		.values({
-					userId: user.id,
-					positionDrafted: draft.draftPosition,
-					prospect: JSON.stringify(draft.prospect)
-				})
-		.onConflictDoUpdate({
-			target: [drafts.positionDrafted, drafts.userId],
-			set: { prospect: JSON.stringify(draft.prospect) },
-  });
-	});
 
 	return json({ message: 'success' });
 }

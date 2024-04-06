@@ -71,7 +71,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 					id: userId,
 					email: discordUser.email,
 					avatarUrl: `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`,
-					name: discordUser.login,
+					name: discordUser?.username || '',
 					keys: ['discord']
 				});
 
