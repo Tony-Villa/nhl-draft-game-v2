@@ -9,8 +9,6 @@
 	const draftSystem = getDraftSystem();
 	const currentUser = getCurrentUser();
 
-	console.log(!!currentUser.user);
-
 	function removeProspect(prospect: Prospect, position: number) {
 		draftSystem.removeProspectFromBoard(prospect, position);
 	}
