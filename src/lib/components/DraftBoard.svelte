@@ -9,6 +9,8 @@
 	const draftSystem = getDraftSystem();
 	const currentUser = getCurrentUser();
 
+	console.log(!!currentUser.user);
+
 	function removeProspect(prospect: Prospect, position: number) {
 		draftSystem.removeProspectFromBoard(prospect, position);
 	}
@@ -32,10 +34,11 @@
 </script>
 
 <div class="draft-board flex w-full flex-[2] flex-col gap-2 md:min-w-[450px] ">
-	<!-- <h2>Draft Board</h2> -->
+
 	<div class="w-auto self-end pr-2">
-		<Button on:click={submitDraftBoard} class="py-2">Submit Draft</Button>
+		<Button on:click={submitDraftBoard} class="py-2" disabled={!currentUser.user}>Submit Draft</Button>
 	</div>
+
 	<div class="flex flex-wrap justify-center gap-2 mb-16">
 		{#each draftSystem?.draftBoard || [] as position}
 		<Card variant='small' class='basis-[48%]' >
