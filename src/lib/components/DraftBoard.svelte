@@ -34,9 +34,9 @@
 <div class="draft-board flex w-full flex-[2] flex-col gap-2 md:min-w-[450px]">
 	<div class="flex items-end justify-end gap-3 pr-3">
 		{#if currentUser.user}
-			<p class="text-lg font-bold">Welcome {`, ${currentUser.user?.name}` || ''}</p>
+			<p class="font-bold md:text-lg">Welcome {`, ${currentUser.user?.name}` || ''}</p>
 		{:else}
-			<p class="text-lg font-bold">Please sign in to submit your draft</p>
+			<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
 		{/if}
 		<Button on:click={submitDraftBoard} class="py-2" disabled={!currentUser.user}
 			>Submit Draft</Button
