@@ -23,7 +23,7 @@
 </svelte:head>
 
 <main class="bg-[#FFF4E8] font-medium">
-	<nav class="flex flex-row justify-end items-center py-3 mx-10">
+	<nav class="flex flex-row justify-end items-center py-3 mx-3 md:mx-10 ">
 	{#if data.isAuthenticated}
 			<ul class="flex flex-row flex-end">
 				<form method="post" action="/draft-center?/logout">
