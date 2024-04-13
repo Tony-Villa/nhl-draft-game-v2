@@ -31,29 +31,35 @@
 	}
 </script>
 
-<div class="draft-board flex w-full flex-[2] flex-col gap-2 md:min-w-[450px] ">
-
-	<div class="w-auto self-end pr-2">
-		<Button on:click={submitDraftBoard} class="py-2" disabled={!currentUser.user}>Submit Draft</Button>
+<div class="draft-board flex w-full flex-[2] flex-col gap-2 md:min-w-[450px]">
+	<div class="flex items-end justify-end gap-3 pr-3">
+		{#if currentUser.user}
+			<p class="text-lg font-bold">Welcome {`, ${currentUser.user?.name}` || ''}</p>
+		{:else}
+			<p class="text-lg font-bold">Please sign in to submit your draft</p>
+		{/if}
+		<Button on:click={submitDraftBoard} class="py-2" disabled={!currentUser.user}
+			>Submit Draft</Button
+		>
 	</div>
 
-	<div class="flex flex-wrap justify-center gap-2 mb-16">
+	<div class="mb-16 flex flex-wrap justify-center gap-2">
 		{#each draftSystem?.draftBoard || [] as position}
-		<Card variant='small' class='basis-[48%]' >
-			<div class="flex items-center px-2 py-2">
-				<h2>{position.draftPosition}</h2>
-				<img class="h-[50px] w-[50px]" src={position.teamLogo} alt="" />
-				{#if position.prospect}
-					<p class="font-bold ml-2">{position?.prospect?.name}</p>
-					<button
-						on:click={() => removeProspect(position.prospect as Prospect, position.draftPosition)}
-						class="ml-auto"
-					>
-						<Close size={24} />
-					</button>
-				{/if}
-			</div>
-		</Card>
+			<Card variant="small" class="basis-[48%]">
+				<div class="flex items-center px-2 py-2">
+					<h2>{position.draftPosition}</h2>
+					<img class="h-[50px] w-[50px]" src={position.teamLogo} alt="" />
+					{#if position.prospect}
+						<p class="ml-2 font-bold">{position?.prospect?.name}</p>
+						<button
+							on:click={() => removeProspect(position.prospect as Prospect, position.draftPosition)}
+							class="ml-auto"
+						>
+							<Close size={24} />
+						</button>
+					{/if}
+				</div>
+			</Card>
 		{/each}
 	</div>
 </div>
