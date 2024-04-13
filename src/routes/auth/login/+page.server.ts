@@ -8,7 +8,6 @@ const loginSchema = z.object({
 });
 
 export const load = async () => {
-	// 					birthDay,
 	const form = await superValidate(zod(loginSchema));
 
 	return { form };
@@ -17,7 +16,6 @@ export const load = async () => {
 export const actions = {
 	default: async ({ request }) => {
 		const form = await superValidate(request, zod(loginSchema));
-		// console.log(form);
 
 		return { form };
 	}

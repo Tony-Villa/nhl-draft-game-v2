@@ -1,9 +1,8 @@
 <script lang="ts">
 	import SuperDebug from 'sveltekit-superforms';
-	import type { PageData } from './$types';
 	import { superForm } from 'sveltekit-superforms/client';
 
-	export let data: PageData;
+	let { data } = $props();
 
 	const { enhance, errors, form, message, constraints } = superForm(data.registerUserFormData, {
 		resetForm: true,
@@ -25,10 +24,10 @@
 	});
 </script>
 
-<SuperDebug data={$form} />
+<!-- <SuperDebug data={$form} /> -->
 
 <section class="login">
-	<form method="POST" use:enhance action="/auth/register?/registerUser">
+	<form method="POST" action="/auth/register?/registerUser">
 		<label for="name">Name</label>
 		<input type="name" id="name" name="name" bind:value={$form.name} {...$constraints.name} />
 		<label for="email">Email</label>

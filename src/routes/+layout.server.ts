@@ -142,4 +142,3 @@ async function setInitialDraftBoard(userId: string | undefined = undefined) {
 
 	return draftboard || {};
 }
-

@@ -3,14 +3,15 @@
 	import type { PageData } from './$types';
 	import { superForm } from 'sveltekit-superforms/client';
 
-	export let data: PageData;
+	let { data }: { data: PageData } = $props();
 
-	const { form } = superForm(data.form);
+	const { form } = superForm(data?.form);
 </script>
 
 <SuperDebug data={$form} />
 
 <section class="login">
+	<!-- {#if $form} -->
 	<form method="POST">
 		<label for="email">Email</label>
 		<input type="email" id="email" name="email" bind:value={$form.email} />
@@ -18,6 +19,7 @@
 		<input type="password" id="password" name="password" bind:value={$form.password} />
 		<button class="submit">Login</button>
 	</form>
+	<!-- {/if} -->
 </section>
 
 <style lang="postcss">
