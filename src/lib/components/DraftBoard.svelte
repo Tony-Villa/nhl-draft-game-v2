@@ -2,7 +2,7 @@
 	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
 	import { getCurrentUser } from '$lib/globalState/user/userState.svelte';
 	import Close from '$lib/icons/Close.svelte';
-	import type { Prospect } from '$lib/types';
+	import type { Prospect, User } from '$lib/types';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
 
@@ -34,7 +34,7 @@
 <div class="draft-board flex w-full flex-[2] flex-col gap-2 md:min-w-[450px]">
 	<div class="flex items-end justify-end gap-3 pr-3">
 		{#if currentUser.user}
-			<p class="font-bold md:text-lg">Welcome {`, ${currentUser.user?.name}` || ''}</p>
+			<p class="font-bold md:text-lg">Welcome {`, ${(currentUser.user as User)?.name}` || ''}</p>
 		{:else}
 			<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
 		{/if}
