@@ -15,7 +15,6 @@
 	const currentUser = setCurrentUser(data?.user?.user);
 
 	const baseButtonStyles = 'border-2 shadow-brut-shadow-sm rounded-md border-solid border-black px-3 py-1 relative';
-
 </script>
 
 <svelte:head>
