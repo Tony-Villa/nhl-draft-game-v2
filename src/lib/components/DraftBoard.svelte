@@ -4,8 +4,10 @@
 	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
 	import Close from '$lib/icons/Close.svelte';
 	import type { Prospect, User } from '$lib/types';
+	import { slide } from 'svelte/transition';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
+	import { Popover } from 'flowbite-svelte';
 
 	const draftSystem = getDraftSystem();
 	const currentUser = getCurrentUser();
@@ -57,10 +59,15 @@
 			<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
 		{/if}
 		<Button on:click={submitDraftBoard} 
+		 id='submit-draft'
 		 class="py-2" 
 		 disabled={!currentUser.user || isSameDraftboard}>
 			Submit Draft
 		</Button>
+		<Popover transition={slide}
+		class="px-3 text-semibold font-light bg-orange-200 rounded-lg shadow-brut-shadow-sm outline-none border-black border-2" 
+		triggeredBy="#submit-draft"
+		>Your draft hasn't changed</Popover>
 	</div>
 
 	<div class="mb-16 flex flex-wrap justify-center gap-2">
