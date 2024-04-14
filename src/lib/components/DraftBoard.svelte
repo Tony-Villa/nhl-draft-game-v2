@@ -13,7 +13,6 @@
 
 	$effect(() => {
 		compareDraftBoardToLocalStorage();
-		console.log('I am running the effect');
 	});
 
 	function removeProspect(prospect: Prospect, position: number) {
