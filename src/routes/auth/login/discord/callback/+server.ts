@@ -14,6 +14,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const storedState = event.cookies.get('discord_oauth_state') ?? null;
 
 	if (!code || !state || !storedState || state !== storedState) {
+		console.log('Invalid OAuth state or code verifier');
 		return new Response('Invalid OAuth state or code verifier', {
 			status: 400
 		});
@@ -29,6 +30,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		const discordUser: DiscordUser = await discordUserResponse.json();
 
 		const [existingUser] = await db.select().from(users).where(eq(users.email, discordUser.email))
+
+		console.log('Made it into discord callback!');
 
 		if (existingUser) {
 			const [existingKey] = await db

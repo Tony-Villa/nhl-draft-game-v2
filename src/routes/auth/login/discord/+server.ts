@@ -10,6 +10,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		scopes: ['identify']
 	});
 
+	console.log('is this prod?', import.meta.env.PROD);
+
 	event.cookies.set('discord_oauth_state', state, {
 		path: '/',
 		secure: import.meta.env.PROD,
