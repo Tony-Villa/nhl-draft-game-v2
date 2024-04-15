@@ -13,6 +13,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const state = event.url.searchParams.get('state');
 	const storedState = event.cookies.get('discord_oauth_state') ?? null;
 
+	console.log('Are we in the discord callback?');
+
 	if (!code || !state || !storedState || state !== storedState) {
 		console.log('Invalid OAuth state or code verifier');
 		return new Response('Invalid OAuth state or code verifier', {
