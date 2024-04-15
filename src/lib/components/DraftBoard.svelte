@@ -37,17 +37,21 @@
 
 		localStorage.setItem('draftBoard', JSON.stringify(draftboardToMap(draftSystem.draftBoard)));
 
-		const draft = await fetch('/api/draft', {
-			method: 'POST',
-			body: JSON.stringify({ data: payload }),
-			headers: {
-				'content-type': 'application/json'
-			}
-		});
+		try {
+			const draft = await fetch('/api/draft', {
+				method: 'POST',
+				body: JSON.stringify({ data: payload }),
+				headers: {
+					'content-type': 'application/json'
+				}
+			});
+			
+			compareDraftBoardToLocalStorage()
 
-		compareDraftBoardToLocalStorage()
-
-		const response = await draft.json();
+			const response = await draft.json();
+		} catch (error) {
+			console.log(error);
+		}
 	}
 </script>
 
