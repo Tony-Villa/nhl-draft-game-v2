@@ -9,8 +9,8 @@ import { DISCORD_APP_ID, DISCORD_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET 
 
 const adapter = new DrizzleSQLiteAdapter(db, sessions, users); // your adapter
 
-const discordCallback = 'https://nhl-draft-game-v2.vercel.app/auth/login/discord/callback';
-const googleCallback = 'https://nhl-draft-game-v2.vercel.app/auth/login/google/callback';
+const discordCallback = dev ? 'http://localhost:5173/auth/login/discord/callback' : 'https://nhl-draft-game-v2.vercel.app/auth/login/discord/callback';
+const googleCallback = dev ? 'http://localhost:5173/auth/login/google/callback' : 'https://nhl-draft-game-v2.vercel.app/auth/login/google/callback';
 
 
 export const discord = new Discord(
