@@ -16,7 +16,6 @@ export const load = async ({ request, setHeaders, locals }: RequestEvent) => {
 
 
 	if (cached) {
-		console.log('CACHE HIT');
 		const ttl = await redis.ttl(CACHE_TTL.toString());
 		if (!request.headers.get('cache-control')) {
 			setHeaders({
@@ -25,7 +24,6 @@ export const load = async ({ request, setHeaders, locals }: RequestEvent) => {
 		}
 		topProspects = JSON.parse(cached);
 	} else {
-		console.log('CACHE MISS');
 		const prospects: Prospect[] = [];
 		let count = 0;
 		const response = await fetch(PROSPECTS_URL);
