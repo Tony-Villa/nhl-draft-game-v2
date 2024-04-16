@@ -68,11 +68,13 @@
 		 disabled={!currentUser.user || isSameDraftboard}>
 			Submit Draft
 		</Button>
-		<Popover
-			class="px-3 text-semibold font-light bg-orange-200 rounded-lg shadow-brut-shadow-sm outline-none border-black border-2" 
-			triggeredBy="#submit-draft">
-		  Your draft hasn't changed
-	  </Popover>
+		{#if isSameDraftboard }
+			<Popover
+				class="px-3 text-semibold font-light bg-orange-200 rounded-lg shadow-brut-shadow-sm outline-none border-black border-2" 
+				triggeredBy="#submit-draft">
+					Your draft hasn't changed
+			</Popover>
+		{/if}
 	</div>
 
 	<div class="mb-16 flex flex-wrap justify-center gap-2">
