@@ -6,7 +6,7 @@
     children: any;
     variant?: Variant;
     class?: string;
-    id: string;
+    id?: string;
     disabled?: boolean;
   }
 
