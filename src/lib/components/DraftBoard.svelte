@@ -4,7 +4,6 @@
 	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
 	import Close from '$lib/icons/Close.svelte';
 	import type { Prospect, User } from '$lib/types';
-	import { slide } from 'svelte/transition';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
 	import { Popover } from 'flowbite-svelte';
@@ -12,6 +11,7 @@
 	const draftSystem = getDraftSystem();
 	const currentUser = getCurrentUser();
 	let isSameDraftboard = $state(false);
+	let draftBoardContainerWidth = $state(0)
 
 	$effect(() => {
 		compareDraftBoardToLocalStorage();
@@ -55,7 +55,7 @@
 	}
 </script>
 
-<div class="draft-board flex w-full flex-[2] flex-col gap-2 md:min-w-[450px]">
+<div bind:clientWidth={draftBoardContainerWidth} class="draft-board flex w-full flex-[2] flex-col gap-2 min-[950px]:min-w-[450px]">
 	<div class="flex items-end justify-end gap-3 pr-3">
 		{#if currentUser.user}
 			<p class="font-bold md:text-lg">Welcome {`, ${(currentUser.user as User)?.name}` || ''}</p>
@@ -77,9 +77,9 @@
 		{/if}
 	</div>
 
-	<div class="mb-16 flex flex-wrap justify-center gap-2">
+	<div class="draft-card-container mb-16 flex flex-wrap justify-center gap-2">
 		{#each draftSystem?.draftBoard || [] as position}
-			<Card variant="small" class="basis-[48%]">
+			<Card variant="small" class={`draft-card ${draftBoardContainerWidth > 300 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
 				<div class="flex items-center px-2 py-2">
 					<h2>{position.draftPosition}</h2>
 					<img class="h-[50px] w-[50px]" src={position.teamLogo} alt="" />

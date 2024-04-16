@@ -45,7 +45,7 @@
 		<Searchbar bind:value={searchInput} placeholder="Search Prospect" />
 		<MultipleSelect bind:sortFilter sortPosition={sortByPosition} />
 	</div>
-	<div class="mb-12 flex flex-wrap justify-start gap-2">
+	<div class="mb-12 flex flex-wrap justify-between gap-2 md:justify-start">
 		{#each prospectList.prospects as prospect}
 			{#if !prospect.drafted && positions.length === 0 && (prospect?.name ?? '')
 					.toLowerCase()

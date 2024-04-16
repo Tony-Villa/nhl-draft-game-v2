@@ -24,7 +24,7 @@
 </script>
 
 <Card variant='small'>
-	<div class="prospect-card relative flex w-48 flex-col content-between gap-2 pb-4 px-4 min-h-[235px] h-full md:w-52 ">
+	<div class="prospect-card relative flex w-48 flex-col content-between gap-2 pb-4 px-4 min-h-[235px] h-full md:w-52 max-[430px]:w-44 max-[399px]:w-[165px]">
 		<!-- TODO: play with this idea (probably dumb af tho) -->
 		<img
 			src={prospect?.nation}
