@@ -45,6 +45,10 @@
 		checkForLocalDraftBoard();
 	})
 
+	function clearLocalDraft() {
+		localStorage.removeItem('draftBoard');
+	}
+
 	const baseButtonStyles = 'border-2 shadow-brut-shadow-sm rounded-md border-solid border-black px-3 py-1 relative';
 </script>
 
@@ -57,7 +61,7 @@
 	{#if data.isAuthenticated}
 			<ul class="flex flex-row flex-end">
 				<form method="post" action="/draft-center?/logout">
-					<button>Sign out</button>
+					<button onclick={clearLocalDraft}>Sign out</button>
 				</form>
 			</ul>
 	{:else}
