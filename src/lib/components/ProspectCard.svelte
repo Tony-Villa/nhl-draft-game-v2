@@ -1,7 +1,9 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
 
-	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
+	import { getDraftSystem } from '$lib/globalState/prospectsState.svelte';
+	import { getCurrentUser } from '$lib/globalState/userState.svelte';
+	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
 
 	import type { Prospect, DraftBoard } from '$lib/types';
 	import Button from './Button.svelte';
@@ -10,6 +12,7 @@
 	let showModal = $state(false);
 
 	const draftSystem = getDraftSystem();
+	const currentUser = getCurrentUser();
 
 	let {
 		prospect
@@ -19,6 +22,11 @@
 
 	function draft(prospect: Prospect, draftPosition: number) {
 		draftSystem.addProspectToBoard(prospect, draftPosition);
+
+		if(!currentUser.user){
+			localStorage.setItem('draftBoard', JSON.stringify(draftboardToMap(draftSystem.draftBoard)));
+		}
+
 		showModal = !showModal;
 	}
 </script>

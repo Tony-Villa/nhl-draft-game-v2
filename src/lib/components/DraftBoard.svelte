@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { getDraftSystem } from '$lib/globalState/prospects/prospectsState.svelte';
-	import { getCurrentUser } from '$lib/globalState/user/userState.svelte';
+	import { getDraftSystem } from '$lib/globalState/prospectsState.svelte';
+	import { getCurrentUser } from '$lib/globalState/userState.svelte';
 	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
 	import Close from '$lib/icons/Close.svelte';
 	import type { Prospect, User } from '$lib/types';

@@ -10,6 +10,15 @@ class ProspectDraftSystem {
 		this.draftBoard = initialDraftBoard;
 	}
 
+	setNewInitialDraftBoard(newDraftBoard: DraftBoardType[]) {
+		for (const draft of newDraftBoard) {
+			if (draft.prospect) {
+				this.draftProspect(draft.prospect);
+			}
+		}
+		this.draftBoard = newDraftBoard;
+	}
+
 	addProspectToBoard(prospect: Prospect, position = 1) {
 		this.draftProspect(prospect);
 		this.draftBoard[position - 1].prospect = prospect;
