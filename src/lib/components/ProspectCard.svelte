@@ -6,11 +6,8 @@
 	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
 
 	import type { Prospect, DraftBoard } from '$lib/types';
-	import Button from './Button.svelte';
 	import Card from './Card.svelte';
 	import * as Drawer from "$lib/components/ui/drawer/index.js";
-
-	let showModal = $state(false);
 
 	const draftSystem = getDraftSystem();
 	const currentUser = getCurrentUser();
@@ -27,8 +24,6 @@
 		if(!currentUser.user){
 			localStorage.setItem('draftBoard', JSON.stringify(draftboardToMap(draftSystem.draftBoard)));
 		}
-
-		showModal = !showModal;
 	}
 </script>
 
@@ -41,13 +36,6 @@
 				alt="nationality"
 				class="flag absolute left-0 top-0 w-10 object-cover opacity-40"
 			/>
-			<Modal bind:showModal on:close={() => showModal = false}>
-				<div class="flex flex-wrap justify-center gap-2">
-					{#each draftSystem.draftBoard as cell}
-						{@render teamPicker(cell)}
-					{/each}
-				</div>
-			</Modal>
 	
 			<div class="flex justify-between">
 				<p class="font-semibold">{prospect?.rank !== '-' ? 'Rank: ' + prospect?.rank : 'NR'}</p>
