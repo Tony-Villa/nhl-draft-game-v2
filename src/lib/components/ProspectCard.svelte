@@ -1,11 +1,9 @@
 <script lang="ts">
-	import Modal from '$lib/components/Modal.svelte';
-
 	import { getDraftSystem } from '$lib/globalState/prospectsState.svelte';
 	import { getCurrentUser } from '$lib/globalState/userState.svelte';
 	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
 
-	import type { Prospect, DraftBoard } from '$lib/types';
+	import type { Prospect } from '$lib/types';
 	import Card from './Card.svelte';
 	import * as Drawer from "$lib/components/ui/drawer/index.js";
 
