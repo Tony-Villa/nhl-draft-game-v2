@@ -7,6 +7,7 @@
 	import { setCurrentUser } from '$lib/globalState/userState.svelte';
 	import Google from '$lib/icons/Google.svelte';
 	import Discord from '$lib/icons/Discord.svelte';
+	import { setDraftState } from '$lib/globalState/draftState.svelte';
 
 	let { children, data }: {
 		children: any;
@@ -19,6 +20,7 @@
 	
 	setCurrentUser(data?.user?.user);
 	setDraftSystem(data.prospects, data.draftBoard);
+	setDraftState()
 
 	const storedDraftBoard = getDraftSystem()
 	
@@ -32,6 +34,7 @@
 
 		if (playersDrafted === 0 && localStorageDraft.hasOwnProperty('draft')) {
 			storedDraftBoard.setNewInitialDraftBoard(localStorageDraft.draft);
+			
 		} else {
 			draftBoard = data.draftBoard;
 		}

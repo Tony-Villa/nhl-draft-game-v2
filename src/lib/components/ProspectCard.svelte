@@ -6,9 +6,11 @@
 	import type { Prospect } from '$lib/types';
 	import Card from './Card.svelte';
 	import * as Drawer from "$lib/components/ui/drawer/index.js";
+	import { getDraftState } from '$lib/globalState/draftState.svelte';
 
 	const draftSystem = getDraftSystem();
 	const currentUser = getCurrentUser();
+	const draftState = getDraftState();
 
 	let {
 		prospect
@@ -18,6 +20,8 @@
 
 	function draft(prospect: Prospect, draftPosition: number) {
 		draftSystem.addProspectToBoard(prospect, draftPosition);
+
+		draftState.updateDraftStatus(false);
 
 		if(!currentUser.user){
 			localStorage.setItem('draftBoard', JSON.stringify(draftboardToMap(draftSystem.draftBoard)));

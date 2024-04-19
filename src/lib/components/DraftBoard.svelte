@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { getDraftState } from '$lib/globalState/draftState.svelte';
 	import { getDraftSystem } from '$lib/globalState/prospectsState.svelte';
 	import { getCurrentUser } from '$lib/globalState/userState.svelte';
-	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
 	import Close from '$lib/icons/Close.svelte';
 	import type { Prospect, User } from '$lib/types';
 	import Button from './Button.svelte';
@@ -10,23 +10,12 @@
 
 	const draftSystem = getDraftSystem();
 	const currentUser = getCurrentUser();
-	let isSameDraftboard = $state(false);
+	const draftState = getDraftState();
 	let draftBoardContainerWidth = $state(0)
 
-	$effect(() => {
-		compareDraftBoardToLocalStorage();
-	});
 
 	function removeProspect(prospect: Prospect, position: number) {
 		draftSystem.removeProspectFromBoard(prospect, position);
-	}
-
-	function compareDraftBoardToLocalStorage() {
-		const lastDraftBoard = localStorage.getItem('draftBoard');
-		const currentDraftBoard = JSON.stringify(draftboardToMap(draftSystem.draftBoard));
-		if (!lastDraftBoard) return;
-
-		isSameDraftboard = lastDraftBoard === currentDraftBoard;
 	}
 
 	async function submitDraftBoard() {
@@ -34,8 +23,6 @@
 			draftboard: draftSystem.draftBoard,
 			user: currentUser.user
 		};
-
-		localStorage.setItem('draftBoard', JSON.stringify(draftboardToMap(draftSystem.draftBoard)));
 
 		try {
 			const draft = await fetch('/api/draft', {
@@ -46,8 +33,8 @@
 				}
 			});
 			
-			compareDraftBoardToLocalStorage()
-
+			draftState.updateDraftStatus(true);
+			
 			const response = await draft.json();
 		} catch (error) {
 			console.log(error);
@@ -65,10 +52,10 @@
 		<Button on:click={submitDraftBoard} 
 		 id='submit-draft'
 		 class="py-2" 
-		 disabled={!currentUser.user || isSameDraftboard}>
+		 disabled={!currentUser.user || draftState.isDraftLocked}>
 			Submit Draft
 		</Button>
-		{#if isSameDraftboard }
+		{#if draftState.isDraftLocked }
 			<Popover
 				class="px-3 text-semibold font-light bg-orange-200 rounded-lg shadow-brut-shadow-sm outline-none border-black border-2" 
 				triggeredBy="#submit-draft">
