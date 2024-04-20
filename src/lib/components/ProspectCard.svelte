@@ -32,7 +32,7 @@
 
 <Drawer.Root>
 	<Card variant='small'>
-		<div class="prospect-card relative flex w-48 flex-col content-between gap-2 pb-4 px-4 min-h-[235px] h-full md:w-52 max-[430px]:w-44 max-[399px]:w-[165px]">
+		<div class="prospect-card relative flex w-48 flex-col content-between gap-2 pb-4 px-4 min-h-[235px] h-full md:w-52 max-[430px]:w-44 max-[399px]:w-[160px]">
 			<img
 				src={prospect?.nation}
 				alt="nationality"
