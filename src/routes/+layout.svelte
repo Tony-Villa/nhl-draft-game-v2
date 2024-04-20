@@ -1,9 +1,10 @@
 <script lang="ts">
 	import '../app.pcss';
-	import '../app.pcss';
-	import { getDraftSystem, setDraftSystem } from '$lib/globalState/prospectsState.svelte';
-	import '../app.pcss';
 	import '../tailwind.css';
+
+	import { Toaster } from 'svelte-french-toast';
+	
+	import { getDraftSystem, setDraftSystem } from '$lib/globalState/prospectsState.svelte';
 	import { setCurrentUser } from '$lib/globalState/userState.svelte';
 	import Google from '$lib/icons/Google.svelte';
 	import Discord from '$lib/icons/Discord.svelte';
@@ -60,6 +61,7 @@
 </svelte:head>
 
 <main class="bg-[#FFF4E8] font-medium">
+	<Toaster />
 	<nav class="flex flex-row justify-end items-center py-3 mx-3 md:mx-10 ">
 	{#if data.isAuthenticated}
 			<ul class="flex flex-row flex-end">

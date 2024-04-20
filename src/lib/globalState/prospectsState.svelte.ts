@@ -1,5 +1,8 @@
+import ToastDraft from '$lib/components/ToastDraft.svelte';
+import { ordinalNumbers } from '$lib/helpers/ordinal-numbers';
 import type { DraftBoard as DraftBoardType, Prospect } from '$lib/types';
 import { getContext, setContext } from 'svelte';
+import toast from 'svelte-french-toast';
 
 class ProspectDraftSystem {
 	prospects: Prospect[] = $state([]);
@@ -22,6 +25,15 @@ class ProspectDraftSystem {
 	addProspectToBoard(prospect: Prospect, position = 1) {
 		this.draftProspect(prospect);
 		this.draftBoard[position - 1].prospect = prospect;
+
+		toast.success(`With the ${ordinalNumbers(position)} draft pick, the ${this.draftBoard[position - 1].teamName} select ${prospect.name}!`, {
+			duration: 7000,
+		});
+
+		// TODO: Create custom toast component
+		// toast(ToastDraft, { props: { someProp: '⭐' }})
+
+
 	}
 
 	removeProspectFromBoard(prospect: Prospect, position = 1) {
