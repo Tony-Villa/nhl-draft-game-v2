@@ -4,6 +4,7 @@
 	import { getCurrentUser } from '$lib/globalState/userState.svelte';
 	import Close from '$lib/icons/Close.svelte';
 	import type { Prospect, User } from '$lib/types';
+	import toast from 'svelte-french-toast';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
 	import { Popover } from 'flowbite-svelte';
@@ -36,6 +37,12 @@
 			draftState.updateDraftStatus(true);
 			
 			const response = await draft.json();
+
+			if (response) {
+				toast.success('Draft submitted successfully', {
+					duration: 4000
+				});
+			}
 		} catch (error) {
 			console.log(error);
 		}
