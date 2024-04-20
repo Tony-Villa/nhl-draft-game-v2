@@ -27,7 +27,7 @@ class ProspectDraftSystem {
 		this.draftBoard[position - 1].prospect = prospect;
 
 		toast.success(`With the ${ordinalNumbers(position)} overall pick, the ${this.draftBoard[position - 1].teamName} select ${prospect.name}!`, {
-			duration: 7000,
+			duration: 5000,
 		});
 
 		// TODO: Create custom toast component
