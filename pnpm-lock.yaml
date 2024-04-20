@@ -56,6 +56,9 @@ dependencies:
   postcss-preset-env:
     specifier: ^9.3.0
     version: 9.3.0(postcss@8.4.33)
+  svelte-french-toast:
+    specifier: ^1.2.0
+    version: 1.2.0(svelte@5.0.0-next.80)
   tailwind-merge:
     specifier: ^2.2.2
     version: 2.2.2
@@ -5841,6 +5844,15 @@ packages:
       svelte: 5.0.0-next.80
     dev: true
 
+  /svelte-french-toast@1.2.0(svelte@5.0.0-next.80):
+    resolution: {integrity: sha512-5PW+6RFX3xQPbR44CngYAP1Sd9oCq9P2FOox4FZffzJuZI2mHOB7q5gJBVnOiLF5y3moVGZ7u2bYt7+yPAgcEQ==}
+    peerDependencies:
+      svelte: ^3.57.0 || ^4.0.0
+    dependencies:
+      svelte: 5.0.0-next.80
+      svelte-writable-derived: 3.1.1(svelte@5.0.0-next.80)
+    dev: false
+
   /svelte-hmr@0.15.3(svelte@5.0.0-next.80):
     resolution: {integrity: sha512-41snaPswvSf8TJUhlkoJBekRrABDXDMdpNpT2tfHIv4JuhgvHqLMhEPGtaQn0BmbNSTkuz2Ed20DF2eHw0SmBQ==}
     engines: {node: ^12.20 || ^14.13.1 || >= 16}
@@ -5898,6 +5910,14 @@ packages:
       svelte: 5.0.0-next.80
       typescript: 5.3.3
     dev: true
+
+  /svelte-writable-derived@3.1.1(svelte@5.0.0-next.80):
+    resolution: {integrity: sha512-w4LR6/bYZEuCs7SGr+M54oipk/UQKtiMadyOhW0PTwAtJ/Ai12QS77sLngEcfBx2q4H8ZBQucc9ktSA5sUGZWw==}
+    peerDependencies:
+      svelte: ^3.2.1 || ^4.0.0-next.1 || ^5.0.0-next.94
+    dependencies:
+      svelte: 5.0.0-next.80
+    dev: false
 
   /svelte@5.0.0-next.80:
     resolution: {integrity: sha512-hiei7UfWoNa6P0yvNoUWqptSh8Tnn2V3dN+w6s32jSqpqzTtNG2tn+xbxdOOBJ5wYc3gYKYbA3+rK1Q643iCEw==}
