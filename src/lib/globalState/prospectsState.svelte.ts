@@ -26,7 +26,7 @@ class ProspectDraftSystem {
 		this.draftProspect(prospect);
 		this.draftBoard[position - 1].prospect = prospect;
 
-		toast.success(`With the ${ordinalNumbers(position)} draft pick, the ${this.draftBoard[position - 1].teamName} select ${prospect.name}!`, {
+		toast.success(`With the ${ordinalNumbers(position)} overall pick, the ${this.draftBoard[position - 1].teamName} select ${prospect.name}!`, {
 			duration: 7000,
 		});
 
