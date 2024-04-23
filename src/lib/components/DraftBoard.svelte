@@ -8,6 +8,7 @@
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
 	import { Popover } from 'flowbite-svelte';
+	import { dev } from '$app/environment';
 
 	const draftSystem = getDraftSystem();
 	const currentUser = getCurrentUser();
@@ -17,6 +18,31 @@
 
 	function removeProspect(prospect: Prospect, position: number) {
 		draftSystem.removeProspectFromBoard(prospect, position);
+	}
+
+	async function seedDb() {
+		const payload = {
+			prospects: draftSystem.prospects,
+			draftboard: draftSystem.draftBoard
+		}
+
+		try {
+			const response = await fetch('/api/seed', {
+				method: 'POST',
+				body: JSON.stringify({ data: payload }),
+				headers: {
+					'content-type': 'application/json'
+				}
+			});
+
+			if (response) {
+				toast.success('Database seeded successfully', {
+					duration: 4000
+				});
+			}
+		} catch (error) {
+			console.log(error);
+		}
 	}
 
 	async function submitDraftBoard() {
@@ -62,6 +88,14 @@
 		 disabled={!currentUser.user || draftState.isDraftLocked}>
 			Submit Draft
 		</Button>
+		{#if dev}
+			<Button on:click={seedDb} 
+			id='seed'
+			class="py-2" 
+			disabled={!currentUser.user || draftState.isDraftLocked}>
+				Seed DB
+			</Button>
+		{/if}
 		{#if draftState.isDraftLocked }
 			<Popover
 				class="px-3 text-semibold font-light bg-orange-200 rounded-lg shadow-brut-shadow-sm outline-none border-black border-2" 
