@@ -4,7 +4,7 @@
 
 	type $$Props = DrawerPrimitive.Props;
 
-	let {children, shouldScaleBackground, open = false, activeSnapPoint, ...rest}: 
+	let {children, shouldScaleBackground = true, open = false, activeSnapPoint = undefined, ...rest}: 
 	{
 		children: Snippet;
 		shouldScaleBackground?: $$Props["shouldScaleBackground"];
