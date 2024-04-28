@@ -78,7 +78,7 @@
       <Drawer.Title>Who will be drafting {prospect.name}?</Drawer.Title>
     </Drawer.Header>
 
-		<div class="flex flex-wrap justify-center gap-2 pb-10 md:max-w-[600px] md:mx-auto">
+		<div class="flex flex-wrap justify-center gap-2 pb-10 max-h-[75dvh] overflow-y-scroll md:max-w-[600px] md:mx-auto">
 			{#each draftSystem.draftBoard as cell}
 				{@render teamPicker(cell)}
 			{/each}
@@ -93,7 +93,7 @@
 	<button
 		class={`flex flex-col content-center justify-center gap-2 border border-black rounded-md p-2 w-20 h-20 md:w-28 md:h-28
 		 ${!!cell?.prospect ? '' : 'hover:bg-[#f2dabd]'} ${!!cell?.prospect ? 'bg-neutral-400' : 'bg-orange-100'}`}
-		on:click={() => draft(prospect as Prospect, cell?.draftPosition)}
+		onclick={() => draft(prospect as Prospect, cell?.draftPosition)}
 		disabled={!!cell?.prospect}
 	>
 		<h3 class="text-center self-center font-semibold">
