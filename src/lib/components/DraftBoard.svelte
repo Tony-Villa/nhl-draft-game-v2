@@ -114,7 +114,7 @@
 					{#if position.prospect}
 						<p class="ml-2 font-bold">{position?.prospect?.name}</p>
 						<button
-							on:click={() => removeProspect(position.prospect as Prospect, position.draftPosition)}
+							onclick={() => removeProspect(position.prospect as Prospect, position.draftPosition)}
 							class="ml-auto"
 						>
 							<Close size={24} />
