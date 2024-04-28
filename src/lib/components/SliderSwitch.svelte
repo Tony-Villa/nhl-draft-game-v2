@@ -19,7 +19,7 @@
 <div class="button-box h-full my-5 relative border-2 border-black rounded-[30px] bg-orange-200 flex justify-center">
 	<div id="btn"></div>
 	<button
-		on:click={() => {
+		onclick={() => {
 			switchLeft();
 			switchVariable('prospects');
 		}}
@@ -27,7 +27,7 @@
 		type="button">Prospects</button
 	>
 	<button
-		on:click={() => {
+		onclick={() => {
 			switchRight();
 			switchVariable('draftboard');
 		}}
