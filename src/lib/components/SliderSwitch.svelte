@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { switchVariable }: { selectedTab: string; switchVariable: (tab: string) => void } = $props();
+	let { switchVariable }: { switchVariable: (tab: string) => void } = $props();
 
 	function switchLeft() {
 		const btn = document.getElementById('btn');
@@ -19,7 +19,7 @@
 <div class="button-box h-full my-5 relative border-2 border-black rounded-[30px] bg-orange-200 flex justify-center">
 	<div id="btn"></div>
 	<button
-		onclick={() => {
+		on:click={() => {
 			switchLeft();
 			switchVariable('prospects');
 		}}
@@ -27,7 +27,7 @@
 		type="button">Prospects</button
 	>
 	<button
-		onclick={() => {
+		on:click={() => {
 			switchRight();
 			switchVariable('draftboard');
 		}}
