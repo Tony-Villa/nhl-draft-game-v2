@@ -1,8 +1,9 @@
 <script lang="ts">
 	import Close from '$lib/icons/Close.svelte';
+	import type { Binding } from 'svelte';
 
 	let {
-		value,
+		value = $bindable(''),
 		placeholder
 	}: {
 		value: string;
@@ -25,8 +26,8 @@
 		class="flex-grow bg-transparent placeholder-gray-950 focus:outline-none"
 		type="text"
 		bind:value
-		onfocus={() => (isFocused = true)}
-		onblur={() => (isFocused = false)}
+		on:focus={() => (isFocused = true)}
+		on:blur={() => (isFocused = false)}
 		placeholder={placeholder ? placeholder : ''}
 	/>
 

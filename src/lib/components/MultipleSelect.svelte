@@ -5,7 +5,7 @@
 	// import { sortFilter } from '~stores/prospectStore';
 
 	let {
-		sortFilter,
+		sortFilter = $bindable(),
 		sortPosition
 	}: {
 		sortFilter: PositionFilter;
