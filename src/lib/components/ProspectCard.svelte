@@ -2,6 +2,7 @@
 	import { getDraftSystem } from '$lib/globalState/prospectsState.svelte';
 	import { getCurrentUser } from '$lib/globalState/userState.svelte';
 	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
+	import { fade } from 'svelte/transition';
 
 	import type { Prospect } from '$lib/types';
 	import Card from './Card.svelte';
@@ -31,7 +32,7 @@
 
 <Drawer.Root>
 	<Card variant='small'>
-		<div class="prospect-card relative flex w-48 flex-col content-between gap-2 pb-4 px-4 min-h-[235px] h-full md:w-52 max-[430px]:w-44 max-[399px]:w-[160px]">
+		<div out:fade class="prospect-card relative flex w-48 flex-col content-between gap-2 pb-4 px-4 min-h-[235px] h-full md:w-52 max-[430px]:w-44 max-[399px]:w-[160px]">
 			<img
 				src={prospect?.nation}
 				alt="nationality"

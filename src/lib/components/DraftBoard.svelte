@@ -9,6 +9,7 @@
 	import Card from './Card.svelte';
 	import { Popover } from 'flowbite-svelte';
 	import { dev } from '$app/environment';
+	import { fade } from 'svelte/transition';
 
 	const draftSystem = getDraftSystem();
 	const currentUser = getCurrentUser();
@@ -112,6 +113,7 @@
 					<h2>{position.draftPosition}</h2>
 					<img class="h-[50px] w-[50px]" src={position.teamLogo} alt="" />
 					{#if position.prospect}
+					<div in:fade class='flex flex-1 justify-between'>
 						<p class="ml-2 font-bold">{position?.prospect?.name}</p>
 						<button
 							onclick={() => removeProspect(position.prospect as Prospect, position.draftPosition)}
@@ -119,6 +121,7 @@
 						>
 							<Close size={24} />
 						</button>
+					</div>
 					{/if}
 				</div>
 			</Card>
