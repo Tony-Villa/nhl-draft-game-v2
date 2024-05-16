@@ -83,14 +83,14 @@
 		{:else}
 			<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
 		{/if}
-		<Button on:click={submitDraftBoard} 
+		<Button onclick={submitDraftBoard} 
 		 id='submit-draft'
 		 class="py-2" 
 		 disabled={!currentUser.user || draftState.isDraftLocked}>
 			Submit Draft
 		</Button>
 		{#if dev}
-			<Button on:click={seedDb} 
+			<Button onclick={seedDb} 
 			id='seed'
 			class="py-2" 
 			disabled={!currentUser.user || draftState.isDraftLocked}>

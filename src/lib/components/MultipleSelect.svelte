@@ -22,7 +22,7 @@
 	{#each Object.keys(sortFilter) as option (option)}
 		<Button
 			variant="{sortFilter[option] ? 'primary' : 'secondary'}"
-			on:click={() => sortPosition(sortFilter, option)}>{option}</Button
+			onclick={() => sortPosition(sortFilter, option)}>{option}</Button
 		>
 	{/each}
 </div>
