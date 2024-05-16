@@ -17,6 +17,9 @@ dependencies:
   better-sqlite3:
     specifier: ^9.4.0
     version: 9.4.0
+  bits-ui:
+    specifier: ^0.21.7
+    version: 0.21.7(svelte@5.0.0-next.115)
   cheerio:
     specifier: 1.0.0-rc.12
     version: 1.0.0-rc.12
@@ -41,6 +44,9 @@ dependencies:
   lucia:
     specifier: ^3.0.1
     version: 3.0.1
+  lucide-svelte:
+    specifier: ^0.378.0
+    version: 0.378.0(svelte@5.0.0-next.115)
   open-props:
     specifier: ^1.6.17
     version: 1.6.17
@@ -1511,6 +1517,20 @@ packages:
       svelte: 5.0.0-next.115
     dev: false
 
+  /@melt-ui/svelte@0.76.2(svelte@5.0.0-next.115):
+    resolution: {integrity: sha512-7SbOa11tXUS95T3fReL+dwDs5FyJtCEqrqG3inRziDws346SYLsxOQ6HmX+4BkIsQh1R8U3XNa+EMmdMt38lMA==}
+    peerDependencies:
+      svelte: '>=3 <5'
+    dependencies:
+      '@floating-ui/core': 1.6.0
+      '@floating-ui/dom': 1.6.3
+      '@internationalized/date': 3.5.2
+      dequal: 2.0.3
+      focus-trap: 7.5.4
+      nanoid: 5.0.7
+      svelte: 5.0.0-next.115
+    dev: false
+
   /@napi-rs/wasm-runtime@0.1.1:
     resolution: {integrity: sha512-ATj9ua659JgrkICjJscaeZdmPr44cb/KFjNWuD0N6pux0SpzaM7+iOuuK11mAnQM2N9q0DT4REu6NkL8ZEhopw==}
     requiresBuild: true
@@ -2840,6 +2860,17 @@ packages:
     dependencies:
       '@internationalized/date': 3.5.2
       '@melt-ui/svelte': 0.68.0(svelte@5.0.0-next.115)
+      nanoid: 5.0.7
+      svelte: 5.0.0-next.115
+    dev: false
+
+  /bits-ui@0.21.7(svelte@5.0.0-next.115):
+    resolution: {integrity: sha512-1PKp90ly1R6jexIiAUj1Dk4u2pln7ok+L8Vc0rHMY7pi7YZvadFNZvkp1G5BtmL8qh2xsn4MVNgKjPAQMCxW0A==}
+    peerDependencies:
+      svelte: ^4.0.0 || ^5.0.0-next.118
+    dependencies:
+      '@internationalized/date': 3.5.2
+      '@melt-ui/svelte': 0.76.2(svelte@5.0.0-next.115)
       nanoid: 5.0.7
       svelte: 5.0.0-next.115
     dev: false
@@ -4435,6 +4466,14 @@ packages:
     resolution: {integrity: sha512-srwUkTCGgr6N4mFpaKZVZy5kwiRZdsrbIDv9Wrjar+xyw1MjojYQQ7oRbegjRWOZ3yI8xOOclK3sz/rga2J7/w==}
     dependencies:
       oslo: 1.0.1
+    dev: false
+
+  /lucide-svelte@0.378.0(svelte@5.0.0-next.115):
+    resolution: {integrity: sha512-T7hV1sfOc94AWE5GOJ6r9wGEsR4h4TJr8d4Z0sM8O0e3IBcmeIvEGRAA6jCp7NGy4PeGrn5Tju6Y2JwJQntNrQ==}
+    peerDependencies:
+      svelte: ^3 || ^4 || ^5.0.0-next.42
+    dependencies:
+      svelte: 5.0.0-next.115
     dev: false
 
   /magic-string@0.30.5:
