@@ -27,13 +27,4 @@
 	{/each}
 </div>
 
-<style lang="postcss">
-	.multiple-select {
-		min-width: 60px;
-	}
 
-	.selected {
-		background: rgba(185, 249, 80, 0.8);
-		color: var(--gray-9);
-	}
-</style>
