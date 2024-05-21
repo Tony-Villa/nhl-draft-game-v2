@@ -9,6 +9,9 @@
 	import Google from '$lib/icons/Google.svelte';
 	import Discord from '$lib/icons/Discord.svelte';
 	import { setDraftState } from '$lib/globalState/draftState.svelte';
+	import Button from '$lib/components/Button.svelte';
+	import * as Dialog from "$lib/components/ui/dialog";
+	import * as Navbar from '$lib/components/navbar';
 
 	let { children, data }: {
 		children: any;
@@ -18,6 +21,7 @@
 	
 	let playersDrafted = $state(0);
 	let draftBoard = $state(data.draftBoard);
+	let innerWidth = $state(0);
 	
 	setCurrentUser(data?.user?.user);
 	setDraftSystem(data.prospects, data.draftBoard);
@@ -49,40 +53,23 @@
 		checkForLocalDraftBoard();
 	})
 
-	function clearLocalDraft() {
-		localStorage.removeItem('draftBoard');
-	}
-
-	const baseButtonStyles = 'border-2 shadow-brut-shadow-sm rounded-md border-solid border-black px-3 py-1 relative';
 </script>
 
 <svelte:head>
 	<title>Draft Center</title>
 </svelte:head>
+<svelte:window bind:innerWidth />
 
 <main class="bg-[#FFF4E8] font-medium">
 	<Toaster />
-	<nav class="flex flex-row justify-end items-center py-3 mx-3 md:mx-10 ">
-	{#if data.isAuthenticated}
-			<ul class="flex flex-row flex-end">
-				<form method="post" action="/draft-center?/logout">
-					<button onclick={clearLocalDraft}>Sign out</button>
-				</form>
-			</ul>
-	{:else}
-	<ul class="flex flex-row flex-end gap-5 items-center">
-				<p>Sign in with </p>
-					<a class={`${baseButtonStyles} flex gap-1 justify-center items-center hover:bg-yellow-500`} href="/auth/login/google">
-						<Google />
-						Google
-					</a>
-					<a class={`${baseButtonStyles} flex gap-1 justify-center items-center hover:bg-yellow-500`} href="/auth/login/discord">
-						<Discord />
-						Discord
-					</a>
-			</ul>
-			{/if}
-	</nav>
+	<div >
+
+		{#if innerWidth < 768}
+			<Navbar.Small isAuthenticated={data?.isAuthenticated} />
+		{:else}
+			<Navbar.Root isAuthenticated={data?.isAuthenticated} />
+		{/if}
+	</div>
 	{#if draftBoard}
 	{@render children()}
 		
