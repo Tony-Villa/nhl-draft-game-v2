@@ -1,6 +1,5 @@
 <script lang="ts">
-    import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
-    import * as Dialog from "$lib/components/ui/dialog";
+  import * as Dialog from "$lib/components/ui/dialog";
 	import Discord from "$lib/icons/Discord.svelte";
 	import Google from "$lib/icons/Google.svelte";
 	import Button from '$lib/components/Button.svelte';
@@ -14,7 +13,6 @@
 		localStorage.removeItem('draftBoard');
 	}
 
-    
 </script>
 
 <nav class="flex justify-between px-3">
