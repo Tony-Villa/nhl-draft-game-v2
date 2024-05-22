@@ -34,39 +34,52 @@
         </Dialog.Content>
       </Dialog.Root>
 
-    <DropdownMenu.Root>
-        <DropdownMenu.Trigger>
-            <Hamburger />
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content class='bg-[#FFF4E8]'>
-          <DropdownMenu.Group>
-            <DropdownMenu.Label>Sign in with</DropdownMenu.Label>
-            <DropdownMenu.Separator />
-            {#if isAuthenticated}
-            <DropdownMenu.Item>
-                <ul class="flex flex-row flex-end">
-                    <form method="post" action="/draft-center?/logout">
-                      <button onclick={clearLocalDraft}>Sign out</button>
-                    </form>
-                </ul>
-            </DropdownMenu.Item>
-            {:else}
-            <DropdownMenu.Item class='bg-[#FFF4E8]'>
-                <a class={`${baseButtonStyles} flex gap-1 justify-center items-center hover:bg-yellow-500`} href="/auth/login/google">
-                    <Google />
-                    Google
-                </a>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
-                <a class={`${baseButtonStyles} flex gap-1 justify-center items-center hover:bg-yellow-500`} href="/auth/login/discord">
-                    <Discord />
-                    Discord
-                </a>
-            </DropdownMenu.Item>
-            {/if}
-            <DropdownMenu.Separator />
-          </DropdownMenu.Group>
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
+
+      <div class="dropdown ">
+         <Hamburger />
+        <div class="dropdown-content bg-[#FFF4E8] overflow-hidden shadow-brut-shadow border-2 border-black rounded-md right-0">
+          {#if isAuthenticated}
+          <div>
+              <ul class="flex flex-row flex-end">
+                  <form method="post" action="/draft-center?/logout">
+                    <button onclick={clearLocalDraft}>Sign out</button>
+                  </form>
+              </ul>
+          </div>
+          {:else}
+          <p class="px-2 py-1.5 text-sm font-semibold">Sign in with</p>
+          <div class="flex flex-col gap-2 bg-[#FFF4E8] ">
+              <a class={`${baseButtonStyles} flex gap-1 justify-center items-center hover:bg-yellow-500`} href="/auth/login/google">
+                  <Google />
+                  Google
+              </a>
+              <a class={`${baseButtonStyles} flex gap-1 justify-center items-center hover:bg-yellow-500`} href="/auth/login/discord">
+                  <Discord />
+                  Discord
+              </a>
+          </div>
+          {/if}
+        </div>
+      </div>
 
 </nav>
+
+
+<style>
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    min-width: 160px;
+    padding: 12px 16px;
+    z-index: 1;
+  }
+  
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  </style>
