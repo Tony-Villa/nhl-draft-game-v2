@@ -1,5 +1,10 @@
 import { getContext, setContext } from "svelte"
 
+export interface DraftStateType {
+  isDraftLocked: boolean;
+  updateDraftStatus: (status: boolean) => void
+}
+
 class DraftState {
   isDraftLocked = $state(false)
 

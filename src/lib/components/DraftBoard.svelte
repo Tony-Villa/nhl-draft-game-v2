@@ -33,7 +33,8 @@
 		{/if}
 		<Button onclick={() => submitDraftBoard({
 			draftboard: draftSystem.draftBoard,
-			user: currentUser.user
+			user: currentUser.user,
+			draftState
 		})} 
 		 id='submit-draft'
 		 class="py-2" 

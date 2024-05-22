@@ -1,12 +1,12 @@
-import { getDraftState } from "$lib/globalState/draftState.svelte";
+import type { DraftStateType } from "$lib/globalState/draftState.svelte";
 import type { DraftBoard, User } from "$lib/types";
 import toast from "svelte-french-toast";
-const draftState = getDraftState();
 
 
-export async function submitDraftBoard({draftboard, user}: {
+export async function submitDraftBoard({draftboard, user, draftState}: {
   draftboard: DraftBoard[];
   user: User | object
+  draftState: DraftStateType
 }) {
   const payload = {
     draftboard,
