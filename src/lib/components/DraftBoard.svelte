@@ -12,6 +12,10 @@
 	import { seedDb } from '$lib/helpers/seed-db';
 	import { submitDraftBoard } from '$lib/helpers/submit-draft-board';
 
+	let {draftType}: {
+		draftType: 'user' | 'nhl'
+	} = $props()
+
 	const draftSystem = getDraftSystem();
 	const currentUser = getCurrentUser();
 	const draftState = getDraftState();
@@ -22,9 +26,13 @@
 		draftSystem.removeProspectFromBoard(prospect, position);
 	}
 
+	const draftBoard = draftType === 'user' ? draftSystem.draftBoard : []
+
 </script>
 
 <div bind:clientWidth={draftBoardContainerWidth} class="draft-board flex w-full flex-[2] flex-col gap-2 min-[950px]:min-w-[450px]">
+
+	{#if draftType === 'user'}
 	<div class="flex items-end justify-end gap-3 pr-3">
 		{#if currentUser.user}
 			<p class="font-bold md:text-lg">Welcome {`, ${(currentUser.user as User)?.name}` || ''}</p>
@@ -59,9 +67,10 @@
 			</Popover>
 		{/if}
 	</div>
+	{/if}
 
 	<div class="draft-card-container mb-16 flex flex-wrap justify-center gap-2">
-		{#each draftSystem?.draftBoard || [] as position}
+		{#each draftBoard || [] as position}
 			<Card variant="small" class={`draft-card ${draftBoardContainerWidth > 300 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
 				<div class="flex items-center px-2 py-2">
 					<h2>{position.draftPosition}</h2>

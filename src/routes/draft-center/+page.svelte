@@ -26,13 +26,13 @@
 		{#if innerWidth < 768}
 			<div class="w-full pb-10">
 				{#if selectedTab === 'draftboard'}
-					<DraftBoard />
+					<DraftBoard draftType="user" />
 				{:else if selectedTab === 'prospects'}
 					<ProspectContainer />
 				{/if}
 			</div>
 		{:else}
-			<DraftBoard />
+			<DraftBoard draftType="user" />
 			<ProspectContainer />
 		{/if}
 	</div>
