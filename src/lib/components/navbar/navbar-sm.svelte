@@ -19,7 +19,7 @@
 
     <Dialog.Root>
         <Dialog.Trigger>
-          <Button variant='secondary' onclick={() => {}}> How to play </Button>
+          <p class={`${baseButtonStyles}`}>How to play</p>
         </Dialog.Trigger>
     
         <Dialog.Content>
