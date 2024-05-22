@@ -4,7 +4,6 @@
 	import { getCurrentUser } from '$lib/globalState/userState.svelte';
 	import Close from '$lib/icons/Close.svelte';
 	import type { Prospect, User } from '$lib/types';
-	import toast from 'svelte-french-toast';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
 	import { Popover } from 'flowbite-svelte';
