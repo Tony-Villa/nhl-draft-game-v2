@@ -33,11 +33,11 @@
 <Drawer.Root>
 	<Card variant='small'>
 		<div out:fade class="prospect-card relative flex w-48 flex-col content-between gap-2 pb-4 px-4 min-h-[235px] h-full md:w-52 max-[430px]:w-44 max-[399px]:w-[160px]">
-			<img
+			<!-- <img
 				src={prospect?.nation}
 				alt="nationality"
 				class="flag absolute left-0 top-0 w-10 object-cover opacity-40"
-			/>
+			/> -->
 	
 			<div class="flex justify-between">
 				<p class="font-semibold">{prospect?.rank !== '-' ? 'Rank: ' + prospect?.rank : 'NR'}</p>
