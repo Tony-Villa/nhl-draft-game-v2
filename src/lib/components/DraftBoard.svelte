@@ -10,6 +10,8 @@
 	import { Popover } from 'flowbite-svelte';
 	import { dev } from '$app/environment';
 	import { fade } from 'svelte/transition';
+	import { seedDb } from '$lib/helpers/seed-db';
+	import { submitDraftBoard } from '$lib/helpers/submit-draft-board';
 
 	const draftSystem = getDraftSystem();
 	const currentUser = getCurrentUser();
@@ -21,59 +23,6 @@
 		draftSystem.removeProspectFromBoard(prospect, position);
 	}
 
-	async function seedDb() {
-		const payload = {
-			prospects: draftSystem.prospects,
-			draftboard: draftSystem.draftBoard
-		}
-
-		try {
-			const response = await fetch('/api/seed', {
-				method: 'POST',
-				body: JSON.stringify({ data: payload }),
-				headers: {
-					'content-type': 'application/json'
-				}
-			});
-
-			if (response) {
-				toast.success('Database seeded successfully', {
-					duration: 4000
-				});
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	}
-
-	async function submitDraftBoard() {
-		const payload = {
-			draftboard: draftSystem.draftBoard,
-			user: currentUser.user
-		};
-
-		try {
-			const draft = await fetch('/api/draft', {
-				method: 'POST',
-				body: JSON.stringify({ data: payload }),
-				headers: {
-					'content-type': 'application/json'
-				}
-			});
-			
-			draftState.updateDraftStatus(true);
-			
-			const response = await draft.json();
-
-			if (response) {
-				toast.success('Draft submitted successfully', {
-					duration: 4000
-				});
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	}
 </script>
 
 <div bind:clientWidth={draftBoardContainerWidth} class="draft-board flex w-full flex-[2] flex-col gap-2 min-[950px]:min-w-[450px]">
@@ -83,14 +32,19 @@
 		{:else}
 			<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
 		{/if}
-		<Button onclick={submitDraftBoard} 
+		<Button onclick={() => submitDraftBoard({
+			draftboard: draftSystem.draftBoard,
+			user: currentUser.user
+		})} 
 		 id='submit-draft'
 		 class="py-2" 
 		 disabled={!currentUser.user || draftState.isDraftLocked}>
 			Submit Draft
 		</Button>
 		{#if dev}
-			<Button onclick={seedDb} 
+			<Button onclick={() => seedDb({
+				prospects: draftSystem.prospects, draftboard: draftSystem.draftBoard
+				})} 
 			id='seed'
 			class="py-2" 
 			disabled={!currentUser.user || draftState.isDraftLocked}>
