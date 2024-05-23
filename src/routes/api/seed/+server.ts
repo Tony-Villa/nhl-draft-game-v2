@@ -1,8 +1,10 @@
 import { json } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { drafts } from '$lib/server/db/schema/drafts';
+// import { db } from '$lib/server/db';
+// import { drafts } from '$lib/server/db/schema/drafts';
 import type { DraftBoard, Prospect } from '$lib/types.js';
-import { generateId } from 'lucia';
+// import { generateId } from 'lucia';
+import { PointsSystem } from '$lib/globalState/scoringSystem.svelte.js';
+// import { getPointsSystem } from '$lib/globalState/scoringSystem.svelte.js';
 
 export async function POST({ request }) {
 	const { data } = await request.json();
@@ -63,8 +65,24 @@ export async function POST({ request }) {
       }
     })
 
-      console.log(tempDraftBoard );
+      // console.log(tempDraftBoard );
+
+      // test to see if point system works
+
+      const pointSystem = new PointsSystem()
+
+      console.log('before draft: ',pointSystem.officialNhlDraft);
+      
+      tempDraftBoard.forEach(pick => {
+        pointSystem.officialNhlDraftPickMade({
+          pick: pick.draftPosition,
+          prospect: pick.prospect?.name || ''
+        })
+      })
+      
+      console.log('after draft: ', pointSystem.officialNhlDraft);
     }
+
 
 	// try {
 	// 	draftboard.forEach(async (draft: DraftBoard) => {

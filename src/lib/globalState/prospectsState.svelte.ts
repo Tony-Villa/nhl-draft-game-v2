@@ -7,10 +7,12 @@ import toast from 'svelte-french-toast';
 class ProspectDraftSystem {
 	prospects: Prospect[] = $state([]);
 	draftBoard: DraftBoardType[] = $state([]);
+	nhlDraftBoard: DraftBoardType[] = $state([])
 
-	constructor(initialProspects: Prospect[], initialDraftBoard: DraftBoardType[]) {
+	constructor(initialProspects: Prospect[], initialDraftBoard: DraftBoardType[], emptyDraftBoard: DraftBoardType[]) {
 		this.prospects = initialProspects;
 		this.draftBoard = initialDraftBoard;
+		this.nhlDraftBoard = emptyDraftBoard;
 	}
 
 	setNewInitialDraftBoard(newDraftBoard: DraftBoardType[]) {
@@ -32,7 +34,6 @@ class ProspectDraftSystem {
 
 		// TODO: Create custom toast component
 		// toast(ToastDraft, { props: { someProp: '⭐' }})
-
 
 	}
 
@@ -60,8 +61,8 @@ class ProspectDraftSystem {
 
 const PROSPECT_CTX = 'PROSPECT_CTX';
 
-export function setDraftSystem(prospects: Prospect[], draftBoard: DraftBoardType[]) {
-	const prospectsState = new ProspectDraftSystem(prospects, draftBoard);
+export function setDraftSystem(prospects: Prospect[], draftBoard: DraftBoardType[], emptyDraftBoard: DraftBoardType[] ) {
+	const prospectsState = new ProspectDraftSystem(prospects, draftBoard, emptyDraftBoard);
 	setContext(PROSPECT_CTX, prospectsState);
 	return prospectsState;
 }

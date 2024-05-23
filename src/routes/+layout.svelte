@@ -6,11 +6,7 @@
 	
 	import { getDraftSystem, setDraftSystem } from '$lib/globalState/prospectsState.svelte';
 	import { setCurrentUser } from '$lib/globalState/userState.svelte';
-	import Google from '$lib/icons/Google.svelte';
-	import Discord from '$lib/icons/Discord.svelte';
 	import { setDraftState } from '$lib/globalState/draftState.svelte';
-	import Button from '$lib/components/Button.svelte';
-	import * as Dialog from "$lib/components/ui/dialog";
 	import * as Navbar from '$lib/components/navbar';
 
 	let { children, data }: {
@@ -24,7 +20,7 @@
 	let innerWidth = $state(0);
 	
 	setCurrentUser(data?.user?.user);
-	setDraftSystem(data.prospects, data.draftBoard);
+	setDraftSystem(data.prospects, data.draftBoard, data.emptyDraftBoard);
 	setDraftState()
 
 	const storedDraftBoard = getDraftSystem()
@@ -44,7 +40,7 @@
 			draftBoard = data.draftBoard;
 		}
 
-		const draftSystem = setDraftSystem(data.prospects, draftBoard);
+		const draftSystem = setDraftSystem(data.prospects, draftBoard, data.emptyDraftBoard);
 	}
 
 

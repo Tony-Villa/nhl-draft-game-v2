@@ -104,7 +104,9 @@ export const load = async ({ request, setHeaders, locals }: RequestEvent) => {
 		}
 	})
 
-	return { prospects: topProspects , draftBoard, user: locals, isAuthenticated: locals.session !== null };
+	const emptyDraftBoard = await setInitialDraftBoard()
+
+	return { prospects: topProspects , draftBoard, user: locals, isAuthenticated: locals.session !== null, emptyDraftBoard };
 }
 
 async function setInitialDraftBoard(userId: string | undefined = undefined) {

@@ -11,6 +11,7 @@
 	import { fade } from 'svelte/transition';
 	import { seedDb } from '$lib/helpers/seed-db';
 	import { submitDraftBoard } from '$lib/helpers/submit-draft-board';
+	import { getPointsSystem } from '$lib/globalState/scoringSystem.svelte';
 
 	let {draftType}: {
 		draftType: 'user' | 'nhl'
@@ -19,6 +20,7 @@
 	const draftSystem = getDraftSystem();
 	const currentUser = getCurrentUser();
 	const draftState = getDraftState();
+	const pointSystem = getPointsSystem()
 	let draftBoardContainerWidth = $state(0)
 
 
@@ -26,7 +28,31 @@
 		draftSystem.removeProspectFromBoard(prospect, position);
 	}
 
-	const draftBoard = draftType === 'user' ? draftSystem.draftBoard : []
+	// const socket = new WebSocket("ws://localhost:3000/nhlws")
+	// socket.onmessage = (event) => {
+	// 	console.log("received from the server: ", event.data)
+	// }
+
+	// $effect(() => {
+	// 	if( draftState.nhlDraftStarted ){
+	// 		socket.send("this ish is starting bruh!")
+	// 	}
+	// })
+
+	$inspect(draftState.nhlDraftStarted)
+
+	function seed() {
+			seedDb({
+				prospects: draftSystem.prospects, 
+				draftboard: draftSystem.draftBoard,
+				})
+
+				draftState.startNhlDraft()
+	}
+
+	const draftBoard = draftType === 'user' ? draftSystem.draftBoard : draftSystem.nhlDraftBoard
+
+	$inspect(pointSystem?.officialNhlDraft)
 
 </script>
 
@@ -39,25 +65,26 @@
 		{:else}
 			<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
 		{/if}
-		<Button onclick={() => submitDraftBoard({
-			draftboard: draftSystem.draftBoard,
-			user: currentUser.user,
-			draftState
-		})} 
-		 id='submit-draft'
-		 class="py-2" 
-		 disabled={!currentUser.user || draftState.isDraftLocked}>
-			Submit Draft
-		</Button>
-		{#if dev}
-			<Button onclick={() => seedDb({
-				prospects: draftSystem.prospects, draftboard: draftSystem.draftBoard
-				})} 
-			id='seed'
+
+		{#if !draftState.nhlDraftStarted}
+			<Button onclick={() => submitDraftBoard({
+				draftboard: draftSystem.draftBoard,
+				user: currentUser.user,
+				draftState
+			})} 
+			id='submit-draft'
 			class="py-2" 
 			disabled={!currentUser.user || draftState.isDraftLocked}>
-				Seed DB
+				Submit Draft
 			</Button>
+			{#if dev}
+				<Button onclick={seed} 
+				id='seed'
+				class="py-2" 
+				disabled={!currentUser.user || draftState.isDraftLocked}>
+					Seed DB
+				</Button>
+			{/if}
 		{/if}
 		{#if draftState.isDraftLocked }
 			<Popover
