@@ -1,5 +1,7 @@
 <script lang="ts">
-	let { switchVariable }: { switchVariable: (tab: string) => void } = $props();
+	import { capitalizeFirstLetter } from "$lib/helpers/capitalize-first-letter";
+
+	let {  left, right, switchVariable }: { left: string; right: string;switchVariable: (tab: string) => void } = $props();
 
 	function switchLeft() {
 		const btn = document.getElementById('btn');
@@ -24,7 +26,7 @@
 			switchVariable('prospects');
 		}}
 		class="toggle-btn"
-		type="button">Prospects</button
+		type="button">{capitalizeFirstLetter(left)}</button
 	>
 	<button
 		onclick={() => {
@@ -32,7 +34,7 @@
 			switchVariable('draftboard');
 		}}
 		class="toggle-btn"
-		type="button">DraftBoard</button
+		type="button">{capitalizeFirstLetter(right)}</button
 	>
 </div>
 
