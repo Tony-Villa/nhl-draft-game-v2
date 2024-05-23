@@ -4,22 +4,18 @@
 	import SliderSwitch from '$lib/components/SliderSwitch.svelte';
 	import { getDraftState } from '$lib/globalState/draftState.svelte';
 
-	const {
-		data
-	}: {
-		data: any;
-	} = $props();
-
-	let selectedTab = $state('prospects');
-	let innerWidth = $state(0);
-
-	const switchScreens = (tab: string) => {
-		selectedTab = tab;
-	};
-
 	const draftState = getDraftState();
 
-	// console.log(data);
+	let innerWidth = $state(0);
+	let tabs = $derived(!draftState.nhlDraftStarted ? ['prospects', 'draftboard'] : ['draftboard', 'Nhl Draft']);
+	let tabIndex = $state(0);
+	let selectedTab = $derived(tabs[tabIndex]);
+
+
+	const switchScreens = (tab: string) => {
+		tabIndex = tabIndex === 1 ? 0 : 1;
+	};
+
 </script>
 
 <svelte:window bind:innerWidth />
@@ -29,9 +25,9 @@
 	<div class=" flex gap-5 px-2">
 		{#if innerWidth < 768}
 			<div class="w-full pb-10">
-				{#if selectedTab === 'draftboard'}
+				{#if selectedTab === tabs[1]}
 					<DraftBoard draftType="user" />
-				{:else if selectedTab === 'prospects'}
+				{:else if selectedTab === tabs[0]}
 					<ProspectContainer />
 				{/if}
 			</div>
@@ -43,16 +39,16 @@
 	<div
 		class="h-15 fixed bottom-0 flex w-full justify-center border-t-2 bg-[#FFF4E8] shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"
 	>
-		<SliderSwitch switchVariable={switchScreens} left={'prospects'} right={'draftboard'} />
+		<SliderSwitch switchVariable={switchScreens} left={tabs[0]} right={tabs[1]} />
 	</div>
 	{:else}
 	<div class=" flex gap-5 px-2">
 		{#if innerWidth < 768}
 			<div class="w-full pb-10">
-				{#if selectedTab === 'draftboard'}
+				{#if selectedTab === tabs[1]}
 					<DraftBoard draftType="user" />
-				{:else if selectedTab === 'prospects'}
-				<DraftBoard draftType="nhl" />
+				{:else if selectedTab === tabs[0]}
+					<DraftBoard draftType="nhl" />
 				{/if}
 			</div>
 		{:else}
@@ -63,7 +59,7 @@
 		<div
 		class="h-15 fixed bottom-0 flex w-full justify-center border-t-2 bg-[#FFF4E8] shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"
 		>
-		<SliderSwitch switchVariable={switchScreens} left={'prospects'} right={'draftboard'} />
+		<SliderSwitch switchVariable={switchScreens} left={tabs[0]} right={tabs[1]} />
 		</div>
 	{/if}
 </div>

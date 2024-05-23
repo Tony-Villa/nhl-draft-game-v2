@@ -3,11 +3,14 @@
 
 	let {  left, right, switchVariable }: { left: string; right: string;switchVariable: (tab: string) => void } = $props();
 
+	let currentTab = $state(left)
+
 	function switchLeft() {
 		const btn = document.getElementById('btn');
 		if (btn?.style) {
 			btn.style.left = '-2px';
 		}
+		currentTab = left
 	}
 
 	function switchRight() {
@@ -15,6 +18,7 @@
 		if (btn?.style) {
 			btn.style.left = 'calc(50% + 2px)';
 		}
+		currentTab = right
 	}
 </script>
 
@@ -23,16 +27,18 @@
 	<button
 		onclick={() => {
 			switchLeft();
-			switchVariable('prospects');
+			switchVariable(left);
 		}}
+		disabled={currentTab === left}
 		class="toggle-btn"
 		type="button">{capitalizeFirstLetter(left)}</button
 	>
 	<button
 		onclick={() => {
 			switchRight();
-			switchVariable('draftboard');
+			switchVariable(right);
 		}}
+		disabled={currentTab === right}
 		class="toggle-btn"
 		type="button">{capitalizeFirstLetter(right)}</button
 	>
