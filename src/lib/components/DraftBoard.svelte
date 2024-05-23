@@ -39,8 +39,6 @@
 	// 	}
 	// })
 
-	$inspect(draftState.nhlDraftStarted)
-
 	function seed() {
 			seedDb({
 				prospects: draftSystem.prospects, 
@@ -51,8 +49,6 @@
 	}
 
 	const draftBoard = draftType === 'user' ? draftSystem.draftBoard : draftSystem.nhlDraftBoard
-
-	$inspect(pointSystem?.officialNhlDraft)
 
 </script>
 
