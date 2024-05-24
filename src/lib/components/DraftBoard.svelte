@@ -92,7 +92,7 @@
 	</div>
 	{/if}
 
-	<div class="draft-card-container mb-16 flex flex-wrap justify-center gap-2">
+	<div class={`draft-card-container mb-16 flex flex-wrap justify-center gap-2 ${draftType === 'nhl' && 'sm:mt-8 mt-9'}`}>
 		{#each draftBoard || [] as position}
 			<Card variant="small" class={`draft-card ${draftBoardContainerWidth > 300 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
 				<div class="flex items-center px-2 py-2">
