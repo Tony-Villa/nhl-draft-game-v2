@@ -16,7 +16,7 @@
     
 <div class="flex flex-col justify-between flex-1 py-3  mx-3 md:mx-10 md:flex-row">
 
-  <Dialog.Root>
+  <!-- <Dialog.Root>
     <Dialog.Trigger>
       <Button variant='secondary' onclick={() => {}}> How to play </Button>
     </Dialog.Trigger>
@@ -29,7 +29,7 @@
         </Dialog.Description>
       </Dialog.Header>
     </Dialog.Content>
-  </Dialog.Root>
+  </Dialog.Root> -->
 
   <nav class="flex flex-row gap-10 justify-end items-center py-3 ">
 
