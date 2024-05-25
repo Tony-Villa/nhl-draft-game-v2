@@ -17,7 +17,7 @@
 
 <nav class="flex justify-between px-3">
 
-    <!-- <Dialog.Root>
+    <Dialog.Root>
         <Dialog.Trigger>
           <p class={`${baseButtonStyles}`}>How to play</p>
         </Dialog.Trigger>
@@ -30,7 +30,7 @@
             </Dialog.Description>
           </Dialog.Header>
         </Dialog.Content>
-      </Dialog.Root> -->
+      </Dialog.Root>
 
 
       <div class="dropdown ">
