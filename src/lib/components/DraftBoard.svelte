@@ -20,24 +20,13 @@
 	const draftSystem = getDraftSystem();
 	const currentUser = getCurrentUser();
 	const draftState = getDraftState();
-	const pointSystem = getPointsSystem()
+	// const pointSystem = getPointsSystem()
 	let draftBoardContainerWidth = $state(0)
 
 
 	function removeProspect(prospect: Prospect, position: number) {
 		draftSystem.removeProspectFromBoard(prospect, position);
 	}
-
-	// const socket = new WebSocket("ws://localhost:3000/nhlws")
-	// socket.onmessage = (event) => {
-	// 	console.log("received from the server: ", event.data)
-	// }
-
-	// $effect(() => {
-	// 	if( draftState.nhlDraftStarted ){
-	// 		socket.send("this ish is starting bruh!")
-	// 	}
-	// })
 
 	function seed() {
 			seedDb({
@@ -62,7 +51,7 @@
 			<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
 		{/if}
 
-		{#if !draftState.nhlDraftStarted}
+		{#if draftState.currentState !== "started"}
 			<Button onclick={() => submitDraftBoard({
 				draftboard: draftSystem.draftBoard,
 				user: currentUser.user,

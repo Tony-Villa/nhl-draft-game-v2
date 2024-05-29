@@ -3,10 +3,7 @@
 	import '../tailwind.css';
 
 	import { Toaster } from 'svelte-french-toast';
-	
-	import { getDraftSystem, setDraftSystem } from '$lib/globalState/prospectsState.svelte';
 	import { setCurrentUser } from '$lib/globalState/userState.svelte';
-	import { setDraftState } from '$lib/globalState/draftState.svelte';
 	import * as Navbar from '$lib/components/navbar';
 
 	let { children, data }: {
@@ -14,41 +11,9 @@
 		data: any;
 	} = $props();
 
-	
-	let playersDrafted = $state(0);
-	let draftBoard = $state(data.draftBoard);
 	let innerWidth = $state(0);
 	
 	setCurrentUser(data?.user?.user);
-	setDraftSystem(data.prospects, data.draftBoard, data.emptyDraftBoard);
-	setDraftState()
-
-	const storedDraftBoard = getDraftSystem()
-	
-
-	function checkForSavedDraftBoard() {
-		playersDrafted = data.draftBoard.filter((draft: any) => draft.prospect).length;
-	}
-
-	function checkForLocalDraftBoard() {
-		const localStorageDraft =  JSON.parse(localStorage.getItem('draftBoard') || '{}')
-
-		if (playersDrafted === 0 && localStorageDraft.hasOwnProperty('draft')) {
-			storedDraftBoard.setNewInitialDraftBoard(localStorageDraft.draft);
-			
-		} else {
-			draftBoard = data.draftBoard;
-		}
-
-		const draftSystem = setDraftSystem(data.prospects, draftBoard, data.emptyDraftBoard);
-	}
-
-
-	$effect(() => {
-		checkForSavedDraftBoard();
-		checkForLocalDraftBoard();
-	})
-
 </script>
 
 <svelte:head>
@@ -66,8 +31,8 @@
 			<Navbar.Root isAuthenticated={data?.isAuthenticated} />
 		{/if}
 	</div>
-	{#if draftBoard}
+	<!-- {#if draftBoard} -->
 	{@render children()}
-		
-	{/if}
+<!-- 		
+	{/if} -->
 </main>

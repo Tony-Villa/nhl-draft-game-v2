@@ -1,18 +1,28 @@
 import { getContext, setContext } from "svelte"
 
+type CurrentDraftState = "open" | "locked" | "started" | "finalized"
 export interface DraftStateType {
   isDraftLocked: boolean;
-  nhlDraftStarted: boolean;
+  currentState: CurrentDraftState;
+  nhlDraft: ProspectDrafted[];
   updateDraftStatus: (status: boolean) => void
+  startNhlDraft: () => void
+  currentNhlDraft: (pick: ProspectDrafted[]) => void
+}
+
+interface ProspectDrafted {
+  position: number;
+  name: string;
 }
 
 class DraftState {
   isDraftLocked = $state(false)
-  nhlDraftStarted = $state(false)
+  currentState = $state("draft")
+  nhlDraft: ProspectDrafted[] = $state([])
 
   constructor() {
     this.isDraftLocked = false
-    this.nhlDraftStarted = false
+    this.currentState = "draft"
   }
 
   updateDraftStatus(status: boolean) {
@@ -21,8 +31,13 @@ class DraftState {
 
   startNhlDraft() {
     this.isDraftLocked = true;
-    this.nhlDraftStarted = true
+    this.currentState = "started"
   }
+
+  currentNhlDraft(pick: ProspectDrafted[]) {
+    this.nhlDraft = pick
+  }
+
 }
 
 export function setDraftState() {
