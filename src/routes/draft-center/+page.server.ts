@@ -152,14 +152,10 @@ export const actions: Actions = {
 	logout: async ({ cookies, locals }) => {
 		if (!locals.session?.id) return;
 
-		try {
-			await lucia.invalidateSession(locals.session.id);
-	
-			await deleteSessionCookie(lucia, cookies);
-	
-			throw redirect(303, '/draft-center');
-		} catch (error) {
-			console.log(error);
-		}
+		await lucia.invalidateSession(locals.session.id);
+
+		await deleteSessionCookie(lucia, cookies);
+
+		throw redirect(303, '/draft-center');
 	},
 };
