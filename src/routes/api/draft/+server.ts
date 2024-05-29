@@ -11,6 +11,7 @@ export async function POST({ request }) {
 	try {
 		draftboard.forEach(async (draft: DraftBoard) => {
 			if (!draft.prospect) return;
+			if (!draft.teamName) return;
 	
 			await db
 			.insert(drafts)
