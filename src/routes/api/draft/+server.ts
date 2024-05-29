@@ -17,6 +17,7 @@ export async function POST({ request }) {
 			.values({
 						userId: user.id,
 						positionDrafted: draft.draftPosition,
+						team: draft.teamName,
 						prospect: JSON.stringify(draft.prospect)
 					})
 			.onConflictDoUpdate({

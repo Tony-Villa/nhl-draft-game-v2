@@ -8,6 +8,7 @@ export const drafts = sqliteTable(
 		id: integer('id').notNull().primaryKey().unique(),
 		userId: text('user_id').notNull(),
 		positionDrafted: integer('position_drafted').notNull(),
+		team: text('team').notNull(),
 		prospect: blob('prospect').notNull(),
 		createdAt: integer('created_at')
 			.notNull()

@@ -134,6 +134,13 @@
       "when": 1712369724703,
       "tag": "0018_talented_firelord",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1716955448701,
+      "tag": "0019_curly_shocker",
+      "breakpoints": true
     }
   ]
 }
