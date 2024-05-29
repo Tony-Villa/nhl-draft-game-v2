@@ -6,7 +6,7 @@ import toast from "svelte-french-toast";
 export async function submitDraftBoard({draftboard, user, draftState}: {
   draftboard: DraftBoard[];
   user: User | object
-  draftState: any
+  draftState: DraftStateType
 }) {
   const payload = {
     draftboard,

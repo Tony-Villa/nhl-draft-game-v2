@@ -3,7 +3,7 @@ import { getContext, setContext } from "svelte"
 type CurrentDraftState = "open" | "locked" | "started" | "finalized"
 export interface DraftStateType {
   isDraftLocked: boolean;
-  currentState: CurrentDraftState;
+  currentState: CurrentDraftState | string;
   nhlDraft: ProspectDrafted[];
   updateDraftStatus: (status: boolean) => void
   startNhlDraft: () => void
