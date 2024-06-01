@@ -1,8 +1,6 @@
 {
-  "version": "5",
+  "version": "6",
   "dialect": "sqlite",
-  "id": "26a0b882-8f85-49bb-99a0-deff7f420da5",
-  "prevId": "455f958d-a1b2-4719-8c70-baba00381a8b",
   "tables": {
     "drafts": {
       "name": "drafts",
@@ -169,15 +167,15 @@
         "session_user_id_user_id_fk": {
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
-          "tableTo": "user",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -213,15 +211,15 @@
         "key_user_id_user_id_fk": {
           "name": "key_user_id_user_id_fk",
           "tableFrom": "key",
-          "tableTo": "user",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -238,8 +236,9 @@
   },
   "enums": {},
   "_meta": {
-    "schemas": {},
     "tables": {},
     "columns": {}
-  }
+  },
+  "id": "26a0b882-8f85-49bb-99a0-deff7f420da5",
+  "prevId": "455f958d-a1b2-4719-8c70-baba00381a8b"
 }

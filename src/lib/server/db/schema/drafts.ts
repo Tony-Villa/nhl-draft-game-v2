@@ -1,12 +1,16 @@
 import { sql } from 'drizzle-orm';
 
-import { integer, sqliteTable, blob, index, text, unique } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable, index, text, unique, blob } from 'drizzle-orm/sqlite-core';
+import { games } from '.';
 
 export const drafts = sqliteTable(
 	'drafts',
 	{
 		id: integer('id').notNull().primaryKey().unique(),
 		userId: text('user_id').notNull(),
+		gameId: integer('game_id').notNull().references(() => games.id, {
+			onDelete: 'cascade'
+		}),
 		positionDrafted: integer('position_drafted').notNull(),
 		team: text('team').notNull(),
 		prospect: blob('prospect').notNull(),

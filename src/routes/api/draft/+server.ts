@@ -3,6 +3,7 @@ import { db } from '$lib/server/db';
 import { drafts } from '$lib/server/db/schema/drafts';
 import type { DraftBoard } from '$lib/types.js';
 
+
 export async function POST({ request }) {
 	const { data } = await request.json();
 
@@ -19,7 +20,8 @@ export async function POST({ request }) {
 						userId: user.id,
 						positionDrafted: draft.draftPosition,
 						team: draft.teamName,
-						prospect: JSON.stringify(draft.prospect)
+						prospect: JSON.stringify(draft.prospect),
+						gameId: 1
 					})
 			.onConflictDoUpdate({
 				target: [drafts.positionDrafted, drafts.userId],

@@ -14,7 +14,7 @@
 		"test:integration": "playwright test",
 		"test:unit": "vitest",
 		"generate": "drizzle-kit generate:sqlite",
-		"db:push": "drizzle-kit push:sqlite",
+		"db:push": "drizzle-kit up",
 		"db:pull": "drizzle-kit pull:sqlite",
 		"db:studio": "drizzle-kit studio"
 	},
@@ -27,7 +27,7 @@
 		"@typescript-eslint/eslint-plugin": "^6.0.0",
 		"@typescript-eslint/parser": "^6.0.0",
 		"autoprefixer": "^10.4.16",
-		"drizzle-kit": "^0.20.13",
+		"drizzle-kit": "^0.21.4",
 		"eslint": "^8.56.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-svelte": "^2.35.1",

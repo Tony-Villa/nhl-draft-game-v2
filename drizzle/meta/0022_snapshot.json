@@ -19,6 +19,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "game_id": {
+          "name": "game_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "position_drafted": {
           "name": "position_drafted",
           "type": "integer",
@@ -69,6 +76,87 @@
           "columns": [
             "user_id",
             "position_drafted"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "drafts_game_id_game_id_fk": {
+          "name": "drafts_game_id_game_id_fk",
+          "tableFrom": "drafts",
+          "columnsFrom": [
+            "game_id"
+          ],
+          "tableTo": "game",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "game": {
+      "name": "game",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "year": {
+          "name": "year",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "lock_date": {
+          "name": "lock_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "players": {
+          "name": "players",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "default_game": {
+          "name": "default_game",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {
+        "game_id_unique": {
+          "name": "game_id_unique",
+          "columns": [
+            "id"
           ],
           "isUnique": true
         }
@@ -239,6 +327,64 @@
         }
       },
       "uniqueConstraints": {}
+    },
+    "score": {
+      "name": "score",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "game_id": {
+          "name": "game_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "score": {
+          "name": "score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "score_user_id_user_id_fk": {
+          "name": "score_user_id_user_id_fk",
+          "tableFrom": "score",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "tableTo": "user",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "score_game_id_game_id_fk": {
+          "name": "score_game_id_game_id_fk",
+          "tableFrom": "score",
+          "columnsFrom": [
+            "game_id"
+          ],
+          "tableTo": "game",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     }
   },
   "enums": {},
@@ -246,6 +392,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "6557bd38-4629-4df5-9c20-b213da403fcb",
-  "prevId": "7958d6c5-b718-40d6-9082-6249505a27dc"
+  "id": "1ea9f461-563d-4fb1-ad5a-03d7642c459d",
+  "prevId": "218a6dda-1ffc-420a-a3bd-e429df653434"
 }

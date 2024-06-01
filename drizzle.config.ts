@@ -8,5 +8,6 @@ export default {
 		url: process.env.VITE_TURSO_DB_URL!,
 		authToken: process.env.VITE_TURSO_DB_AUTH_TOKEN
 	},
+	dialect: 'sqlite',
 	out: './drizzle'
 } satisfies Config;
