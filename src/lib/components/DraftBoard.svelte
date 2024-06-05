@@ -65,8 +65,7 @@
 			{#if dev}
 				<Button onclick={seed} 
 				id='seed'
-				class="py-2" 
-				disabled={!currentUser.user || draftState.isDraftLocked}>
+				class="py-2">
 					Seed DB
 				</Button>
 			{/if}
