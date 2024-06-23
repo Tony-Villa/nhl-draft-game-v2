@@ -28,7 +28,7 @@
 
 	// console.log('data: ', data);
 	
-	// setCurrentUser(data?.user?.user);
+	setCurrentUser(data?.user?.user);
 	setDraftSystem(data.prospects, data.draftBoard, data.emptyDraftBoard);
 	setDraftState(data.game.gamePhase)
 

@@ -50,16 +50,18 @@
 <div bind:clientWidth={draftBoardContainerWidth} class={`draft-board flex w-full flex-[2] flex-col gap-2 min-[950px]:min-w-[450px] ${draftType === 'nhl' && 'mt-1'}`}>
 
 	{#if draftType === 'user'}
-	<div class="flex items-end justify-end gap-3 pr-3">
-		{#if !currentUser.user}
-			<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
-		{/if}
-		{#if draftBoardContainerWidth > 384 && lockDate && isAfter(new Date(lockDate), Date.now())}
-		<p>Your draft will lock on <strong>
-			{format(new Date(lockDate), 'iii, LLL do p')}
-		</strong>
-	</p>
-		{/if}
+	<div class="flex items-end justify-between gap-3 pr-3">
+		<div class="flex flex-col">
+			{#if draftBoardContainerWidth > 384 && lockDate && isAfter(new Date(lockDate), Date.now())}
+			<p>Your draft will lock on <strong>
+				{format(new Date(lockDate), 'iii, LLL do p')}
+			</strong>
+			</p>
+			{/if}
+			{#if !currentUser?.user}
+				<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
+			{/if}
+		</div>
 
 		{#if draftState.currentState === "open"}
 		<div class="flex flex-col gap-2">
@@ -70,7 +72,7 @@
 			})} 
 			id='submit-draft'
 			class="py-2" 
-			disabled={!currentUser.user || draftState.isDraftLocked}>
+			disabled={!currentUser?.user || draftState?.isDraftLocked}>
 				Submit Draft
 			</Button>
 			{#if draftBoardContainerWidth < 385 && lockDate && isAfter(new Date(lockDate), Date.now())}
