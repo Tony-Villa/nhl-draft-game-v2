@@ -13,7 +13,6 @@
 
 	let innerWidth = $state(0);
 	
-	setCurrentUser(data?.user?.user);
 </script>
 
 <svelte:head>
@@ -28,7 +27,7 @@
 		{#if innerWidth < 768}
 			<Navbar.Small isAuthenticated={data?.isAuthenticated} />
 		{:else}
-			<Navbar.Root isAuthenticated={data?.isAuthenticated} />
+			<Navbar.Root user={data?.user?.user} isAuthenticated={data?.isAuthenticated} />
 		{/if}
 	</div>
 	<!-- {#if draftBoard} -->
