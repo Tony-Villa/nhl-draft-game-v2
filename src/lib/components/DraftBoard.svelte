@@ -11,9 +11,11 @@
 	import { fade } from 'svelte/transition';
 	import { seedDb } from '$lib/helpers/seed-db';
 	import { submitDraftBoard } from '$lib/helpers/submit-draft-board';
+	import { format, isAfter } from 'date-fns';
 
-	let {draftType}: {
-		draftType: 'user' | 'nhl'
+	let {draftType, lockDate}: {
+		draftType: 'user' | 'nhl';
+		lockDate?: string | number | Date
 	} = $props()
 
 	const draftSystem = getDraftSystem();
@@ -39,19 +41,28 @@
 
 	const draftBoard = draftType === 'user' ? draftSystem.draftBoard : draftSystem.nhlDraftBoard
 
+	$effect(() => {
+		console.log(draftBoardContainerWidth);
+	})
+
 </script>
 
-<div bind:clientWidth={draftBoardContainerWidth} class="draft-board flex w-full flex-[2] flex-col gap-2 min-[950px]:min-w-[450px]">
+<div bind:clientWidth={draftBoardContainerWidth} class={`draft-board flex w-full flex-[2] flex-col gap-2 min-[950px]:min-w-[450px] ${draftType === 'nhl' && 'mt-1'}`}>
 
 	{#if draftType === 'user'}
 	<div class="flex items-end justify-end gap-3 pr-3">
-		{#if currentUser.user}
-			<p class="font-bold md:text-lg">Welcome {`, ${(currentUser.user as User)?.name}` || ''}</p>
-		{:else}
+		{#if !currentUser.user}
 			<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
+		{/if}
+		{#if draftBoardContainerWidth > 384 && lockDate && isAfter(new Date(lockDate), Date.now())}
+		<p>Your draft will lock on <strong>
+			{format(new Date(lockDate), 'iii, LLL do p')}
+		</strong>
+	</p>
 		{/if}
 
 		{#if draftState.currentState === "open"}
+		<div class="flex flex-col gap-2">
 			<Button onclick={() => submitDraftBoard({
 				draftboard: draftSystem.draftBoard,
 				user: currentUser.user,
@@ -62,13 +73,20 @@
 			disabled={!currentUser.user || draftState.isDraftLocked}>
 				Submit Draft
 			</Button>
-			{#if dev}
+			{#if draftBoardContainerWidth < 385 && lockDate && isAfter(new Date(lockDate), Date.now())}
+				<p>Your draft will lock on <strong>
+					{format(new Date(lockDate), 'iii, LLL do p')}
+				</strong>
+			</p>
+			{/if}
+		</div>
+			<!-- {#if dev}
 				<Button onclick={seed} 
 				id='seed'
 				class="py-2">
 					Seed DB
 				</Button>
-			{/if}
+			{/if} -->
 		{/if}
 		{#if draftState.isDraftLocked }
 			<Popover
@@ -87,14 +105,22 @@
 					<h2>{position.draftPosition}</h2>
 					<img class="h-[50px] w-[50px]" src={position.teamLogo} alt="" />
 					{#if position.prospect}
-					<div in:fade class='flex flex-1 justify-between'>
+					<div in:fade class='flex flex-1 justify-between items-center'>
 						<p class="ml-2 font-bold">{position?.prospect?.name}</p>
+						{#if draftState.currentState === 'open'}
 						<button
 							onclick={() => removeProspect(position.prospect as Prospect, position.draftPosition)}
 							class="ml-auto"
 						>
-							<Close size={24} />
-						</button>
+						<Close size={24} />
+					</button>
+					{/if}
+					{#if  draftType !== 'nhl' && draftState.currentState === 'started' || draftState.currentState === 'finalized'}
+						<div class="flex flex-col justify-center items-center gap-0">
+							<p class="text-sm">Points</p>
+							<h3 class="text-lg font-bold">10</h3>
+						</div>
+					{/if}
 					</div>
 					{/if}
 				</div>
