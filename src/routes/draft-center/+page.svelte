@@ -3,17 +3,13 @@
 	import DraftBoard from '$lib/components/DraftBoard.svelte';
 	import SliderSwitch from '$lib/components/SliderSwitch.svelte';
 	import { getDraftState } from '$lib/globalState/draftState.svelte';
-
-
-
 	import { getDraftSystem, setDraftSystem } from '$lib/globalState/prospectsState.svelte';
 	import { setCurrentUser } from '$lib/globalState/userState.svelte';
 	import { setDraftState } from '$lib/globalState/draftState.svelte';
 	import HeadToHead from '$lib/components/HeadToHead.svelte';
 	import Countdown from '$lib/components/Countdown.svelte';
-	import Button from '$lib/components/Button.svelte';
-	import { invalidate, invalidateAll } from '$app/navigation';
-	import { differenceInSeconds, format, isAfter, isBefore } from 'date-fns';
+	import {  invalidateAll } from '$app/navigation';
+	import {  isAfter, } from 'date-fns';
 
 
 
