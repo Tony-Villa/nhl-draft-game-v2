@@ -22,7 +22,7 @@
 	let playersDrafted = $state(0);
 	let draftBoard = $state(data.draftBoard);
 
-	// console.log('data: ', data);
+	console.log('data: ', data);
 	
 	setCurrentUser(data?.user?.user);
 	setDraftSystem(data.prospects, data.draftBoard, data.emptyDraftBoard);
