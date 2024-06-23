@@ -5,7 +5,7 @@ import { discord, lucia } from '$lib/server/auth';
 import type { RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { and, eq } from 'drizzle-orm';
-import { users, keys } from '$lib/server/db/schema';
+import { games, users, keys, scores } from '$lib/server/db/schema';
 import { createAndSetSession } from '$lib/server/authUtils';
 
 export async function GET(event: RequestEvent): Promise<Response> {
@@ -64,10 +64,14 @@ export async function GET(event: RequestEvent): Promise<Response> {
 				});
 			}
 
+
+
 			await createAndSetSession(lucia, existingUser.id, event.cookies);
 
 		} else {
 			const userId = generateId(15);
+
+			const [defaultGame] = await db.select().from(games).where(eq(games.defaultGame, true))
 
 			await db.transaction(async (trx) => {
 				await trx.insert(users).values({
@@ -83,6 +87,14 @@ export async function GET(event: RequestEvent): Promise<Response> {
 					providerUserId: discordUser.id.toString(),
 					userId
 				});
+
+				await trx.insert(scores).values({
+					gameId: defaultGame.id,
+					userId,
+					score: 0
+				})
+				
+
 			});
 
 			await createAndSetSession(lucia, userId, event.cookies);

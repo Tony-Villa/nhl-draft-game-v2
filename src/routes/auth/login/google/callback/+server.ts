@@ -9,7 +9,7 @@ import {
 } from '$lib/server/authUtils';
 import { db } from '$lib/server/db';
 import { googleOauth, lucia } from '$lib/server/auth';
-import { users, keys } from '$lib/server/db/schema';
+import { users, keys, games, scores } from '$lib/server/db/schema';
 import type { RequestEvent } from '../../$types';
 
 type GoogleUser = {
@@ -100,6 +100,8 @@ export const GET = async (event : RequestEvent) => {
 			// Create a new user and their OAuth account
 			const userId = generateId(15);
 
+			const [defaultGame] = await db.select().from(games).where(eq(games.defaultGame, true))
+
 			await db.transaction(async (trx) => {
         await trx.insert(users).values({
 					id: userId,
@@ -114,6 +116,13 @@ export const GET = async (event : RequestEvent) => {
 					providerId: 'google',
 					providerUserId: googleUser.sub
 				});
+
+				await trx.insert(scores).values({
+					gameId: defaultGame.id,
+					userId,
+					score: 0
+				})
+
 			});
 
 			await createAndSetSession(lucia, userId, event.cookies);
