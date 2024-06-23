@@ -7,6 +7,6 @@ export default {
   driver: "turso",
   dbCredentials: {
     url: process.env.VITE_TURSO_DB_URL!,
-    authToken: process.env.VITE_TURSO_DB_AUTH_TOKEN_STAGING,
+    authToken: process.env.VITE_TURSO_DB_AUTH_TOKEN,
   },
 } satisfies Config;
