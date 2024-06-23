@@ -5,5 +5,8 @@ export default defineConfig({
 	plugins: [sveltekit()],
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
+	},
+	ssr: {
+		noExternal: ['flowbite-svelte', 'bits-ui', 'svelte-french-toast']
 	}
 });
