@@ -1,6 +1,6 @@
 <script lang="ts">
   import { differenceInSeconds} from 'date-fns'
-  import { goto, invalidate, invalidateAll } from '$app/navigation';
+  import { invalidateAll } from '$app/navigation';
 
   let {endTime}: {
     endTime: string | number | Date;
@@ -21,22 +21,8 @@
   let timeout: any;
 
 
-  // function reloadPage() {
-  //   const thisPage = window.location.pathname;
-
-  //   console.log('goto ' + thisPage);
-
-  //   goto('/').then(
-  //       () => goto(thisPage)
-  //   );
-  // }
-
   async function rerunLoadFunction() {
-		// any of these will cause the `load` function to rerun
-		// invalidate("http://localhost:5173/draft-center");
 		invalidateAll();
-
-    // await goto('/wowowo', { replaceState: true, noScroll: true })
 	}
 
 
@@ -49,7 +35,6 @@ $effect(() => {
     timeout = setTimeout( () => {
       console.log('running rerun load func');
       rerunLoadFunction()
-      // reloadPage()
       }, 2500)
     
   }
@@ -59,8 +44,7 @@ $effect(() => {
   }
 })
 
-function zeroPad(n) {
-  // return n < 10 ? '0' : ''
+function zeroPad(n: number | string) {
   return ('0'+n).slice(-2);
 }
 
