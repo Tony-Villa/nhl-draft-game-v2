@@ -12,9 +12,14 @@ import { drafts } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
 
+
 const CACHE_TTL = 86_400_000; // 24 hours
 
 export const load = async ({ request, setHeaders, locals }: RequestEvent) => {
+	const response = await fetch('http://localhost:5173/api/game')
+	const game = await response.json()
+
+
 	const cached = await redis.get('top_prospects');
 	let topProspects: Prospect[] = [];
 
@@ -110,7 +115,9 @@ export const load = async ({ request, setHeaders, locals }: RequestEvent) => {
 
 	const emptyDraftBoard = await setInitialDraftBoard()
 
-	return { prospects: topProspects , draftBoard, user: locals, isAuthenticated: locals.session !== null, emptyDraftBoard };
+	// const game = await getGameInfo();
+
+	return { prospects: topProspects , draftBoard, user: locals, isAuthenticated: locals.session !== null, emptyDraftBoard, game };
 }
 
 async function setInitialDraftBoard(userId: string | undefined = undefined) {
