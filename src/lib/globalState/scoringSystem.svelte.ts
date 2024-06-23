@@ -1,17 +1,23 @@
 import { getContext, setContext } from "svelte";
 
+interface NhlDraft {
+  overallPick: string;
+  prospect: string;
+  team: string;
+}
+
 export class PointsSystem {
   userPoints = $state(0)
   hasOfficialDraftStarted = $state(false)
-  officialNhlDraft: Record<number, string> = $state({})
+  officialNhlDraft: NhlDraft[] = $state([])
 
   constructor() {
     this.userPoints = 0
     this.hasOfficialDraftStarted = false
   }
 
-  officialNhlDraftPickMade({ pick, prospect } : {pick: number; prospect: string}) {
-    this.officialNhlDraft[pick] = prospect
+  officialNhlDraftPickMade({ pick } : {pick: NhlDraft; }) {
+    this.officialNhlDraft.push(pick)
   }
 
 }
