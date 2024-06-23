@@ -4,10 +4,13 @@ import { json } from '@sveltejs/kit';
 import type { DraftBoard, Prospect } from '$lib/types.js';
 // import { generateId } from 'lucia';
 import { PointsSystem } from '$lib/globalState/scoringSystem.svelte.js';
+import { queryGame } from '$lib/server/db/queries/query-game.js';
 // import { getPointsSystem } from '$lib/globalState/scoringSystem.svelte.js';
 
 export async function POST({ request }) {
 	const { data } = await request.json();
+
+  const res = await queryGame();
 
 	const {draftboard: dboard, prospects} = data;
 
@@ -69,21 +72,22 @@ export async function POST({ request }) {
 
       // test to see if point system works
 
-      const pointSystem = new PointsSystem()
+      // const pointSystem = new PointsSystem()
 
-      console.log('before draft: ',pointSystem.officialNhlDraft);
+      // console.log('before draft: ',pointSystem.officialNhlDraft);
       
-      tempDraftBoard.forEach(pick => {
-        pointSystem.officialNhlDraftPickMade({
-          pick: pick.draftPosition,
-          prospect: pick.prospect?.name || ''
-        })
-      })
+      // tempDraftBoard.forEach(pick => {
+      //   pointSystem.officialNhlDraftPickMade({
+      //     pick: pick.draftPosition,
+      //     prospect: pick.prospect?.name || ''
+      //   })
+      // })
       
-      console.log('after draft: ', pointSystem.officialNhlDraft);
+      // console.log('after draft: ', pointSystem.officialNhlDraft);
     }
 
 
+  // ******************* CREATE USERS AND DRAFTS FOR THEM ***************
 	// try {
 	// 	draftboard.forEach(async (draft: DraftBoard) => {
 	// 		if (!draft.prospect) return;
