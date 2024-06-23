@@ -3,8 +3,9 @@
   import Discord from '$lib/icons/Discord.svelte';
 	import Button from '$lib/components/Button.svelte';
   import * as Dialog from "$lib/components/ui/dialog";
+  import {type User} from '$lib/types'
 
-  let { isAuthenticated } : {isAuthenticated : boolean} = $props() 
+  let { isAuthenticated, user } : {isAuthenticated : boolean; user: User} = $props() 
 
   const baseButtonStyles = 'border-2 shadow-brut-shadow-sm rounded-md border-solid border-black px-3 py-1 relative';
 
@@ -34,7 +35,14 @@
   <nav class="flex flex-row gap-10 justify-end items-center py-3 ">
 
   {#if isAuthenticated}
-      <ul class="flex flex-row flex-end">
+      <ul class="flex flex-row flex-end gap-5 items-center">
+        <div class="flex flex-row items-center gap-2">
+          {#if user?.avatarUrl}
+            <img class="w-8 h-8 rounded-full" src={user?.avatarUrl} alt={`${user?.name}'s avatar'`}>
+          {/if}
+          <p class="font-bold md:text-lg">Welcome, {user?.name}</p>
+        </div>
+        <p> | </p>
         <form method="post" action="/draft-center?/logout">
           <button onclick={clearLocalDraft}>Sign out</button>
         </form>

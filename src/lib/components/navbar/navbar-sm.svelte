@@ -2,10 +2,9 @@
   import * as Dialog from "$lib/components/ui/dialog";
 	import Discord from "$lib/icons/Discord.svelte";
 	import Google from "$lib/icons/Google.svelte";
-	import Button from '$lib/components/Button.svelte';
 	import Hamburger from "$lib/icons/Hamburger.svelte";
     
-    let {isAuthenticated} : {isAuthenticated : boolean} = $props()
+  let { isAuthenticated } : {isAuthenticated : boolean} = $props() 
 
     const baseButtonStyles = 'border-2 shadow-brut-shadow-sm rounded-md border-solid border-black px-3 py-1 relative';
 
