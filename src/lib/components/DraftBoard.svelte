@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getDraftState } from '$lib/globalState/draftState.svelte';
+	import { getDraftState, type DraftStateType } from '$lib/globalState/draftState.svelte';
 	import { getDraftSystem } from '$lib/globalState/prospectsState.svelte';
 	import { getCurrentUser } from '$lib/globalState/userState.svelte';
 	import Close from '$lib/icons/Close.svelte';
@@ -11,7 +11,6 @@
 	import { fade } from 'svelte/transition';
 	import { seedDb } from '$lib/helpers/seed-db';
 	import { submitDraftBoard } from '$lib/helpers/submit-draft-board';
-	import { getPointsSystem } from '$lib/globalState/scoringSystem.svelte';
 
 	let {draftType}: {
 		draftType: 'user' | 'nhl'
@@ -29,12 +28,13 @@
 	}
 
 	function seed() {
-			seedDb({
-				prospects: draftSystem.prospects, 
-				draftboard: draftSystem.draftBoard,
-				})
+		draftState.currentState = 'started'
+			
+		seedDb({
+			prospects: draftSystem.prospects, 
+			draftboard: draftSystem.draftBoard,
+		})
 
-				draftState.startNhlDraft()
 	}
 
 	const draftBoard = draftType === 'user' ? draftSystem.draftBoard : draftSystem.nhlDraftBoard
@@ -51,7 +51,7 @@
 			<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
 		{/if}
 
-		{#if draftState.currentState !== "started"}
+		{#if draftState.currentState === "open"}
 			<Button onclick={() => submitDraftBoard({
 				draftboard: draftSystem.draftBoard,
 				user: currentUser.user,
