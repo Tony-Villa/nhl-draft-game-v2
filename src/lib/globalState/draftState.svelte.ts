@@ -3,11 +3,12 @@ import { getContext, setContext } from "svelte"
 type CurrentDraftState = "open" | "locked" | "started" | "finalized"
 export interface DraftStateType {
   isDraftLocked: boolean;
-  currentState: CurrentDraftState | string;
+  currentState: CurrentDraftState;
   nhlDraft: ProspectDrafted[];
   updateDraftStatus: (status: boolean) => void
   startNhlDraft: () => void
   currentNhlDraft: (pick: ProspectDrafted[]) => void
+  updateNhlDraftPick: (number: number) => void
 }
 
 interface ProspectDrafted {
@@ -17,12 +18,13 @@ interface ProspectDrafted {
 
 class DraftState {
   isDraftLocked = $state(false)
-  currentState = $state("draft")
-  nhlDraft: ProspectDrafted[] = $state([])
+  currentState = $state("open")
+  nhlDraftCurrentPick = $state(0)
 
-  constructor() {
+  constructor(phase : CurrentDraftState) {
     this.isDraftLocked = false
-    this.currentState = "draft"
+    this.currentState = phase
+    this.nhlDraftCurrentPick = 0
   }
 
   updateDraftStatus(status: boolean) {
@@ -34,18 +36,19 @@ class DraftState {
     this.currentState = "started"
   }
 
-  currentNhlDraft(pick: ProspectDrafted[]) {
-    this.nhlDraft = pick
+  updateNhlDraftPick(pick: number) {
+    this.nhlDraftCurrentPick = pick
   }
+
 
 }
 
-export function setDraftState() {
-  const draftState = new DraftState()
+export function setDraftState(phase: CurrentDraftState) {
+  const draftState = new DraftState(phase)
   setContext('DRAFT_CTX', draftState)
   return draftState
 }
 
 export function getDraftState() {
-  return getContext<DraftState>('DRAFT_CTX')
+  return getContext<DraftStateType>('DRAFT_CTX')
 }
