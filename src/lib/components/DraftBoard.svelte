@@ -41,10 +41,6 @@
 
 	const draftBoard = draftType === 'user' ? draftSystem.draftBoard : draftSystem.nhlDraftBoard
 
-	$effect(() => {
-		console.log(draftBoardContainerWidth);
-	})
-
 </script>
 
 <div bind:clientWidth={draftBoardContainerWidth} class={`draft-board flex w-full flex-[2] flex-col gap-2 min-[950px]:min-w-[450px] ${draftType === 'nhl' && 'mt-1'}`}>

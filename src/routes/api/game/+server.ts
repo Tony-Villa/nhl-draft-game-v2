@@ -17,6 +17,6 @@ export async function GET() {
       }
     })
 	} catch (error) {
-		console.log("Error getting game info:" ,error);	
+		console.error("Error getting game info:" ,error);	
 	}
 }

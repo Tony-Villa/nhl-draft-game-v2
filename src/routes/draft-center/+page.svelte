@@ -22,7 +22,7 @@
 	let playersDrafted = $state(0);
 	let draftBoard = $state(data.draftBoard);
 
-	console.log('data: ', data);
+	// console.log('data: ', data);
 	
 	setCurrentUser(data?.user?.user);
 	setDraftSystem(data.prospects, data.draftBoard, data.emptyDraftBoard);
@@ -77,7 +77,7 @@
 		if (draftState.currentState === "started") {
 			const socket = new WebSocket("ws://localhost:3000/nhlDraftFeed")
 			socket.onopen = () => {
-				console.log("Connecting to WS");
+				// console.log("Connecting to WS");
 				socket.send("start")
 				socket.onmessage = (event) => {
 					let jsonData = JSON.parse(event.data)

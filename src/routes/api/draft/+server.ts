@@ -29,7 +29,7 @@ export async function POST({ request }) {
 			});
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 	}
 
 

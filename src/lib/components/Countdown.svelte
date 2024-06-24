@@ -47,7 +47,6 @@ $effect(() => {
   }, 1000);
   } else {   
     timeout = setTimeout( () => {
-      console.log('running rerun load func');
       rerunLoadFunction()
       }, 2500)
     

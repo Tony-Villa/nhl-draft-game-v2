@@ -32,6 +32,6 @@ export async function submitDraftBoard({draftboard, user, draftState}: {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }

@@ -25,6 +25,6 @@ export async function seedDb({prospects, draftboard}: {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
