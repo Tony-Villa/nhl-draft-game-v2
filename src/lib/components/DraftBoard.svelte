@@ -52,12 +52,6 @@
 	{#if draftType === 'user'}
 	<div class="flex items-end justify-between gap-3 pr-3">
 		<div class="flex flex-col">
-			{#if draftBoardContainerWidth > 384 && lockDate && isAfter(new Date(lockDate), Date.now())}
-			<p>Your draft will lock on <strong>
-				{format(new Date(lockDate), 'iii, LLL do p')}
-			</strong>
-			</p>
-			{/if}
 			{#if !currentUser?.user}
 				<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
 			{/if}
@@ -75,12 +69,6 @@
 			disabled={!currentUser?.user || draftState?.isDraftLocked}>
 				Submit Draft
 			</Button>
-			{#if draftBoardContainerWidth < 385 && lockDate && isAfter(new Date(lockDate), Date.now())}
-				<p>Your draft will lock on <strong>
-					{format(new Date(lockDate), 'iii, LLL do p')}
-				</strong>
-			</p>
-			{/if}
 		</div>
 			<!-- {#if dev}
 				<Button onclick={seed} 

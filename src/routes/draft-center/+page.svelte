@@ -9,7 +9,7 @@
 	import HeadToHead from '$lib/components/HeadToHead.svelte';
 	import Countdown from '$lib/components/Countdown.svelte';
 	import {  invalidateAll } from '$app/navigation';
-	import {  isAfter, } from 'date-fns';
+	import {  format, isAfter, } from 'date-fns';
 
 
 
@@ -113,7 +113,14 @@
 
 	{#if isAfter(new Date(data.game.startDate), Date.now())}
 		<div class="text-center mb-6">
-			<Countdown endTime={data.game.startDate} />
+			<Countdown heading="NHL Draft starts in:" endTime={data.game.startDate}>
+				<div class="flex flex-col mt-2 leading-tight">
+					<small>Note: Your draft will lock 16 hours<br/> before the official nhl draft</small>
+					<small class="font-bold">
+						{format(new Date(data?.game?.lockDate), 'iii, LLL do p')}
+					</small>
+				</div>
+			</Countdown>
 			<!-- <Countdown endTime={"2024-06-21T09:05:30Z"} /> -->
 		</div>
 	{/if}

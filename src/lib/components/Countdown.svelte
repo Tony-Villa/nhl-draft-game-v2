@@ -2,8 +2,10 @@
   import { differenceInSeconds} from 'date-fns'
   import { invalidateAll } from '$app/navigation';
 
-  let {endTime}: {
+  let {heading, endTime, children}: {
+    heading?: string
     endTime: string | number | Date;
+    children?: any
   } = $props()
   let now = Date.now()
   let end = new Date(endTime)
@@ -64,7 +66,7 @@ function zeroPad(n: number | string) {
 
 {#if secondsRemaining > 0}
   <div class="border-black border-2 rounded-xl shadow-brut-shadow max-w-fit px-4 py-2 bg-orange-100 mx-auto">
-    <h2 class="font-bold text-sm mb-1">NHL Draft starts in:</h2>
+    <h2 class="font-bold text-sm mb-1">{heading}</h2>
     <div class="flex gap-2 justify-center font-bold text-3xl border-black border-2 bg-blue-200 rounded-md p-4">
       {@render CountdownSection(days, 'days')}
       {@render CountdownClockSeparator()}
@@ -74,6 +76,7 @@ function zeroPad(n: number | string) {
       {@render CountdownClockSeparator()}
       {@render CountdownSection(seconds, 'seconds')}
     </div>
+    {@render children()}
   </div>
 {/if}
 
