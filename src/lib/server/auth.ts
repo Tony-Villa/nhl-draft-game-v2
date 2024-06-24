@@ -10,8 +10,9 @@ import { DISCORD_APP_ID, DISCORD_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
 const adapter = new DrizzleSQLiteAdapter(db, sessions, users); // your adapter
 const base_url = BASE_URL
 
-const discordCallback = dev ? 'http://localhost:5173/auth/login/discord/callback' : base_url+'/auth/login/discord/callback';
-const googleCallback = dev ? 'http://localhost:5173/auth/login/google/callback' : base_url +'/auth/login/google/callback';
+const discordCallback = dev ? 'http://localhost:5173/auth/login/discord/callback' : 'https://hockeydraftshowdown.com/auth/login/discord/callback';
+const googleCallback = dev ? 'http://localhost:5173/auth/login/google/callback' : 
+'https://hockeydraftshowdown.com/auth/login/google/callback';
 
 
 export const discord = new Discord(
