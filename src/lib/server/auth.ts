@@ -8,7 +8,7 @@ import { Discord, Google } from 'arctic';
 import { DISCORD_APP_ID, DISCORD_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, BASE_URL } from '$env/static/private';
 
 const adapter = new DrizzleSQLiteAdapter(db, sessions, users); // your adapter
-const base_url = BASE_URL
+// const base_url = BASE_URL
 
 const discordCallback = dev ? 'http://localhost:5173/auth/login/discord/callback' : 'https://hockeydraftshowdown.com/auth/login/discord/callback';
 const googleCallback = dev ? 'http://localhost:5173/auth/login/google/callback' : 
