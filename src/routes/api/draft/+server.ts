@@ -4,7 +4,7 @@ import { drafts } from '$lib/server/db/schema/drafts';
 import type { DraftBoard } from '$lib/types.js';
 
 
-export async function POST({ request }) {
+export async function POST({ request, fetch }) {
 	const { data } = await request.json();
 
 	const {draftboard, user} = data;
@@ -29,7 +29,15 @@ export async function POST({ request }) {
 			});
 		});
 	} catch (error) {
-		console.error(error);
+		
+		const response = await fetch('https://debug.fly.dev/')
+		const tursoDebug = await response.text()
+
+		console.error({
+			error,
+			tursoDebug
+		});
+
 	}
 
 
