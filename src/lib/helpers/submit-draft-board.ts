@@ -22,14 +22,18 @@ export async function submitDraftBoard({draftboard, user, draftState}: {
       }
     });
     
-    draftState.updateDraftStatus(true);
-    
     const response = await draft.json();
+    
+    draftState.updateDraftStatus(true);
 
-    if (response) {
+    if (response?.message === 'success') {
       toast.success('Draft submitted successfully', {
         duration: 4000
       });
+    } else {
+      toast.error('Something went wrong with your draft, please try again', {
+        duration: 4000
+      })
     }
   } catch (error) {
     console.error(error);

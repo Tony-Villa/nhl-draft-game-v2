@@ -27,10 +27,13 @@ export async function POST({ request }) {
         target: [drafts.positionDrafted, drafts.userId],
         set: { prospect: JSON.stringify(draft.prospect) },
     });
-  }));
+  })).catch(err => {
+		console.log(err)
+		return json({message: 'failed'})
+	});
 
 
-  return json({ message: 'success' });
+  return json({ message: 'success' }, { status: 201 });
 }
 
 
