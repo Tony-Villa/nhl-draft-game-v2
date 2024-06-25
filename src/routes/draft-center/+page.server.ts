@@ -12,6 +12,7 @@ import { drafts } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
 import { dev } from "$app/environment";
+import { getDraftBoardOrder } from "$lib/helpers/get-draft-board-order";
 
 
 const CACHE_TTL = 86_400_000; // 24 hours
@@ -123,25 +124,10 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 }
 
 async function setInitialDraftBoard(userId: string | undefined = undefined) {
-	const draftboard = [];
+	let draftboard: DraftBoard[]
 	let count = 1;
-	const response = await fetch(CURRENT_STANDINGS);
-	const data = await response.json();
 
-	for (let i = data.standings.length - 1; i >= 0; i--) {
-		let teamName = data.standings[i]?.teamName?.default.toLowerCase().includes('arizona') ? 'Utah Hockey Club' : data.standings[i]?.teamName?.default
-
-		let teamLogo = data.standings[i]?.teamLogo.toLowerCase().includes('ari') ? 'https://assets.nhle.com/logos/nhl/svg/UTA_light.svg' : data.standings[i]?.teamLogo
-
-		draftboard.push({
-			draftPosition: count,
-			teamName,
-			// teamLogo: data.standings[i]?.teamLogo.replace('light', 'dark'),
-			teamLogo,
-			prospect: null
-		});
-		count++;
-	}
+	draftboard = await getDraftBoardOrder()
 
 	if(userId) { 
 		const savedDraftBoard = await db

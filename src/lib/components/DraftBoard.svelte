@@ -89,7 +89,12 @@
 			<Card variant="small" class={`draft-card ${draftBoardContainerWidth > 300 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
 				<div class="flex items-center px-2 py-2">
 					<h2>{position.draftPosition}</h2>
-					<img class="h-[50px] w-[50px]" src={position.teamLogo} alt="" />
+					<div class="relative">
+						<img class="h-[50px] w-[50px] z-10" src={position.teamLogo} alt="" />
+						{#if position?.from}
+							<img class="h-6 w-6 absolute right-0 top-[64%]" src={position.from} alt=""/>
+						{/if}
+					</div>
 					{#if position.prospect}
 					<div in:fade class='flex flex-1 justify-between items-center'>
 						<p class="ml-2 font-bold">{position?.prospect?.name}</p>

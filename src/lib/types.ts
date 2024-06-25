@@ -17,6 +17,7 @@ export interface DraftBoard {
 	teamLogo: string | undefined;
 	prospect: Prospect | null;
 	teamName: string | undefined;
+	from?: string | undefined
 }
 
 export interface User {
