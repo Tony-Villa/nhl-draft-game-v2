@@ -129,11 +129,15 @@ async function setInitialDraftBoard(userId: string | undefined = undefined) {
 	const data = await response.json();
 
 	for (let i = data.standings.length - 1; i >= 0; i--) {
+		let teamName = data.standings[i]?.teamName?.default.toLowerCase().includes('arizona') ? 'Utah Hockey Club' : data.standings[i]?.teamName?.default
+
+		let teamLogo = data.standings[i]?.teamLogo.toLowerCase().includes('ari') ? 'https://assets.nhle.com/logos/nhl/svg/UTA_light.svg' : data.standings[i]?.teamLogo
+
 		draftboard.push({
 			draftPosition: count,
-			teamName: data.standings[i]?.teamName?.default,
+			teamName,
 			// teamLogo: data.standings[i]?.teamLogo.replace('light', 'dark'),
-			teamLogo: data.standings[i]?.teamLogo,
+			teamLogo,
 			prospect: null
 		});
 		count++;
