@@ -33,11 +33,8 @@ export async function POST({ request, fetch }) {
 		const response = await fetch('https://debug.fly.dev/')
 		const tursoDebug = await response.text()
 
-		console.log({
-			error,
-			tursoDebug
-		});
-
+		console.log(tursoDebug);
+		console.log(error);
 	}
 
 
