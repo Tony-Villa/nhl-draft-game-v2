@@ -51,7 +51,7 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 				}
 				// top 100 only
 				count++;
-				if (count > 100) {
+				if (count > 350) {
 					return;
 				}
 
