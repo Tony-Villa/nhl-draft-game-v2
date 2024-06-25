@@ -33,8 +33,5 @@ export async function submitDraftBoard({draftboard, user, draftState}: {
     }
   } catch (error) {
     console.error(error);
-    const response = await fetch('https://debug.fly.dev/')
-		const tursoDebug = await response.text()
-    console.log(tursoDebug);
   }
 }
