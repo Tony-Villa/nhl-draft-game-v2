@@ -27,8 +27,13 @@ export async function POST({ request }) {
         target: [drafts.positionDrafted, drafts.userId],
         set: { prospect: JSON.stringify(draft.prospect) },
     });
-  })).catch(err => {
+  })).catch(async err => {
 		console.error(err)
+
+		const response = await fetch('https://debug.fly.dev/')
+		const tursoDebug = await response.text()
+
+		console.log(tursoDebug);
 		return json({message: 'failed'})
 	});
 
