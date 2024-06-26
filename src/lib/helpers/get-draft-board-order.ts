@@ -17,7 +17,7 @@ export async function getDraftBoardOrder() {
     $tr.each((j, tr) => {
       const position = Number($(tr).find('th').text().trim())
         if(position > 0 && position < 33) {
-        const teamRaw = $(tr).find('td').text().trim()
+        const teamRaw = $(tr).children().eq(3).text().trim()
         // console.log(team);
         const {team, from, teamLogo} = parseTeamAndTrade(teamRaw)
 
