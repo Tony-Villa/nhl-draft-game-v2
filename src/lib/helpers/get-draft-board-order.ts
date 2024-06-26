@@ -3,8 +3,6 @@ import { parseTeamAndTrade } from './parse-team-and-trade';
 import type { DraftBoard } from '$lib/types';
 
 
-// function JSDOM(html: any) { return parseHTML(html); }
-
 export async function getDraftBoardOrder() {
   const response = await fetch('https://en.wikipedia.org/wiki/2024_NHL_entry_draft')
   const fullNhlDraftPage = await response.text()
