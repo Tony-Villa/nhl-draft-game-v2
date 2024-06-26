@@ -1,7 +1,9 @@
 import { json } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
 import { drafts } from '$lib/server/db/schema/drafts';
 import type { DraftBoard } from '$lib/types.js';
+import { createClient } from '@libsql/client';
+import { VITE_TURSO_DB_AUTH_TOKEN, VITE_TURSO_DB_URL } from '$env/static/private';
+import { drizzle } from 'drizzle-orm/libsql';
 
 
 
@@ -9,6 +11,12 @@ export async function POST({ request }) {
   const { data } = await request.json();
 
   const {draftboard, user} = data;
+
+	const client = createClient({
+		url: VITE_TURSO_DB_URL,
+		authToken: VITE_TURSO_DB_AUTH_TOKEN
+	});
+	const db = drizzle(client);
 
   Promise.all(draftboard.map(async (draft: DraftBoard) => {
     if (!draft.prospect) return;
