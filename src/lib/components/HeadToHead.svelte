@@ -40,7 +40,7 @@
   })
 </script>
 
-<div class="flex flex-row my-4 justify-center gap-5">
+<div class="flex flex-col items-center sm:flex-row justify-center my-4  gap-5  ">
   <Card class={cardStyles}>
     <div class="flex items-center px-2">
       {@render CurrentPick()}

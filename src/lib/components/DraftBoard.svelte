@@ -43,7 +43,7 @@
 
 </script>
 
-<div bind:clientWidth={draftBoardContainerWidth} class={`draft-board flex w-full flex-[2] flex-col gap-2 min-[950px]:min-w-[450px] ${draftType === 'nhl' && 'mt-1'}`}>
+<div bind:clientWidth={draftBoardContainerWidth} class={`draft-board flex w-full flex-[2] flex-col gap-2 min-[950px]:min-w-[450px]`}>
 
 	{#if draftType === 'user'}
 	<div class="flex items-end justify-between gap-3 pr-3">
