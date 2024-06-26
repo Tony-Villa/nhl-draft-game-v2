@@ -4,7 +4,7 @@ import { redirect, type Actions } from "@sveltejs/kit";
 import type { RequestEvent } from "../$types";
 
 import { redis } from '$lib/server/redis';
-import { PROSPECTS_URL, CURRENT_STANDINGS } from '$env/static/private';
+import { PROSPECTS_URL, PROSPECT_COUNT } from '$env/static/private';
 // import { janStandingsData } from '../../static/janStandings';
 import * as cheerio from 'cheerio';
 import type { DraftBoard, Prospect } from '$lib/types';
@@ -51,7 +51,7 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 				}
 				// top 100 only
 				count++;
-				if (count > 350) {
+				if (count > +PROSPECT_COUNT) {
 					return;
 				}
 
