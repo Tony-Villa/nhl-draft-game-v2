@@ -28,7 +28,7 @@ export async function POST({ request }) {
         set: { prospect: JSON.stringify(draft.prospect) },
     });
   })).catch(err => {
-		console.log(err)
+		console.error(err)
 		return json({message: 'failed'})
 	});
 
