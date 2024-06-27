@@ -26,7 +26,8 @@ export async function getDraftBoardOrder() {
           teamName: team,
           teamLogo,
           prospect: null,
-          from: position === 25 ? undefined : from || undefined
+          from: position === 25 ? undefined : from || undefined,
+          points: null,
         })
       }
     })

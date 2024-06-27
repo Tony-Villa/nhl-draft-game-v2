@@ -37,6 +37,49 @@ class ProspectDraftSystem {
 
 	}
 
+
+	computePoints(){
+		let startingPoints = 10;
+		let tempProspectCompare: Record<string,Record<string,number>> = {}
+
+		for(let i = 0; i < this.draftBoard.length; i++) {
+			if(!this.draftBoard[i].prospect) {
+				continue
+			} 
+
+			if(this.draftBoard[i]?.prospect?.name) {
+				tempProspectCompare[this.draftBoard[i].prospect?.name as string] = {...tempProspectCompare[this.draftBoard[i].prospect?.name as string], user: this.draftBoard[i].draftPosition }
+			}
+		}
+		
+		for(let i = 0; i < this.nhlDraftBoard.length; i++) {
+			if(!this.nhlDraftBoard[i].prospect?.name) {
+				continue
+			} 
+			
+			if(this.nhlDraftBoard[i].prospect?.name) {
+				tempProspectCompare[this.nhlDraftBoard[i].prospect?.name as string] = {...tempProspectCompare[this.nhlDraftBoard[i].prospect?.name as string], nhl: this.nhlDraftBoard[i].draftPosition }
+			}
+		}
+
+		for(let i = 0; i < this.draftBoard.length; i++) {
+			if(!this.draftBoard[i].prospect) {
+				this.draftBoard[i].points = 0
+				continue;	
+			} 
+
+			if(this.draftBoard[i].prospect?.name && tempProspectCompare?.[this.draftBoard[i].prospect?.name as string]) {
+				// this is dumb ass code but it works, fix it later
+				this.draftBoard[i].points = startingPoints - Math.abs(tempProspectCompare[this.draftBoard[i].prospect?.name as string]?.user - tempProspectCompare[this.draftBoard[i].prospect?.name as string]?.nhl) < 0 ? 0 : startingPoints - Math.abs(tempProspectCompare[this.draftBoard[i].prospect?.name as string]?.user - tempProspectCompare[this.draftBoard[i].prospect?.name as string]?.nhl)
+			}
+		}
+
+		
+		return this.draftBoard.reduce((acc,d) => acc + (d.points || 0), 0)
+		
+ 		
+	}
+
 	removeProspectFromBoard(prospect: Prospect, position = 1) {
 		this.undraftProspect(prospect);
 		this.draftBoard[position - 1].prospect = null;

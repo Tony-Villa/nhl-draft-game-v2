@@ -66,6 +66,7 @@
 				Submit Draft
 			</Button>
 		</div>
+		<!-- remove -->
 			<!-- {#if dev}
 				<Button onclick={seed} 
 				id='seed'
@@ -73,6 +74,7 @@
 					Seed DB
 				</Button>
 			{/if} -->
+			<!-- end remove -->
 		{/if}
 		{#if draftState.isDraftLocked }
 			<Popover
@@ -109,7 +111,7 @@
 					{#if  draftType !== 'nhl' && draftState.currentState === 'started' || draftState.currentState === 'finalized'}
 						<div class="flex flex-col justify-center items-center gap-0">
 							<p class="text-sm">Points</p>
-							<h3 class="text-lg font-bold">10</h3>
+							<h3 class="text-lg font-bold">{position?.points || 0}</h3>
 						</div>
 					{/if}
 					</div>
