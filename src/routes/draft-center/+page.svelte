@@ -10,7 +10,7 @@
 	import Countdown from '$lib/components/Countdown.svelte';
 	import {  invalidateAll } from '$app/navigation';
 	import {  format, isAfter, } from 'date-fns';
-	import { WEB_SOCKET } from '$env/static/private';
+	import { PUBLIC_WEB_SOCKET } from '$env/static/public';
 
 
 
@@ -76,7 +76,7 @@
 
 	$effect(() => {
 		if (draftState.currentState === "started") {
-			const socket = new WebSocket(WEB_SOCKET)
+			const socket = new WebSocket(PUBLIC_WEB_SOCKET)
 			socket.onopen = () => {
 				// console.log("Connecting to WS");
 				socket.send("start")
