@@ -10,6 +10,7 @@
 	import Countdown from '$lib/components/Countdown.svelte';
 	import {  invalidateAll } from '$app/navigation';
 	import {  format, isAfter, } from 'date-fns';
+	import { WEB_SOCKET } from '$env/static/private';
 
 
 
@@ -66,16 +67,16 @@
 		checkForLocalDraftBoard();
 	})
 
-	// $effect(() => {
-	// 	// setDraftState(data.game.gamePhase)
-	// 	if(data.game.gamePhase !== draftState.currentState) {
-	// 		draftState.currentState = data.game.gamePhase
-	// 	}
-	// })
+	$effect(() => {
+		// setDraftState(data.game.gamePhase)
+		if(data.game.gamePhase !== draftState.currentState) {
+			draftState.currentState = data.game.gamePhase
+		}
+	})
 
 	$effect(() => {
 		if (draftState.currentState === "started") {
-			const socket = new WebSocket("ws://localhost:3000/nhlDraftFeed")
+			const socket = new WebSocket(WEB_SOCKET)
 			socket.onopen = () => {
 				// console.log("Connecting to WS");
 				socket.send("start")
@@ -153,9 +154,9 @@
 	<div class=" flex gap-5 px-2">
 		{#if innerWidth < 768}
 			<div class="w-full pb-10">
-				{#if selectedTab === tabs[1]}
+				{#if selectedTab === tabs[0]}
 					<DraftBoard lockDate={data.game.lockDate} draftType="user" />
-				{:else if selectedTab === tabs[0]}
+				{:else if selectedTab === tabs[1]}
 					<DraftBoard draftType="nhl" />
 				{/if}
 			</div>
