@@ -5,6 +5,7 @@ export interface DraftStateType {
   isDraftLocked: boolean;
   currentState: CurrentDraftState;
   nhlDraft: ProspectDrafted[];
+  nhlDraftCurrentPick: number;
   updateDraftStatus: (status: boolean) => void
   startNhlDraft: () => void
   currentNhlDraft: (pick: ProspectDrafted[]) => void

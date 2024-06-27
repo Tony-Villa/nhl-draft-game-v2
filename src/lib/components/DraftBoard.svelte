@@ -43,7 +43,7 @@
 
 </script>
 
-<div bind:clientWidth={draftBoardContainerWidth} class={`draft-board flex w-full flex-[2] flex-col gap-2 min-[950px]:min-w-[450px] ${draftType === 'nhl' && 'mt-1'}`}>
+<div bind:clientWidth={draftBoardContainerWidth} class={`draft-board flex w-full flex-[2] flex-col gap-2 min-[950px]:min-w-[450px]`}>
 
 	{#if draftType === 'user'}
 	<div class="flex items-end justify-between gap-3 pr-3">
@@ -84,7 +84,7 @@
 	</div>
 	{/if}
 
-	<div class={`draft-card-container mb-16 flex flex-wrap justify-center gap-2 ${draftType === 'nhl' && 'sm:mt-8 mt-9'}`}>
+	<div class={`draft-card-container mb-16 flex flex-wrap justify-center gap-2 ${draftType === 'nhl' && 'sm:mt-2 mt-2'}`}>
 		{#each draftBoard || [] as position}
 			<Card variant="small" class={`draft-card ${draftBoardContainerWidth > 300 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
 				<div class="flex items-center px-2 py-2">
