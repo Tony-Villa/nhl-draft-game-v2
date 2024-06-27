@@ -12,7 +12,7 @@ export const drafts = sqliteTable(
 			onDelete: 'cascade'
 		}),
 		positionDrafted: integer('position_drafted').notNull(),
-		officialDraftPosition: integer('official_draft_position').default(0),
+		points: integer('points'),
 		team: text('team').notNull(),
 		prospect: blob('prospect').notNull(),
 		createdAt: integer('created_at')
