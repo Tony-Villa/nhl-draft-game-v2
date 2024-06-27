@@ -15,6 +15,20 @@
       "when": 1719206050640,
       "tag": "0001_wonderful_raider",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1719448889060,
+      "tag": "0002_rich_bloodstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1719462908746,
+      "tag": "0003_nice_medusa",
+      "breakpoints": true
     }
   ]
 }
