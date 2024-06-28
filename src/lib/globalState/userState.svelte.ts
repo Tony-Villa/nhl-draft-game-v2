@@ -3,9 +3,14 @@ import { getContext, setContext } from "svelte"
 
 class CurrentUser {
   user  = $state({})
+  points = $state(0)
 
   constructor(initialUser: User) {
     this.user = initialUser
+  }
+
+  updateUserdraftPoints(totalPoints: number){
+    this.points = totalPoints
   }
 }
 

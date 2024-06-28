@@ -85,6 +85,10 @@ class ProspectDraftSystem {
 		this.draftBoard[position - 1].prospect = null;
 	}
 
+	addNhlPick(prospectName: string, position: number){
+		this.nhlDraftBoard[position].prospect = {name: prospectName} as any
+	}
+
 	draftProspect(prospect: Prospect) {
 		for (const p of this.prospects) {
 			if (p.name === prospect?.name) {
