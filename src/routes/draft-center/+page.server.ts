@@ -13,6 +13,7 @@ import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
 import { dev } from "$app/environment";
 import { getDraftBoardOrder } from "$lib/helpers/get-draft-board-order";
+import {  nhlDraft } from "$lib/server/db/schema/nhl_draft";
 
 
 const CACHE_TTL = 86_400_000; // 24 hours
@@ -116,11 +117,11 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 		}
 	})
 
-	const emptyDraftBoard = await setInitialDraftBoard()
+	const nhlBoard = await nhlDraftBoard()
 
 	// const game = await getGameInfo();
 
-	return { prospects: topProspects , draftBoard, user: locals, isAuthenticated: locals.session !== null, emptyDraftBoard, game };
+	return { prospects: topProspects , draftBoard, user: locals, isAuthenticated: locals.session !== null, nhlBoard, game };
 }
 
 async function setInitialDraftBoard(userId: string | undefined = undefined) {
@@ -144,6 +145,21 @@ async function setInitialDraftBoard(userId: string | undefined = undefined) {
 
 
 	return draftboard || {};
+}
+
+async function nhlDraftBoard() {
+	const emptyDraftBoard = await setInitialDraftBoard()
+
+	const nhlBoard = await  db.select().from(nhlDraft).where(eq(nhlDraft.gameId, 1)) 
+
+	if(nhlBoard.length > 0) {
+		nhlBoard.forEach(pick => {
+			emptyDraftBoard[pick.positionDrafted - 1].prospect = {name: pick.prospect} as any
+		})
+	}
+
+	return emptyDraftBoard
+
 }
 
 
