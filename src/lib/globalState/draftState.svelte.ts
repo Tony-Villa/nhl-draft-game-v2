@@ -22,10 +22,10 @@ class DraftState {
   currentState = $state("open")
   nhlDraftCurrentPick = $state(0)
 
-  constructor(phase : CurrentDraftState) {
+  constructor(phase : CurrentDraftState, initPick: number) {
     this.isDraftLocked = false
     this.currentState = phase
-    this.nhlDraftCurrentPick = 0
+    this.nhlDraftCurrentPick = initPick
   }
 
   updateDraftStatus(status: boolean) {
@@ -44,8 +44,8 @@ class DraftState {
 
 }
 
-export function setDraftState(phase: CurrentDraftState) {
-  const draftState = new DraftState(phase)
+export function setDraftState(phase: CurrentDraftState, initPick: number) {
+  const draftState = new DraftState(phase, initPick)
   setContext('DRAFT_CTX', draftState)
   return draftState
 }

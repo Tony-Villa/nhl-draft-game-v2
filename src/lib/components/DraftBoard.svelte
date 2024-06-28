@@ -3,7 +3,7 @@
 	import { getDraftSystem } from '$lib/globalState/prospectsState.svelte';
 	import { getCurrentUser } from '$lib/globalState/userState.svelte';
 	import Close from '$lib/icons/Close.svelte';
-	import type { Prospect } from '$lib/types';
+	import type { DraftBoard, Prospect } from '$lib/types';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
 	import { Popover } from 'flowbite-svelte';
@@ -12,8 +12,9 @@
 	import { seedDb } from '$lib/helpers/seed-db';
 	import { submitDraftBoard } from '$lib/helpers/submit-draft-board';
 
-	let {draftType}: {
+	let {draftType, nhlBoard}: {
 		draftType: 'user' | 'nhl';
+		nhlBoard?: any;
 	} = $props()
 
 	const draftSystem = getDraftSystem();
@@ -21,6 +22,8 @@
 	const draftState = getDraftState();
 	// const pointSystem = getPointsSystem()
 	let draftBoardContainerWidth = $state(0)
+
+	let nhlDraftBoard = $state(nhlBoard)
 
 
 	function removeProspect(prospect: Prospect, position: number) {
@@ -37,7 +40,10 @@
 
 	}
 
-	const draftBoard = draftType === 'user' ? draftSystem.draftBoard : draftSystem.nhlDraftBoard
+	let draftBoard = $derived(draftType === 'user' ? draftSystem.draftBoard : draftSystem?.nhlDraftBoard)
+
+	// $inspect('NHL BOARD -- INSIDE DRAFT BOARD: ', draftSystem?.nhlDraftBoard)
+
 
 </script>
 

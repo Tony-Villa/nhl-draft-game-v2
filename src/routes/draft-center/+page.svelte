@@ -10,7 +10,7 @@
 	import Countdown from '$lib/components/Countdown.svelte';
 	import {  invalidateAll } from '$app/navigation';
 	import {  format, isAfter, } from 'date-fns';
-	import { PUBLIC_WEB_SOCKET } from '$env/static/public';
+	// import { PUBLIC_WEB_SOCKET } from '$env/static/public';
 
 
 
@@ -23,18 +23,24 @@
 	
 	let playersDrafted = $state(0);
 	let draftBoard = $state(data.draftBoard);
+	
+	
 
 	// console.log('data: ', data);
 	
 	setCurrentUser(data?.user?.user);
 	setDraftSystem(data.prospects, data.draftBoard, data.nhlBoard);
-	setDraftState(data.game.gamePhase)
+	setDraftState(data.game.gamePhase, data.nhlBoard.filter((x: any) => x?.prospect?.name).length)
 
 
 	const storedDraftBoard = getDraftSystem()
 	const draftState = getDraftState();
 	const draftSystem = getDraftSystem();
 	const userState = getCurrentUser();
+
+	let nhlDraftBoardLength = $state(data.nhlBoard.filter((x: any) => x?.prospect?.name).length)
+
+	
 	
 
 	function checkForSavedDraftBoard() {
@@ -70,74 +76,107 @@
 	})
 
 	$effect(() => {
-		console.log(data.game.gamePhase);
+		// console.log(data.game.gamePhase);
 		// setDraftState(data.game.gamePhase)
 		// if(data.game.gamePhase !== draftState.currentState) {
 			draftState.currentState = data.game.gamePhase
 		// }
 	})
 
+	function refresh() {
+		invalidateAll()
+	}
+
 	$effect(() => {
 		if (draftState.currentState === "started") {
-			function connect() {
-				const socket = new WebSocket(PUBLIC_WEB_SOCKET)
-				// const socket = new WebSocket("http://localhost:3000/nhlDraftFeed")
-				const totalPoints = draftSystem.computePoints()
-				console.log('inside websocket before message:', totalPoints);
-				userState.points = totalPoints
 
-				socket.onopen = () => {
-					console.log("Connecting to WS");
-					console.log('send condition: ', draftSystem.nhlDraftBoard.filter(x => x?.prospect?.name).length <= 31);
-					if(draftSystem.nhlDraftBoard.filter(x => x?.prospect?.name).length <= 31){
+			if(nhlDraftBoardLength <= 31){
 
-						const interval = setInterval(() => {
-							socket.send("start")
-  					}, 10000);
-						() => {
-							clearInterval(interval)
-						}
+				const interval = setInterval(() => {
+					// console.log('before refresh: ', nhlDraftBoardLength);
+					refresh()
 
-					}
-					socket.onmessage = (event) => {
+					draftState.currentNhlDraft = data.nhlBoard.filter((x: any) => x?.prospect?.name).length
 
-						const totalPoints = draftSystem.computePoints()
-						console.log('inside websocket msg', totalPoints);
-						userState.points = totalPoints
+					draftSystem.nhlDraftBoard = data.nhlBoard
 
-						let jsonData = JSON.parse(event.data)
-						if(jsonData){
-							draftState.updateNhlDraftPick(jsonData.length)
-	
-							for(let i = 0; i < jsonData.length; i++) {
-	
-								console.log('prospect drafted:', jsonData[i].name);
-								// draftSystem.addNhlPick(jsonData[i].prospect, i)
-									draftSystem.nhlDraftBoard[i].prospect = {
-										name: jsonData[i].name
-									} as any
-							}
-						} else {
-							draftState.updateNhlDraftPick(0)
-						}
-		
-						// console.log(draftState.nhlDraft);
-					}
-					socket.onclose = function(e) {
-						console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
-						setTimeout(function() {
-							connect();
-						}, 1000);
-					};
 
-					socket.onerror = function(err) {
-						console.error('Socket encountered error: ', err, 'Closing socket');
-						socket.close();
-					};
+					// console.log('After refresh: ', data.nhlBoard.filter((x: any) => x?.prospect?.name).length);
+					// console.log('After refresh NHL BOARD: ', data.nhlBoard);
+					
+
+					const totalPoints = draftSystem.computePoints()
+					userState.points = totalPoints
+
+					draftState.updateNhlDraftPick(nhlDraftBoardLength)
+
+				}, 10000);
+				() => {
+					clearInterval(interval)
 				}
+
 			}
 
-			connect()
+
+			// function connect() {
+			// 	const socket = new WebSocket(PUBLIC_WEB_SOCKET)
+			// 	// const socket = new WebSocket("http://localhost:3000/nhlDraftFeed")
+			// 	const totalPoints = draftSystem.computePoints()
+			// 	console.log('inside websocket before message:', totalPoints);
+			// 	userState.points = totalPoints
+
+			// 	socket.onopen = () => {
+			// 		console.log("Connecting to WS");
+			// 		console.log('send condition: ', draftSystem.nhlDraftBoard.filter(x => x?.prospect?.name).length <= 31);
+			// 		if(draftSystem.nhlDraftBoard.filter(x => x?.prospect?.name).length <= 31){
+
+			// 			const interval = setInterval(() => {
+			// 				socket.send("start")
+  		// 			}, 10000);
+			// 			() => {
+			// 				clearInterval(interval)
+			// 			}
+
+			// 		}
+			// 		socket.onmessage = (event) => {
+
+			// 			const totalPoints = draftSystem.computePoints()
+			// 			console.log('inside websocket msg', totalPoints);
+			// 			userState.points = totalPoints
+
+			// 			let jsonData = JSON.parse(event.data)
+			// 			if(jsonData){
+			// 				draftState.updateNhlDraftPick(jsonData.length)
+	
+			// 				for(let i = 0; i < jsonData.length; i++) {
+	
+			// 					console.log('prospect drafted:', jsonData[i].name);
+			// 					// draftSystem.addNhlPick(jsonData[i].prospect, i)
+			// 						draftSystem.nhlDraftBoard[i].prospect = {
+			// 							name: jsonData[i].name
+			// 						} as any
+			// 				}
+			// 			} else {
+			// 				draftState.updateNhlDraftPick(0)
+			// 			}
+		
+			// 			// console.log(draftState.nhlDraft);
+			// 		}
+			// 		socket.onclose = function(e) {
+			// 			console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+			// 			setTimeout(function() {
+			// 				connect();
+			// 			}, 1000);
+			// 		};
+
+			// 		socket.onerror = function(err) {
+			// 			console.error('Socket encountered error: ', err, 'Closing socket');
+			// 			socket.close();
+			// 		};
+			// 	}
+			// }
+
+			// connect()
 		}
 
 		if (draftState.currentState === "finalized"){
@@ -147,9 +186,7 @@
 	})
 
 
-	function refresh() {
-		invalidateAll()
-	}
+	
 
 
 </script>
@@ -184,10 +221,16 @@
 	{/if}
 
 
-	{#if draftState.currentState === "started"}
-		<HeadToHead />
+	{#if draftState.currentState === "started" && data.nhlBoard}
+		<HeadToHead currentPick={data.nhlBoard.filter((x: any) => x?.prospect?.name).length} />
 	{/if}
 
+	<!-- TEST INVALIDATION -->
+
+	<p>{data.nhlBoard[2]?.prospect?.name || 'no pick'}</p>
+	<p>{data.nhlBoard.filter((x: any) => x?.prospect?.name).length}</p>
+
+	<!--  -->
 
 	{#if draftState.currentState !== "started" && draftState.currentState !== 'locked'}
 	<div class=" flex gap-5 px-2">
@@ -216,12 +259,12 @@
 				{#if selectedTab === tabs[0]}
 					<DraftBoard draftType="user" />
 				{:else if selectedTab === tabs[1]}
-					<DraftBoard draftType="nhl" />
+					<DraftBoard draftType="nhl" nhlBoard={data.nhlBoard} />
 				{/if}
 			</div>
 		{:else}
 			<DraftBoard draftType="user" />
-			<DraftBoard draftType="nhl" />
+			<DraftBoard draftType="nhl" nhlBoard={data.nhlBoard} />
 		{/if}
 		</div>
 		<div

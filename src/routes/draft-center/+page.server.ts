@@ -11,7 +11,6 @@ import type { DraftBoard, Prospect } from '$lib/types';
 import { drafts } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
-import { dev } from "$app/environment";
 import { getDraftBoardOrder } from "$lib/helpers/get-draft-board-order";
 import {  nhlDraft } from "$lib/server/db/schema/nhl_draft";
 
@@ -22,7 +21,11 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 	// const response = await fetch(HOME_URL + '/api/game')
 	const response = await fetch('/api/game')
 	const game = await response.json()
+	
+	const nhlBoardrRes = await fetch('api/board')
+	const nhlBoard = await nhlBoardrRes.json()
 
+	
 
 	const cached = await redis.get('top_prospects');
 	let topProspects: Prospect[] = [];
@@ -117,7 +120,7 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 		}
 	})
 
-	const nhlBoard = await nhlDraftBoard()
+	// const nhlBoard = await nhlDraftBoard()
 
 	// const game = await getGameInfo();
 
