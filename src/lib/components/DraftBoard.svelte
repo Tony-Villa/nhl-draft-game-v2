@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { getDraftState, type DraftStateType } from '$lib/globalState/draftState.svelte';
+	import { getDraftState } from '$lib/globalState/draftState.svelte';
 	import { getDraftSystem } from '$lib/globalState/prospectsState.svelte';
 	import { getCurrentUser } from '$lib/globalState/userState.svelte';
 	import Close from '$lib/icons/Close.svelte';
-	import type { Prospect, User } from '$lib/types';
+	import type { Prospect } from '$lib/types';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
 	import { Popover } from 'flowbite-svelte';
@@ -11,11 +11,9 @@
 	import { fade } from 'svelte/transition';
 	import { seedDb } from '$lib/helpers/seed-db';
 	import { submitDraftBoard } from '$lib/helpers/submit-draft-board';
-	import { format, isAfter } from 'date-fns';
 
-	let {draftType, lockDate}: {
+	let {draftType}: {
 		draftType: 'user' | 'nhl';
-		lockDate?: string | number | Date
 	} = $props()
 
 	const draftSystem = getDraftSystem();
@@ -67,13 +65,13 @@
 			</Button>
 		</div>
 		<!-- remove -->
-			<!-- {#if dev}
+			{#if dev}
 				<Button onclick={seed} 
 				id='seed'
 				class="py-2">
 					Seed DB
 				</Button>
-			{/if} -->
+			{/if}
 			<!-- end remove -->
 		{/if}
 		{#if draftState.isDraftLocked }
