@@ -227,8 +227,8 @@
 
 	<!-- TEST INVALIDATION -->
 
-	<p>{data.nhlBoard[2]?.prospect?.name || 'no pick'}</p>
-	<p>{data.nhlBoard.filter((x: any) => x?.prospect?.name).length}</p>
+	<!-- <p>{data.nhlBoard[2]?.prospect?.name || 'no pick'}</p>
+	<p>{data.nhlBoard.filter((x: any) => x?.prospect?.name).length}</p> -->
 
 	<!--  -->
 
