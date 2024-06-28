@@ -79,9 +79,9 @@
 
 	$effect(() => {
 		if (draftState.currentState === "started") {
-			// const socket = new WebSocket(PUBLIC_WEB_SOCKET)
 			function connect() {
-				const socket = new WebSocket("http://localhost:3000/nhlDraftFeed")
+				const socket = new WebSocket(PUBLIC_WEB_SOCKET)
+				// const socket = new WebSocket("http://localhost:3000/nhlDraftFeed")
 				const totalPoints = draftSystem.computePoints()
 				console.log('inside websocket before message:', totalPoints);
 				userState.points = totalPoints
