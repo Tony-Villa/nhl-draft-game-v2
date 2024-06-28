@@ -15,6 +15,8 @@
 
   $effect(() => {
     const draftPos = draftState.nhlDraftCurrentPick
+    let totalPoints = draftSystem.computePoints()
+    console.log(totalPoints);
 
     const timeout = setTimeout(() => {
       currentDraftPosition = draftPos
@@ -25,9 +27,10 @@
 		};
   })
 
-  $inspect('Current draft position', currentDraftPosition)
-  $inspect('Current user draft pick: ', draftSystem.draftBoard[currentDraftPosition])
-  $inspect('Current style: ', currentStyle)
+  // $inspect('Current draft position', currentDraftPosition)
+  // $inspect('Current user draft pick: ', draftSystem.draftBoard[currentDraftPosition])
+  // $inspect('Current style: ', currentStyle)
+  // $inspect('NHL DRAFT BOARD: ', draftSystem?.nhlDraftBoard)
 
   const cardStyles = `min-w-72 max-w-80 shadow-brut-shadow-sm`
 
