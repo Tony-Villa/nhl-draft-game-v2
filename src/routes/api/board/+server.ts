@@ -2,7 +2,6 @@ import { formatTimeStampToUTC } from '$lib/helpers/format-time-stamp.js'
 import { getDraftBoardOrder } from '$lib/helpers/get-draft-board-order'
 import { db } from '$lib/server/db/index.js'
 import { nhlDraft } from '$lib/server/db/schema'
-import { games } from '$lib/server/db/schema/games.js'
 import { eq } from 'drizzle-orm'
 
 export async function GET() {
@@ -13,7 +12,9 @@ export async function GET() {
 
     if(nhlBoard.length > 0) {
       nhlBoard.forEach(pick => {
-        draftboard[pick.positionDrafted - 1].prospect = {name: pick.prospect} as any
+        if(draftboard){
+          draftboard[pick.positionDrafted - 1].prospect = {name: pick.prospect} as any
+        }
       })
     }
   

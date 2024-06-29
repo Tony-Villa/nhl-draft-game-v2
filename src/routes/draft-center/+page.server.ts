@@ -128,7 +128,7 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 }
 
 async function setInitialDraftBoard(userId: string | undefined = undefined) {
-	let draftboard: DraftBoard[]
+	let draftboard: DraftBoard[] | undefined
 	let count = 1;
 
 	draftboard = await getDraftBoardOrder()
