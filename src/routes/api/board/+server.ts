@@ -1,4 +1,3 @@
-import { formatTimeStampToUTC } from '$lib/helpers/format-time-stamp.js'
 import { getDraftBoardOrder } from '$lib/helpers/get-draft-board-order'
 import { db } from '$lib/server/db/index.js'
 import { nhlDraft } from '$lib/server/db/schema'
