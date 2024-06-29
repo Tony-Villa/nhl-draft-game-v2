@@ -153,7 +153,7 @@ async function setInitialDraftBoard(userId: string | undefined = undefined) {
 }
 
 async function nhlDraftBoard() {
-	const emptyDraftBoard = await setInitialDraftBoard()
+	const emptyDraftBoard = await setInitialDraftBoard() as DraftBoard[]
 
 	const nhlBoard = await  db.select().from(nhlDraft).where(eq(nhlDraft.gameId, 1)) 
 
