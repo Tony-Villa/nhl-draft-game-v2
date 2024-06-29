@@ -12,7 +12,6 @@
 
   let {ladder}: {ladder: Ladder[]} = $props()
 
-  console.log(ladder);
 </script>
     
 
