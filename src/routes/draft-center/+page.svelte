@@ -2,14 +2,16 @@
 	import ProspectContainer from '$lib/components/ProspectContainer.svelte';
 	import DraftBoard from '$lib/components/DraftBoard.svelte';
 	import SliderSwitch from '$lib/components/SliderSwitch.svelte';
+	import Ladder from '$lib/components/Ladder.svelte';
+	import HeadToHead from '$lib/components/HeadToHead.svelte';
+	import Countdown from '$lib/components/Countdown.svelte';
+
 	import { getDraftState } from '$lib/globalState/draftState.svelte';
 	import { getDraftSystem, setDraftSystem } from '$lib/globalState/prospectsState.svelte';
 	import { getCurrentUser, setCurrentUser } from '$lib/globalState/userState.svelte';
 	import { setDraftState } from '$lib/globalState/draftState.svelte';
-	import HeadToHead from '$lib/components/HeadToHead.svelte';
-	import Countdown from '$lib/components/Countdown.svelte';
-	import {  invalidateAll } from '$app/navigation';
-	import {  format, isAfter, } from 'date-fns';
+	import { invalidateAll } from '$app/navigation';
+	import { format, isAfter, } from 'date-fns';
 	// import { PUBLIC_WEB_SOCKET } from '$env/static/public';
 
 
@@ -40,8 +42,6 @@
 
 	let nhlDraftBoardLength = $state(data.nhlBoard.filter((x: any) => x?.prospect?.name).length)
 
-	
-	
 
 	function checkForSavedDraftBoard() {
 		playersDrafted = data.draftBoard.filter((draft: any) => draft.prospect).length;
@@ -210,8 +210,8 @@
 	{/if}
 	
 	
-	{#if draftState.currentState === "started" || draftState.currentState === "finalized"}
-	<div class="border-black border-2 rounded-xl shadow-brut-shadow max-w-fit px-4 py-2 bg-orange-100 mx-auto">
+	{#if draftState.currentState === "started"}
+	<div class="border-black border-2 rounded-xl shadow-brut-shadow max-w-fit px-4 py-2 bg-orange-100 mx-auto mb-6">
 		<h2 class="mb-4 text-center text-2xl font-bold uppercase">Your Points:</h2>
 
 		<div class="flex gap-2 justify-center font-bold border-black border-2 bg-blue-200 rounded-md p-4">
@@ -225,6 +225,10 @@
 		<HeadToHead currentPick={data.nhlBoard.filter((x: any) => x?.prospect?.name).length} />
 	{/if}
 
+	{#if draftState.currentState === "finalized"}
+		<Ladder ladder={data?.ladder} />
+	{/if}
+
 	<!-- TEST INVALIDATION -->
 
 	<!-- <p>{data.nhlBoard[2]?.prospect?.name || 'no pick'}</p>
@@ -232,7 +236,7 @@
 
 	<!--  -->
 
-	{#if draftState.currentState !== "started" && draftState.currentState !== 'locked'}
+	{#if draftState.currentState !== "started" && draftState.currentState !== 'locked' && draftState.currentState !== 'finalized'}
 	<div class=" flex gap-5 px-2">
 		{#if innerWidth < 768}
 			<div class="w-full pb-10">

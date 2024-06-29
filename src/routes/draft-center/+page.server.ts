@@ -25,6 +25,13 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 	const nhlBoardrRes = await fetch('api/board')
 	const nhlBoard = await nhlBoardrRes.json()
 
+	let ladder;
+	
+	if(game?.gamePhase && game?.gamePhase === 'finalized' ){
+		const ladderRes = await fetch('api/ladder')
+		ladder = await ladderRes.json()
+	}
+
 	
 
 	const cached = await redis.get('top_prospects');
@@ -124,7 +131,7 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 
 	// const game = await getGameInfo();
 
-	return { prospects: topProspects , draftBoard, user: locals, isAuthenticated: locals.session !== null, nhlBoard, game };
+	return { prospects: topProspects , draftBoard, user: locals, isAuthenticated: locals.session !== null, nhlBoard, game, ladder };
 }
 
 async function setInitialDraftBoard(userId: string | undefined = undefined) {
