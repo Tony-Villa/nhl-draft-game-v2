@@ -141,7 +141,9 @@ async function setInitialDraftBoard(userId: string | undefined = undefined) {
 
 		if(savedDraftBoard.length > 0) {
 			for (let i = 0; i < savedDraftBoard.length; i++) {
-				draftboard[savedDraftBoard[i].positionDrafted - 1].prospect = JSON.parse(savedDraftBoard[i].prospect as string);
+				if(draftboard) {
+					draftboard[savedDraftBoard[i].positionDrafted - 1].prospect = JSON.parse(savedDraftBoard[i].prospect as string);
+				}
 			}
 		}
 	 }
