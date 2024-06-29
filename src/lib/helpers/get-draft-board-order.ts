@@ -4,35 +4,43 @@ import type { DraftBoard } from '$lib/types';
 
 
 export async function getDraftBoardOrder() {
-  const response = await fetch('https://en.wikipedia.org/wiki/2024_NHL_entry_draft')
-  const fullNhlDraftPage = await response.text()
+  try {
+    const response = await fetch('https://en.wikipedia.org/wiki/2024_NHL_entry_draft')
+    const fullNhlDraftPage = await response.text()
+  
+    const $ = cheerio.load(fullNhlDraftPage)
+    const $roundOneTableCells = $('h3 span#Round_one').parent().nextAll('.wikitable:first')
+  
+    const draftBoard: DraftBoard[] = []
 
-  const $ = cheerio.load(fullNhlDraftPage)
-  const $roundOneTableCells = $('h3 span#Round_one').parent().next()
+    
+    $roundOneTableCells.each((i, tbody) => {
+      const $tr = $(tbody).find('tr');
 
-  const draftBoard: DraftBoard[] = []
+      $tr.each((j, tr) => {
+        const position = Number($(tr).find('th').text().trim())
 
-  $roundOneTableCells.each((i, tbody) => {
-    const $tr = $(tbody).find('tr');
-    $tr.each((j, tr) => {
-      const position = Number($(tr).find('th').text().trim())
         if(position > 0 && position < 33) {
-        const teamRaw = $(tr).children().eq(3).text().trim()
-        // console.log(team);
-        const {team, from, teamLogo} = parseTeamAndTrade(teamRaw)
+          const teamRaw = $(tr).children().eq(3).text().trim()
+          const {team, from, teamLogo} = parseTeamAndTrade(teamRaw)
 
-        draftBoard.push({
-          draftPosition: position,
-          teamName: team,
-          teamLogo,
-          prospect: null,
-          from: position === 25 ? undefined : from || undefined,
-          points: null,
-        })
-      }
-    })
- })
+          draftBoard.push({
+            draftPosition: position,
+            teamName: team,
+            teamLogo,
+            prospect: null,
+            from: position === 25 ? undefined : from || undefined,
+            points: null,
+          })
+        }
+      })
+   })
+   
+   return draftBoard
+    
+  } catch (error) {
+    console.log('ERROR in wikipedia scrape: ', error);
+  }
 
   
- return draftBoard
 }
