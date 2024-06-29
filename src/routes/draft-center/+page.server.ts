@@ -104,9 +104,9 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 	let draftBoard: DraftBoard[] = [];
 
 	if(locals?.user) {
-		draftBoard = await setInitialDraftBoard(locals?.user?.id)
+		draftBoard = await setInitialDraftBoard(locals?.user?.id) as DraftBoard[]
 	} else {
-		draftBoard = await setInitialDraftBoard()
+		draftBoard = await setInitialDraftBoard() as DraftBoard[]
 	}
 
 	draftBoard.forEach((draftPick) => {
