@@ -38,7 +38,7 @@
 
 <div class="flex flex-wrap gap-5 sm:justify-center sm:mx-5 mb-10">
   {#each ladder as player, i}
-    {#if player.score > 0}
+    {#if player.score > 0 && i > 0}
       <div class={`border-black border-2 rounded-xl shadow-brut-shadow max-w-fit px-4 py-2 bg-orange-100 mb-1 relative`}>
   
         <!-- <div class={`absolute z-0 ${i+2 <= 9 ? '-left-10' : '-left-20'} top-0`}>
@@ -46,7 +46,7 @@
         </div> -->
   
         <div class="flex gap-2 items-center">
-          <h1 class="mb-1 text-center sm:text-lg text-sm font-extrabold">{ordinalNumbers(i+2)}</h1>
+          <h1 class="mb-1 text-center sm:text-lg text-sm font-extrabold">{ordinalNumbers(i+1)}</h1>
           <h1 class="mb-1 text-center sm:text-sm text-xs font-bold uppercase">{player.playerName}</h1>
         </div>
   
