@@ -25,8 +25,6 @@
 	
 	let playersDrafted = $state(0);
 	let draftBoard = $state(data.draftBoard);
-
-	console.log(data.draftBoard);
 	
 	
 
