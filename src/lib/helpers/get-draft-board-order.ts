@@ -9,9 +9,12 @@ export async function getDraftBoardOrder() {
     const fullNhlDraftPage = await response.text()
   
     const $ = cheerio.load(fullNhlDraftPage)
-    const $roundOneTableCells = $('h3 span#Round_one').parent().nextAll('.wikitable:first')
+    // const $roundOneTableCells = $('h3 span#Round_one').parent().nextAll('.wikitable:first')
+    const $roundOneTableCells = $('h3#Round_one').parent().nextAll('.wikitable:first')
   
     const draftBoard: DraftBoard[] = []
+
+    // console.log('WHERE TABLE???? ', $roundOneTableCells.html);
 
     
     $roundOneTableCells.each((i, tbody) => {
@@ -35,6 +38,8 @@ export async function getDraftBoardOrder() {
         }
       })
    })
+
+  //  console.log('DRAFT BOARD: ', draftBoard);
    
    return draftBoard
     

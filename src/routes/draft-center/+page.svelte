@@ -25,6 +25,8 @@
 	
 	let playersDrafted = $state(0);
 	let draftBoard = $state(data.draftBoard);
+
+	console.log(data.draftBoard);
 	
 	
 
@@ -205,7 +207,6 @@
 					</small>
 				</div>
 			</Countdown>
-			<!-- <Countdown endTime={"2024-06-21T09:05:30Z"} /> -->
 		</div>
 	{/if}
 	
@@ -228,13 +229,6 @@
 	{#if draftState.currentState === "finalized"}
 		<Ladder ladder={data?.ladder} />
 	{/if}
-
-	<!-- TEST INVALIDATION -->
-
-	<!-- <p>{data.nhlBoard[2]?.prospect?.name || 'no pick'}</p>
-	<p>{data.nhlBoard.filter((x: any) => x?.prospect?.name).length}</p> -->
-
-	<!--  -->
 
 	{#if draftState.currentState !== "started" && draftState.currentState !== 'locked' && draftState.currentState !== 'finalized'}
 	<div class=" flex gap-5 px-2">
