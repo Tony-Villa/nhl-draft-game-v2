@@ -44,6 +44,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 					)
 				);
 
+			console.log('Existing user: ', existingUser)
+
 
 			if(!existingKey) {
 				const authKeys = existingUser.keys || [];
