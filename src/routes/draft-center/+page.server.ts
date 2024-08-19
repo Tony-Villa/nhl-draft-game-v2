@@ -12,7 +12,7 @@ import { drafts } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
 import { getDraftBoardOrder } from "$lib/helpers/get-draft-board-order";
-import {  nhlDraft } from "$lib/server/db/schema/nhl_draft";
+// import {  nhlDraft } from "$lib/server/db/schema/nhl_draft";
 
 
 const CACHE_TTL = 86_400_000; // 24 hours
@@ -135,10 +135,10 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 }
 
 async function setInitialDraftBoard(userId: string | undefined = undefined) {
-	let draftboard: DraftBoard[] | undefined
-	let count = 1;
+	// let draftboard: DraftBoard[] | undefined
+	// const count = 1;
 
-	draftboard = await getDraftBoardOrder()
+	const draftboard = await getDraftBoardOrder()
 
 	if(userId) { 
 		const savedDraftBoard = await db
@@ -159,20 +159,20 @@ async function setInitialDraftBoard(userId: string | undefined = undefined) {
 	return draftboard || {};
 }
 
-async function nhlDraftBoard() {
-	const emptyDraftBoard = await setInitialDraftBoard() as DraftBoard[]
+// async function nhlDraftBoard() {
+// 	const emptyDraftBoard = await setInitialDraftBoard() as DraftBoard[]
 
-	const nhlBoard = await  db.select().from(nhlDraft).where(eq(nhlDraft.gameId, 1)) 
+// 	const nhlBoard = await  db.select().from(nhlDraft).where(eq(nhlDraft.gameId, 1)) 
 
-	if(nhlBoard.length > 0) {
-		nhlBoard.forEach(pick => {
-			emptyDraftBoard[pick.positionDrafted - 1].prospect = {name: pick.prospect} as any
-		})
-	}
+// 	if(nhlBoard.length > 0) {
+// 		nhlBoard.forEach(pick => {
+// 			emptyDraftBoard[pick.positionDrafted - 1].prospect = {name: pick.prospect} as any
+// 		})
+// 	}
 
-	return emptyDraftBoard
+// 	return emptyDraftBoard
 
-}
+// }
 
 
 export const actions: Actions = {
