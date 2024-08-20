@@ -18,7 +18,6 @@ import { getDraftBoardOrder } from "$lib/helpers/get-draft-board-order";
 const CACHE_TTL = 86_400_000; // 24 hours
 
 export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent) => {
-	// const response = await fetch(HOME_URL + '/api/game')
 	const response = await fetch('/api/game')
 	const game = await response.json()
 	
@@ -111,6 +110,9 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 	let draftBoard: DraftBoard[] = [];
 
 	if(locals?.user) {
+		
+		console.log("Check if locals user exists: ", locals?.user)
+		
 		draftBoard = await setInitialDraftBoard(locals?.user?.id) as DraftBoard[]
 	} else {
 		draftBoard = await setInitialDraftBoard() as DraftBoard[]
@@ -145,6 +147,8 @@ async function setInitialDraftBoard(userId: string | undefined = undefined) {
 		.select()
 		.from(drafts)
 		.where(eq(drafts.userId, userId));
+
+		console.log("check for saved draft board: ", savedDraftBoard)
 
 		if(savedDraftBoard.length > 0) {
 			for (let i = 0; i < savedDraftBoard.length; i++) {
