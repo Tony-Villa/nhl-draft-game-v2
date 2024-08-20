@@ -116,7 +116,7 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 		
 		console.log("Check if locals user exists: ", locals?.user)
 		
-		draftBoard = await setInitialDraftBoard(locals?.user?.id) as DraftBoard[]
+		draftBoard = await setInitialDraftBoard(locals?.user?.id, fetch) as DraftBoard[]
 	} else {
 		draftBoard = await setInitialDraftBoard() as DraftBoard[]
 	}
@@ -139,7 +139,7 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 	return { prospects: topProspects , draftBoard, user: locals, isAuthenticated: locals.session !== null, nhlBoard, game, ladder };
 }
 
-async function setInitialDraftBoard(userId: string | undefined = undefined) {
+async function setInitialDraftBoard(userId: string | undefined = undefined, fetch: any | undefined = undefined) {
 	// let draftboard: DraftBoard[] | undefined
 	// const count = 1;
 	console.log("SET INITIAL DRAFT BOARD - invoked")
@@ -150,10 +150,12 @@ async function setInitialDraftBoard(userId: string | undefined = undefined) {
 		console.log('SET INITIAL DRAFT BOARD - user ID found: ', userId);
 		try {
 			console.log('INITIAL DRAFT BOARD - about to look for users board')
-			const savedDraftBoard = await db
-			.select()
-			.from(drafts)
-			.where(eq(drafts.userId, userId));
+			// const savedDraftBoard = await db
+			// .select()
+			// .from(drafts)
+			// .where(eq(drafts.userId, userId));
+			const response = await fetch(`/api/userBoard?board=${userId}`)
+			const savedDraftBoard = await response.json()
 	
 			console.log("INITIAL DRAFT BOARD - found user's board: ", savedDraftBoard)
 
