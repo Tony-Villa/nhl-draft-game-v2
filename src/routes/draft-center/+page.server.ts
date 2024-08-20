@@ -148,7 +148,7 @@ async function setInitialDraftBoard(userId: string | undefined = undefined) {
 		.from(drafts)
 		.where(eq(drafts.userId, userId));
 
-		console.log("check for saved draft board: ", savedDraftBoard)
+		console.log("INITIAL DRAFT BOARD - check for saved draft board: ", savedDraftBoard)
 
 		if(savedDraftBoard.length > 0) {
 			for (let i = 0; i < savedDraftBoard.length; i++) {
@@ -159,6 +159,7 @@ async function setInitialDraftBoard(userId: string | undefined = undefined) {
 		}
 	 }
 
+	 console.log("INITIAL DRAFT BOARD - returns")
 
 	return draftboard || {};
 }
