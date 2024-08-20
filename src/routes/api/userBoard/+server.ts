@@ -9,12 +9,16 @@ export async function GET(event) {
 		const id = event.url.searchParams.get('board')
 		let savedDraftBoard: DraftBoard[] | unknown = []
 
+		console.log('user board endpoint hit. Looking for this board: ', id)
+
 		if(id) {
 			savedDraftBoard = await db
 				.select()
 				.from(drafts)
 				.where(eq(drafts.userId, id));
 		}
+
+		console.log("user board endpoint - db draft board: ", savedDraftBoard)
 
 		return new Response(JSON.stringify(savedDraftBoard), {
       "headers": {
