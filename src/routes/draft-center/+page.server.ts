@@ -142,20 +142,25 @@ async function setInitialDraftBoard(userId: string | undefined = undefined) {
 
 	const draftboard = await getDraftBoardOrder()
 
-	if(userId) { 
-		const savedDraftBoard = await db
-		.select()
-		.from(drafts)
-		.where(eq(drafts.userId, userId));
-
-		console.log("INITIAL DRAFT BOARD - check for saved draft board: ", savedDraftBoard)
-
-		if(savedDraftBoard.length > 0) {
-			for (let i = 0; i < savedDraftBoard.length; i++) {
-				if(draftboard) {
-					draftboard[savedDraftBoard[i].positionDrafted - 1].prospect = JSON.parse(savedDraftBoard[i].prospect as string);
+	if(userId) {
+		try {
+			const savedDraftBoard = await db
+			.select()
+			.from(drafts)
+			.where(eq(drafts.userId, userId));
+	
+			console.log("INITIAL DRAFT BOARD - check for saved draft board: ", savedDraftBoard)
+	
+			if(savedDraftBoard.length > 0) {
+				for (let i = 0; i < savedDraftBoard.length; i++) {
+					if(draftboard) {
+						draftboard[savedDraftBoard[i].positionDrafted - 1].prospect = JSON.parse(savedDraftBoard[i].prospect as string);
+					}
 				}
 			}
+			
+		} catch (error) {
+			console.log("Error setting user's initial draftboard: ", error)
 		}
 	 }
 
