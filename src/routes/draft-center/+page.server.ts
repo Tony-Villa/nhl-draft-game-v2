@@ -149,13 +149,14 @@ async function setInitialDraftBoard(userId: string | undefined = undefined) {
 	if(userId) {
 		console.log('SET INITIAL DRAFT BOARD - user ID found: ', userId);
 		try {
+			console.log('INITIAL DRAFT BOARD - about to look for users board')
 			const savedDraftBoard = await db
 			.select()
 			.from(drafts)
 			.where(eq(drafts.userId, userId));
 	
-			console.log("INITIAL DRAFT BOARD - check for saved draft board: ", savedDraftBoard)
-	
+			console.log("INITIAL DRAFT BOARD - found user's board: ", savedDraftBoard)
+
 			if(savedDraftBoard.length > 0) {
 				for (let i = 0; i < savedDraftBoard.length; i++) {
 					if(draftboard) {

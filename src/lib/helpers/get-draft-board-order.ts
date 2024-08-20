@@ -6,8 +6,6 @@ import type { DraftBoard } from '$lib/types';
 export async function getDraftBoardOrder() {
   try {
 
-    console.log("get draftboard invoked")
-
     const response = await fetch('https://en.wikipedia.org/wiki/2024_NHL_entry_draft')
     const fullNhlDraftPage = await response.text()
   
@@ -15,8 +13,6 @@ export async function getDraftBoardOrder() {
     const $roundOneTableCells = $('h3#Round_one').parent().nextAll('.wikitable:first')
   
     const draftBoard: DraftBoard[] = []
-
-    console.log("Cheerio loaded wiki")
     
     $roundOneTableCells.each((i, tbody) => {
       const $tr = $(tbody).find('tr');
@@ -41,8 +37,6 @@ export async function getDraftBoardOrder() {
    })
 
   //  console.log('DRAFT BOARD: ', draftBoard);
-
-  console.log('get draft board about to return');
    
    return draftBoard
     

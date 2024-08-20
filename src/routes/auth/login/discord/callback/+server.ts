@@ -31,8 +31,6 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 		const [existingUser] = await db.select().from(users).where(eq(users.email, discordUser.email))
 
-		console.log('Made it into discord callback!');
-
 		if (existingUser) {
 			const [existingKey] = await db
 			.select()
@@ -43,8 +41,6 @@ export async function GET(event: RequestEvent): Promise<Response> {
 					eq(keys.providerUserId, discordUser.id.toString())
 					)
 				);
-
-			console.log('Existing user: ', existingUser)
 
 
 			if(!existingKey) {
