@@ -1,0 +1,1 @@
+ALTER TABLE `drafts` ADD `official_draft_position` integer DEFAULT 0;
