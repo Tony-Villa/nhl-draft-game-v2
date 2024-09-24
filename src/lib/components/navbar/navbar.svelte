@@ -4,6 +4,7 @@
 	import Button from '$lib/components/Button.svelte';
   import * as Dialog from "$lib/components/ui/dialog";
   import {type User} from '$lib/types'
+	import HowToPlay from '../HowToPlay.svelte';
 
   let { isAuthenticated, user } : {isAuthenticated : boolean; user: User} = $props() 
 
@@ -24,9 +25,9 @@
 
     <Dialog.Content>
       <Dialog.Header>
-        <Dialog.Title>How to play</Dialog.Title>
+        <Dialog.Title class="font-black text-2xl text-[#64748B]">How to play</Dialog.Title>
         <Dialog.Description>
-
+          <HowToPlay />
         </Dialog.Description>
       </Dialog.Header>
     </Dialog.Content>
