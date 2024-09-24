@@ -54,6 +54,8 @@
 		<div class="flex flex-col">
 			{#if !currentUser?.user}
 				<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
+				{:else}
+				<p class="font-bold md:text-lg">Your Draft</p>
 			{/if}
 		</div>
 
@@ -80,6 +82,8 @@
 			{/if}
 			<!-- end remove -->
 		{/if}
+
+
 		{#if draftState.isDraftLocked }
 			<Popover
 				class="px-3 text-semibold font-light bg-orange-200 rounded-lg shadow-brut-shadow-sm outline-none border-black border-2" 
@@ -90,7 +94,11 @@
 	</div>
 	{/if}
 
-	<div class={`draft-card-container mb-16 flex flex-wrap justify-center gap-2 ${draftType === 'nhl' && 'sm:mt-2 mt-2'}`}>
+	{#if draftType === 'nhl'}
+		<p class="font-bold md:text-lg">NHL Draft</p>
+	{/if}
+
+	<div class={`draft-card-container mb-16 flex flex-wrap justify-center gap-2 `}>
 		{#each draftBoard || [] as position}
 			<Card variant="small" class={`draft-card ${draftBoardContainerWidth > 300 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
 				<div class="flex items-center px-2 py-2">
