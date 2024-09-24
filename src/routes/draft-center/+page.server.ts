@@ -5,14 +5,9 @@ import type { RequestEvent } from "../$types";
 
 import { redis } from '$lib/server/redis';
 import { PROSPECTS_URL, PROSPECT_COUNT } from '$env/static/private';
-// import { janStandingsData } from '../../static/janStandings';
 import * as cheerio from 'cheerio';
 import type { DraftBoard, Prospect } from '$lib/types';
-import { drafts } from '$lib/server/db/schema';
-import { db } from '$lib/server/db';
-import { eq } from 'drizzle-orm';
 import { getDraftBoardOrder } from "$lib/helpers/get-draft-board-order";
-// import {  nhlDraft } from "$lib/server/db/schema/nhl_draft";
 
 
 const CACHE_TTL = 86_400_000; // 24 hours
@@ -31,7 +26,6 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 		ladder = await ladderRes.json()
 	}
 
-	console.log("LOCALS: ", locals)
 
 	
 
@@ -114,7 +108,6 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 
 	if(locals?.user) {
 		
-		console.log("Check if locals user exists: ", locals?.user)
 		
 		draftBoard = await setInitialDraftBoard(locals?.user?.id, fetch) as DraftBoard[]
 	} else {
@@ -132,32 +125,20 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 		}
 	})
 
-	// const nhlBoard = await nhlDraftBoard()
-
-	// const game = await getGameInfo();
-
 	return { prospects: topProspects , draftBoard, user: locals, isAuthenticated: locals.session !== null, nhlBoard, game, ladder };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function setInitialDraftBoard(userId: string | undefined = undefined, fetch: any | undefined = undefined) {
-	// let draftboard: DraftBoard[] | undefined
-	// const count = 1;
-	console.log("SET INITIAL DRAFT BOARD - invoked")
+
 
 	const draftboard = await getDraftBoardOrder()
 
 	if(userId) {
-		console.log('SET INITIAL DRAFT BOARD - user ID found: ', userId);
 		try {
-			console.log('INITIAL DRAFT BOARD - about to look for users board')
-			// const savedDraftBoard = await db
-			// .select()
-			// .from(drafts)
-			// .where(eq(drafts.userId, userId));
 			const response = await fetch(`/api/userBoard?board=${userId}`)
 			const savedDraftBoard = await response.json()
 	
-			console.log("INITIAL DRAFT BOARD - found user's board: ", savedDraftBoard)
 
 			if(savedDraftBoard.length > 0) {
 				for (let i = 0; i < savedDraftBoard.length; i++) {
@@ -168,29 +149,12 @@ async function setInitialDraftBoard(userId: string | undefined = undefined, fetc
 			}
 			
 		} catch (error) {
-			console.log("Error setting user's initial draftboard: ", error)
+			console.error(error);
 		}
 	 }
 
-	 console.log("INITIAL DRAFT BOARD - returns")
-
 	return draftboard || {};
 }
-
-// async function nhlDraftBoard() {
-// 	const emptyDraftBoard = await setInitialDraftBoard() as DraftBoard[]
-
-// 	const nhlBoard = await  db.select().from(nhlDraft).where(eq(nhlDraft.gameId, 1)) 
-
-// 	if(nhlBoard.length > 0) {
-// 		nhlBoard.forEach(pick => {
-// 			emptyDraftBoard[pick.positionDrafted - 1].prospect = {name: pick.prospect} as any
-// 		})
-// 	}
-
-// 	return emptyDraftBoard
-
-// }
 
 
 export const actions: Actions = {
