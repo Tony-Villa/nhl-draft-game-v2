@@ -72,6 +72,7 @@
 		"postcss-jit-props": "^1.0.14",
 		"postcss-preset-env": "^9.3.0",
 		"svelte-french-toast": "^1.2.0",
+		"svelte-icons": "^2.1.0",
 		"tailwind-merge": "^2.2.2",
 		"tailwind-variants": "^0.2.1",
 		"vaul-svelte": "^0.3.0"
