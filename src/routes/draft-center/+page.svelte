@@ -185,16 +185,7 @@
 		}
 	})
 
-
-	
-
-
 </script>
-
-
-<svelte:head>
-	<title>Draft Center</title>
-</svelte:head>
 
 <svelte:window bind:innerWidth />
 <div class="mx-auto max-w-screen-2xl">
