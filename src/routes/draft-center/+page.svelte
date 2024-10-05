@@ -191,6 +191,11 @@
 
 </script>
 
+
+<svelte:head>
+	<title>Draft Center</title>
+</svelte:head>
+
 <svelte:window bind:innerWidth />
 <div class="mx-auto max-w-screen-2xl">
 	<h1 class="mb-4 text-center text-6xl font-bold uppercase">draft center</h1>

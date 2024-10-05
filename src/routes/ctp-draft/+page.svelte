@@ -8,6 +8,10 @@
 	let theme = 'dark';
 </script>
 
+<svelte:head>
+	<title>CTP Draft</title>
+</svelte:head>
+
 <div class="main-content {theme}">
 	<div class="main-summary">
 		<Summary drafts={data} />
