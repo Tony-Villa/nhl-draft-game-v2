@@ -8,7 +8,7 @@ const pfm = require('postcss-font-magician');
 const config = {
 	plugins: [
 		//Some plugins, like tailwindcss/nesting, need to run before Tailwind,
-		tailwindcss/nesting,
+		// tailwindcss/nesting,
 	
 		//But others, like autoprefixer, need to run after,
 		//Some plugins, like tailwindcss/nesting, need to run before Tailwind,
