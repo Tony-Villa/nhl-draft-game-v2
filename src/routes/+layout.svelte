@@ -15,14 +15,10 @@
 	} = $props();
 
 	let innerWidth = $state(0);
-
-	console.log($page.url.pathname)
 	
 </script>
 
-<svelte:head>
-	<title>Draft Center</title>
-</svelte:head>
+
 <svelte:window bind:innerWidth />
 
 {#if $page.url.pathname.includes('ctp')}
