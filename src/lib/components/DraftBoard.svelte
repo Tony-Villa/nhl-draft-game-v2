@@ -120,11 +120,13 @@
 						<Close size={24} />
 					</button>
 					{/if}
-					{#if  draftType !== 'nhl' && draftState.currentState === 'started' || draftState.currentState === 'finalized'}
-						<div class="flex flex-col justify-center items-center gap-0">
-							<p class="text-sm">Points</p>
-							<h3 class="text-lg font-bold">{position?.points || 0}</h3>
-						</div>
+					{#if draftType !== 'nhl'}
+						{#if draftState.currentState === 'started' || draftState.currentState === 'finalized'}
+							<div class="flex flex-col justify-center items-center gap-0">
+								<p class="text-sm">Points</p>
+								<h3 class="text-lg font-bold">{position?.points || 0}</h3>
+							</div>
+						{/if}
 					{/if}
 					</div>
 					{/if}
