@@ -4,7 +4,7 @@
 	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
 	import { fade } from 'svelte/transition';
 
-	import type { Prospect } from '$lib/types';
+	import type { DraftBoard, Prospect } from '$lib/types';
 	import Card from './Card.svelte';
 	import * as Drawer from "$lib/components/ui/drawer/index.js";
 	import { getDraftState } from '$lib/globalState/draftState.svelte';
@@ -90,7 +90,7 @@
 
 
 
-{#snippet teamPicker(cell)}
+{#snippet teamPicker(cell: DraftBoard)}
 	<button
 		class={`flex flex-col content-center justify-center gap-2 border border-black rounded-md p-2 w-20 h-20 md:w-28 md:h-28
 		 ${!!cell?.prospect ? '' : 'hover:bg-[#f2dabd]'} ${!!cell?.prospect ? 'bg-neutral-400' : 'bg-orange-100'}`}
