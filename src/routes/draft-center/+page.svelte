@@ -25,14 +25,14 @@
 	
 	let playersDrafted = $state(0);
 	let draftBoard = $state(data.draftBoard);
-	
+
 	
 
 	// console.log('data: ', data);
 	
 	setCurrentUser(data?.user?.user);
 	setDraftSystem(data.prospects, data.draftBoard, data.nhlBoard);
-	setDraftState(data.game.gamePhase, data.nhlBoard.filter((x: any) => x?.prospect?.name).length)
+	setDraftState(data.game.gamePhase, data.game.draftDaySet, data.nhlBoard.filter((x: any) => x?.prospect?.name).length)
 
 
 	const storedDraftBoard = getDraftSystem()
@@ -191,17 +191,19 @@
 <div class="mx-auto max-w-screen-2xl">
 	<h1 class="mb-4 text-center text-6xl font-bold uppercase">draft center</h1>
 
-	{#if isAfter(new Date(data.game.startDate), Date.now())}
-		<div class="text-center mb-6">
-			<Countdown heading="NHL Draft starts in:" endTime={data.game.startDate}>
-				<div class="flex flex-col mt-2 leading-tight">
-					<small>Note: Your draft will lock 16 hours<br/> before the official nhl draft</small>
-					<small class="font-bold">
-						{format(new Date(data?.game?.lockDate), 'iii, LLL do p')}
-					</small>
-				</div>
-			</Countdown>
-		</div>
+	{#if draftState.isDraftDaySet}
+		{#if isAfter(new Date(data.game.startDate), Date.now())}
+			<div class="text-center mb-6">
+				<Countdown heading="NHL Draft starts in:" endTime={data.game.startDate}>
+					<div class="flex flex-col mt-2 leading-tight">
+						<small>Note: Your draft will lock 16 hours<br/> before the official nhl draft</small>
+						<small class="font-bold">
+							{format(new Date(data?.game?.lockDate), 'iii, LLL do p')}
+						</small>
+					</div>
+				</Countdown>
+			</div>
+		{/if}
 	{/if}
 	
 	

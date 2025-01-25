@@ -3,6 +3,7 @@ import { getContext, setContext } from "svelte"
 type CurrentDraftState = "open" | "locked" | "started" | "finalized"
 export interface DraftStateType {
   isDraftLocked: boolean;
+  isDraftDaySet: boolean;
   currentState: CurrentDraftState;
   nhlDraft: ProspectDrafted[];
   nhlDraftCurrentPick: number;
@@ -19,13 +20,15 @@ interface ProspectDrafted {
 
 class DraftState {
   isDraftLocked = $state(false)
+  isDraftDaySet = $state(false)
   currentState = $state("open")
   nhlDraftCurrentPick = $state(0)
 
-  constructor(phase : CurrentDraftState, initPick: number) {
+  constructor(phase : CurrentDraftState, draftDaySet: boolean, initPick: number) {
     this.isDraftLocked = false
     this.currentState = phase
     this.nhlDraftCurrentPick = initPick
+    this.isDraftDaySet = draftDaySet
   }
 
   updateDraftStatus(status: boolean) {
@@ -44,8 +47,8 @@ class DraftState {
 
 }
 
-export function setDraftState(phase: CurrentDraftState, initPick: number) {
-  const draftState = new DraftState(phase, initPick)
+export function setDraftState(phase: CurrentDraftState, draftDaySet: boolean, initPick: number) {
+  const draftState = new DraftState(phase, draftDaySet, initPick)
   setContext('DRAFT_CTX', draftState)
   return draftState
 }
