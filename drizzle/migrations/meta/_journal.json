@@ -36,6 +36,20 @@
       "when": 1719532372896,
       "tag": "0004_polite_excalibur",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1737764690605,
+      "tag": "0005_lowly_triathlon",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1737764743882,
+      "tag": "0006_violet_frog_thor",
+      "breakpoints": true
     }
   ]
 }
