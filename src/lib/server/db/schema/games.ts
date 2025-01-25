@@ -5,6 +5,7 @@ export const games = sqliteTable(
   {
     id: text('id').notNull().primaryKey().unique(),
     year: text('year').notNull(),
+    draftDaySet: integer('draft_day_set', {mode: "boolean"}).default(false),
     lockDate: text('lock_date').notNull(),
     startDate: text('start_date').notNull(),
     endDate: text('end_date').notNull(),

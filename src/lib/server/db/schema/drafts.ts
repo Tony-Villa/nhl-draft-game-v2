@@ -8,7 +8,7 @@ export const drafts = sqliteTable(
 	{
 		id: integer('id').notNull().primaryKey().unique(),
 		userId: text('user_id').notNull(),
-		gameId: integer('game_id').notNull().references(() => games.id, {
+		gameId: text('game_id').notNull().references(() => games.id, {
 			onDelete: 'cascade'
 		}),
 		positionDrafted: integer('position_drafted').notNull(),
