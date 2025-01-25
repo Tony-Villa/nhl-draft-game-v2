@@ -4,7 +4,7 @@ import { redirect, type Actions } from "@sveltejs/kit";
 import type { RequestEvent } from "../$types";
 
 import { redis } from '$lib/server/redis';
-import { PROSPECTS_URL, PROSPECT_COUNT } from '$env/static/private';
+import { CURRENT_GAME, PROSPECTS_URL, PROSPECT_COUNT } from '$env/static/private';
 import * as cheerio from 'cheerio';
 import type { DraftBoard, Prospect } from '$lib/types';
 import { getDraftBoardOrder } from "$lib/helpers/get-draft-board-order";
@@ -16,7 +16,7 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 	const response = await fetch('/api/game')
 	const game = await response.json()
 	
-	const nhlBoardrRes = await fetch('api/board')
+	const nhlBoardrRes = await fetch('api/board?game=' + CURRENT_GAME)
 	const nhlBoard = await nhlBoardrRes.json()
 
 	let ladder;
@@ -136,7 +136,7 @@ async function setInitialDraftBoard(userId: string | undefined = undefined, fetc
 
 	if(userId) {
 		try {
-			const response = await fetch(`/api/userBoard?board=${userId}`)
+			const response = await fetch(`/api/userBoard?board=${userId}&game=${CURRENT_GAME}`)
 			const savedDraftBoard = await response.json()
 	
 
