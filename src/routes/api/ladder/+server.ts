@@ -1,17 +1,28 @@
-import { computePoints } from '$lib/helpers/compute-points'
 import { db } from '$lib/server/db/index.js'
-import { drafts, nhlDraft, users, scores } from '$lib/server/db/schema'
-import { desc, eq, sql } from 'drizzle-orm'
+import { users, scores, games } from '$lib/server/db/schema'
+import { desc, eq } from 'drizzle-orm'
+import {getYear} from 'date-fns'
 
-export async function GET() {
+export async function GET({url}) {
+
+  const currentYear = getYear(new Date())
+
+  const year = url.searchParams.get('year') || currentYear.toString()
+
   try {
-
     const ladder = await db.select({
       id: scores.userId,
       score: scores.score,
       playerName: users.name,
-      avatar: users.avatarUrl
-    }).from(scores).leftJoin(users, eq(users.id, scores.userId)).orderBy(desc(scores.score))
+      avatar: users.avatarUrl,
+      year: games.year
+    }).from(scores).leftJoin(users, eq(users.id, scores.userId)).leftJoin(games, eq(games.id, scores.gameId)).where(eq(games.year, year)).orderBy(desc(scores.score)).limit(10)
+
+
+    // console.log({
+    //   year,
+    //   ladder
+    // })
 
 
 		return new Response(JSON.stringify(ladder), {
