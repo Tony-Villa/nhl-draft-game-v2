@@ -12,6 +12,9 @@ const config = {
 		// tailwindcss(),
 		//But others, like autoprefixer, need to run after,
 		//autoprefixer,
+		postcssPresetEnv({
+			features: { 'nesting-rules': true }
+		}),
 		tailwindcss(),
 		autoprefixer,
 		pfm({
@@ -24,9 +27,6 @@ const config = {
 			}
 		}),
 		postcssJitProps(openProps),
-		postcssPresetEnv({
-			features: { 'nesting-rules': true }
-		})
 	]
 };
 
