@@ -10,7 +10,7 @@ export const users = sqliteTable('user', {
 	keys: text('keys', {mode: 'json'}).$type<string[]>().notNull(),
 	createdAt: text('created_at')
 		.notNull()
-		.default(sql`CURRENT_TIMESTAMP`)
+		.default(sql`(cast (unixepoch() as int))`)
 });
 
 export type UserSchema = typeof users.$inferInsert;

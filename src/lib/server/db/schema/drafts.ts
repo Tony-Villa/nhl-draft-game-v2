@@ -1,13 +1,13 @@
 import { sql } from 'drizzle-orm';
 
 import { integer, sqliteTable, index, text, unique, blob } from 'drizzle-orm/sqlite-core';
-import { games } from '.';
+import { games, users } from '.';
 
 export const drafts = sqliteTable(
 	'drafts',
 	{
 		id: integer('id').notNull().primaryKey().unique(),
-		userId: text('user_id').notNull(),
+		userId: text('user_id').notNull().references(() => users.id,),
 		gameId: text('game_id').notNull().references(() => games.id, {
 			onDelete: 'cascade'
 		}),
@@ -22,7 +22,7 @@ export const drafts = sqliteTable(
 	(table) => {
 		return {
 			userIdIndex: index('drafts_user_id_index').on(table.userId),
-			unq: unique().on(table.userId, table.positionDrafted)
+			unq: unique().on(table.userId, table.positionDrafted, table.gameId)
 		};
 	}
 );
