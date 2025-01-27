@@ -4,7 +4,6 @@
 
 	import {page} from '$app/stores'
 	import { Toaster } from 'svelte-french-toast';
-	import { setCurrentUser } from '$lib/globalState/userState.svelte';
 	import * as Navbar from '$lib/components/navbar';
 	import TitleBanner from '$lib/components/ctpDraft/TitleBanner.svelte';
 	import ThemeToggle from '$lib/components/ctpDraft/ThemeToggle.svelte';
