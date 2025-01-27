@@ -1,10 +1,9 @@
-// const tailwindcss = require('tailwindcss');
+const tailwindcss = require('tailwindcss');
 const autoprefixer = require('autoprefixer');
 const postcssJitProps = require('postcss-jit-props');
 const openProps = require('open-props');
 const postcssPresetEnv = require('postcss-preset-env');
 const pfm = require('postcss-font-magician');
-const tailwindcss = require('@tailwindcss/postcss')
 
 const config = {
 	plugins: [
