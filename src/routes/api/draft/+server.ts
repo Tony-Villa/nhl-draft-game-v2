@@ -23,7 +23,7 @@ export async function POST({ request, fetch }) {
 							gameId: CURRENT_GAME
 					})
 			.onConflictDoUpdate({
-					target: [drafts.positionDrafted, drafts.userId],
+					target: [drafts.positionDrafted, drafts.userId, drafts.gameId],
 					set: { prospect: JSON.stringify(draft.prospect) },
 			});
   	})).catch(async err => {
