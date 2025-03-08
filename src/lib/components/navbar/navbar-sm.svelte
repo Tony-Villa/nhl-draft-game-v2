@@ -3,6 +3,7 @@
 	import Discord from "$lib/icons/Discord.svelte";
 	import Google from "$lib/icons/Google.svelte";
 	import Hamburger from "$lib/icons/Hamburger.svelte";
+	import HowToPlay from "../HowToPlay.svelte";
     
   let { isAuthenticated } : {isAuthenticated : boolean} = $props() 
 
@@ -23,9 +24,9 @@
     
         <Dialog.Content>
           <Dialog.Header>
-            <Dialog.Title>How to play</Dialog.Title>
+            <Dialog.Title class="font-black text-2xl text-[#64748B]">How to play</Dialog.Title>
             <Dialog.Description>
-    
+              <HowToPlay />
             </Dialog.Description>
           </Dialog.Header>
         </Dialog.Content>

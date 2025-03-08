@@ -2,9 +2,11 @@
 	import '../app.pcss';
 	import '../tailwind.css';
 
+	import {page} from '$app/stores'
 	import { Toaster } from 'svelte-french-toast';
-	import { setCurrentUser } from '$lib/globalState/userState.svelte';
 	import * as Navbar from '$lib/components/navbar';
+	import TitleBanner from '$lib/components/ctpDraft/TitleBanner.svelte';
+	import ThemeToggle from '$lib/components/ctpDraft/ThemeToggle.svelte';
 
 	let { children, data }: {
 		children: any;
@@ -15,11 +17,17 @@
 	
 </script>
 
-<svelte:head>
-	<title>Draft Center</title>
-</svelte:head>
+
 <svelte:window bind:innerWidth />
 
+{#if $page.url.pathname.includes('ctp')}
+<div class="toggle">
+	<ThemeToggle />
+</div>
+<TitleBanner />
+{@render children()}
+
+{:else}
 <main class="bg-[#FFF4E8] font-medium">
 	<Toaster />
 	<div >
@@ -35,3 +43,11 @@
 <!-- 		
 	{/if} -->
 </main>
+{/if}
+
+
+<style lang="postcss">
+	.toggle {
+		margin: 10px 0 0 10px;
+	}
+</style>

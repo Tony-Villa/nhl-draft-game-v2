@@ -3,7 +3,7 @@ import { teamInfoLookup } from "./team-info-lookup"
 export function parseTeamAndTrade(teamStr: string) {
 
   // let team = teamStr.match(/^.*?(?=\s\()/)
-  let team: string = teamStr.includes('(') ? teamStr.substring(0, teamStr.indexOf(" (")) : teamStr
+  const team: string = teamStr.includes('(') ? teamStr.substring(0, teamStr.indexOf(" (")) : teamStr
   let from: string | undefined
   
   if(teamStr.includes('(')){

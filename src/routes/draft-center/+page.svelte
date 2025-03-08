@@ -2,17 +2,17 @@
 	import ProspectContainer from '$lib/components/ProspectContainer.svelte';
 	import DraftBoard from '$lib/components/DraftBoard.svelte';
 	import SliderSwitch from '$lib/components/SliderSwitch.svelte';
-	import { getDraftState } from '$lib/globalState/draftState.svelte';
-	import { getDraftSystem, setDraftSystem } from '$lib/globalState/prospectsState.svelte';
-	import { setCurrentUser } from '$lib/globalState/userState.svelte';
-	import { setDraftState } from '$lib/globalState/draftState.svelte';
+	import Ladder from '$lib/components/Ladder.svelte';
 	import HeadToHead from '$lib/components/HeadToHead.svelte';
 	import Countdown from '$lib/components/Countdown.svelte';
-	import {  invalidateAll } from '$app/navigation';
-	import {  format, isAfter, } from 'date-fns';
-	import { PUBLIC_WEB_SOCKET } from '$env/static/public';
 
-
+	import { getDraftState } from '$lib/globalState/draftState.svelte';
+	import { getDraftSystem, setDraftSystem } from '$lib/globalState/prospectsState.svelte';
+	import { getCurrentUser, setCurrentUser } from '$lib/globalState/userState.svelte';
+	import { setDraftState } from '$lib/globalState/draftState.svelte';
+	import { invalidateAll } from '$app/navigation';
+	import { format, isAfter, } from 'date-fns';
+	// import { PUBLIC_WEB_SOCKET } from '$env/static/public';
 
 	let { children, data }: {
 		children: any;
@@ -22,35 +22,48 @@
 	
 	let playersDrafted = $state(0);
 	let draftBoard = $state(data.draftBoard);
-
-	// console.log('data: ', data);
 	
 	setCurrentUser(data?.user?.user);
-	setDraftSystem(data.prospects, data.draftBoard, data.emptyDraftBoard);
-	setDraftState(data.game.gamePhase)
+	setDraftSystem(data.prospects, data.draftBoard, data.nhlBoard);
+	setDraftState(data.game.gamePhase, data.game.draftDaySet, data.nhlBoard.filter((x: any) => x?.prospect?.name).length)
 
 
-	const storedDraftBoard = getDraftSystem()
+	// const storedDraftBoard = getDraftSystem()
 	const draftState = getDraftState();
 	const draftSystem = getDraftSystem();
+	const userState = getCurrentUser();
+
+	let nhlDraftBoardLength = $state(data.nhlBoard.filter((x: any) => x?.prospect?.name).length)
+
+
+	// TODO: figure out local storage for unsubmitted drafts or users that haven't logged in yet.
+
+	// function checkForSavedDraftBoard() {
+	// 	playersDrafted = data.draftBoard.filter((draft: any) => draft.prospect).length;
+	// }
+
+
+	// function checkForLocalDraftBoard() {
+	// 	console.log('Check for local draft board')
+	// 	if(globalThis) {
+	// 		const localStorageDraft = JSON.parse(localStorage.getItem('draftBoard') || '{}')
 	
+	// 		checkForSavedDraftBoard();
+	
+	// 		if (playersDrafted === 0 && localStorageDraft.hasOwnProperty('draft')) {
+	// 			storedDraftBoard.setNewInitialDraftBoard(localStorageDraft.draft);
+				
+	// 		} else {
+	// 			draftBoard = data.draftBoard;
+	// 		}
+	
+	// 		setDraftSystem(data.prospects, draftBoard, data.nhlBoard);
+	// 	} else {
+	// 		setDraftSystem(data.prospects, draftBoard, data.nhlBoard);
+	// 	}
+	// }
 
-	function checkForSavedDraftBoard() {
-		playersDrafted = data.draftBoard.filter((draft: any) => draft.prospect).length;
-	}
-
-	function checkForLocalDraftBoard() {
-		const localStorageDraft =  JSON.parse(localStorage.getItem('draftBoard') || '{}')
-
-		if (playersDrafted === 0 && localStorageDraft.hasOwnProperty('draft')) {
-			storedDraftBoard.setNewInitialDraftBoard(localStorageDraft.draft);
-			
-		} else {
-			draftBoard = data.draftBoard;
-		}
-
-		setDraftSystem(data.prospects, draftBoard, data.emptyDraftBoard);
-	}
+	// checkForLocalDraftBoard();
 
 	let innerWidth = $state(0);
 	let tabs = $derived(draftState.currentState !== "started" ? ['prospects', 'draftboard'] : ['draftboard', 'Nhl Draft']);
@@ -62,49 +75,59 @@
 		tabIndex = tabIndex === 1 ? 0 : 1;
 	};
 
-	$effect(() => {
-		checkForSavedDraftBoard();
-		checkForLocalDraftBoard();
-	})
+	// $effect(() => {
+	// 	checkForSavedDraftBoard();
+	// 	checkForLocalDraftBoard();
+	// })
 
 	$effect(() => {
+		// console.log(data.game.gamePhase);
 		// setDraftState(data.game.gamePhase)
-		if(data.game.gamePhase !== draftState.currentState) {
+		// if(data.game.gamePhase !== draftState.currentState) {
 			draftState.currentState = data.game.gamePhase
-		}
+		// }
 	})
-
-	$effect(() => {
-		if (draftState.currentState === "started") {
-			const socket = new WebSocket(PUBLIC_WEB_SOCKET)
-			socket.onopen = () => {
-				// console.log("Connecting to WS");
-				socket.send("start")
-				socket.onmessage = (event) => {
-					let jsonData = JSON.parse(event.data)
-					if(jsonData){
-						draftState.updateNhlDraftPick(jsonData.length)
-
-						for(let i = 0; i < jsonData.length; i++) {
-								draftSystem.nhlDraftBoard[i].prospect = {
-									name: jsonData[i].name
-								} as any
-						}
-					} else {
-						draftState.updateNhlDraftPick(0)
-					}
-	
-					// console.log(draftState.nhlDraft);
-				}
-			}
-		}
-	})
-
 
 	function refresh() {
 		invalidateAll()
 	}
 
+	$effect(() => {
+		if (draftState.currentState === "started") {
+
+			if(nhlDraftBoardLength <= 31){
+
+				const interval = setInterval(() => {
+					// console.log('before refresh: ', nhlDraftBoardLength);
+					refresh()
+
+					draftState.currentNhlDraft = data.nhlBoard.filter((x: any) => x?.prospect?.name).length
+
+					draftSystem.nhlDraftBoard = data.nhlBoard
+
+
+					// console.log('After refresh: ', data.nhlBoard.filter((x: any) => x?.prospect?.name).length);
+					// console.log('After refresh NHL BOARD: ', data.nhlBoard);
+					
+
+					const totalPoints = draftSystem.computePoints()
+					userState.points = totalPoints
+
+					draftState.updateNhlDraftPick(nhlDraftBoardLength)
+
+				}, 10000);
+				() => {
+					clearInterval(interval)
+				}
+
+			}
+		}
+
+		if (draftState.currentState === "finalized"){
+			const totalPoints = draftSystem.computePoints()
+			userState.points = totalPoints
+		}
+	})
 
 </script>
 
@@ -112,36 +135,53 @@
 <div class="mx-auto max-w-screen-2xl">
 	<h1 class="mb-4 text-center text-6xl font-bold uppercase">draft center</h1>
 
-	{#if isAfter(new Date(data.game.startDate), Date.now())}
-		<div class="text-center mb-6">
-			<Countdown heading="NHL Draft starts in:" endTime={data.game.startDate}>
-				<div class="flex flex-col mt-2 leading-tight">
-					<small>Note: Your draft will lock 16 hours<br/> before the official nhl draft</small>
-					<small class="font-bold">
-						{format(new Date(data?.game?.lockDate), 'iii, LLL do p')}
-					</small>
-				</div>
-			</Countdown>
-			<!-- <Countdown endTime={"2024-06-21T09:05:30Z"} /> -->
-		</div>
+	{#if draftState.isDraftDaySet}
+		{#if isAfter(new Date(data.game.startDate), Date.now())}
+			<div class="text-center mb-6">
+				<Countdown heading="NHL Draft starts in:" endTime={data.game.startDate}>
+					<div class="flex flex-col mt-2 leading-tight">
+						<small>Note: Your draft will lock 16 hours<br/> before the official nhl draft</small>
+						<small class="font-bold">
+							{format(new Date(data?.game?.lockDate), 'iii, LLL do p')}
+						</small>
+					</div>
+				</Countdown>
+			</div>
+		{/if}
 	{/if}
 	
+	
 	{#if draftState.currentState === "started"}
-		<HeadToHead />
+	<div class="border-black border-2 rounded-xl shadow-brut-shadow max-w-fit px-4 py-2 bg-orange-100 mx-auto mb-6">
+		<h2 class="mb-4 text-center text-2xl font-bold uppercase">Your Points:</h2>
+
+		<div class="flex gap-2 justify-center font-bold border-black border-2 bg-blue-200 rounded-md p-4">
+			<h2 class=" text-center text-6xl font-bold uppercase">{userState?.points}</h2>
+		</div>
+	</div>
 	{/if}
 
-	{#if draftState.currentState !== "started"}
+
+	{#if draftState.currentState === "started" && data.nhlBoard}
+		<HeadToHead currentPick={data.nhlBoard.filter((x: any) => x?.prospect?.name).length} />
+	{/if}
+
+	{#if draftState.currentState === "finalized"}
+		<Ladder ladder={data?.ladder} />
+	{/if}
+
+	{#if draftState.currentState !== "started" && draftState.currentState !== 'locked' && draftState.currentState !== 'finalized'}
 	<div class=" flex gap-5 px-2">
 		{#if innerWidth < 768}
 			<div class="w-full pb-10">
 				{#if selectedTab === tabs[1]}
-					<DraftBoard lockDate={data?.game?.lockDate} draftType="user" />
+					<DraftBoard draftType="user" />
 				{:else if selectedTab === tabs[0]}
 					<ProspectContainer />
 				{/if}
 			</div>
 		{:else}
-			<DraftBoard lockDate={data?.game?.lockDate} draftType="user" />
+			<DraftBoard draftType="user" />
 			<ProspectContainer />
 		{/if}
 	</div>
@@ -155,14 +195,14 @@
 		{#if innerWidth < 768}
 			<div class="w-full pb-10">
 				{#if selectedTab === tabs[0]}
-					<DraftBoard lockDate={data.game.lockDate} draftType="user" />
+					<DraftBoard draftType="user" />
 				{:else if selectedTab === tabs[1]}
-					<DraftBoard draftType="nhl" />
+					<DraftBoard draftType="nhl" nhlBoard={data.nhlBoard} />
 				{/if}
 			</div>
 		{:else}
-			<DraftBoard lockDate={data.game.lockDate} draftType="user" />
-			<DraftBoard draftType="nhl" />
+			<DraftBoard draftType="user" />
+			<DraftBoard draftType="nhl" nhlBoard={data.nhlBoard} />
 		{/if}
 		</div>
 		<div

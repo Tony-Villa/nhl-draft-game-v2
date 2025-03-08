@@ -7,13 +7,15 @@ const pfm = require('postcss-font-magician');
 
 const config = {
 	plugins: [
-		//Some plugins, like tailwindcss/nesting, need to run before Tailwind,
-		// tailwindcss/nesting,
-		tailwindcss(),
 		//But others, like autoprefixer, need to run after,
 		//Some plugins, like tailwindcss/nesting, need to run before Tailwind,
 		// tailwindcss(),
 		//But others, like autoprefixer, need to run after,
+		//autoprefixer,
+		postcssPresetEnv({
+			features: { 'nesting-rules': true }
+		}),
+		tailwindcss(),
 		autoprefixer,
 		pfm({
 			variants: {
@@ -25,10 +27,6 @@ const config = {
 			}
 		}),
 		postcssJitProps(openProps),
-		postcssPresetEnv({
-			features: { 'nesting-rules': true }
-		}),
-		autoprefixer
 	]
 };
 

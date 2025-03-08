@@ -15,6 +15,62 @@
       "when": 1719206050640,
       "tag": "0001_wonderful_raider",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1719448889060,
+      "tag": "0002_rich_bloodstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1719462908746,
+      "tag": "0003_nice_medusa",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1719532372896,
+      "tag": "0004_polite_excalibur",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1737764690605,
+      "tag": "0005_lowly_triathlon",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1737764743882,
+      "tag": "0006_violet_frog_thor",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1737928570847,
+      "tag": "0007_shiny_nighthawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1737930442320,
+      "tag": "0008_overjoyed_rictor",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1737930662171,
+      "tag": "0009_lame_pet_avengers",
+      "breakpoints": true
     }
   ]
 }

@@ -8,26 +8,33 @@
   const draftSystem = getDraftSystem();
   const draftState = getDraftState()
 
-  let currentDraftPosition = $state(0)
+  let { currentPick }: {currentPick: number} = $props()
+
+  let currentDraftPosition = $state(currentPick)
   let currentStyle = $state('waiting')
   let userCurrentPick = $derived(draftSystem?.draftBoard[currentDraftPosition]?.prospect?.name || 'No pick')
   let NhlCurrentPick = $derived(draftSystem?.nhlDraftBoard[currentDraftPosition]?.prospect?.name || ' ')
 
   $effect(() => {
-    const draftPos = draftState.nhlDraftCurrentPick
-
-    const timeout = setTimeout(() => {
-      currentDraftPosition = draftPos
-    }, 2000)
-
-    return () => {
-			clearTimeout(timeout);
-		};
+    if(draftSystem?.nhlDraftBoard[currentDraftPosition]?.prospect?.name ){
+      const draftPos = Math.min(currentPick, 31)
+      let totalPoints = draftSystem.computePoints()
+      console.log(totalPoints);
+  
+      const timeout = setTimeout(() => {
+        currentDraftPosition = draftPos
+      }, 5000)
+  
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
   })
 
-  $inspect('Current draft position', currentDraftPosition)
-  $inspect('Current user draft pick: ', draftSystem.draftBoard[currentDraftPosition])
-  $inspect('Current style: ', currentStyle)
+  // $inspect('Current draft position', currentDraftPosition)
+  // $inspect('Current user draft pick: ', draftSystem.draftBoard[currentDraftPosition])
+  // $inspect('Current style: ', currentStyle)
+  // $inspect('NHL DRAFT BOARD: ', draftSystem?.nhlDraftBoard)
 
   const cardStyles = `min-w-72 max-w-80 shadow-brut-shadow-sm`
 
