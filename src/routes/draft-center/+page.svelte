@@ -2,7 +2,7 @@
 	import ProspectContainer from '$lib/components/ProspectContainer.svelte';
 	import DraftBoard from '$lib/components/DraftBoard.svelte';
 	import SliderSwitch from '$lib/components/SliderSwitch.svelte';
-	import Ladder from '$lib/components/Ladder.svelte';
+	// import Ladder from '$lib/components/Ladder.svelte';
 	import HeadToHead from '$lib/components/HeadToHead.svelte';
 	import Countdown from '$lib/components/Countdown.svelte';
 
@@ -166,9 +166,9 @@
 		<HeadToHead currentPick={data.nhlBoard.filter((x: any) => x?.prospect?.name).length} />
 	{/if}
 
-	{#if draftState.currentState === "finalized"}
+	<!-- {#if draftState.currentState === "finalized"}
 		<Ladder ladder={data?.ladder} />
-	{/if}
+	{/if} -->
 
 	{#if draftState.currentState !== "started" && draftState.currentState !== 'locked' && draftState.currentState !== 'finalized'}
 	<div class=" flex gap-5 px-2">
