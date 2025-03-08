@@ -10,7 +10,6 @@ import { Argon2id } from 'oslo/password';
 
 import { createAndSetSession } from '$lib/server/authUtils';
 import { checkIfEmailExists, insertNewUser } from '$lib/server/dbAuthUtils';
-import { logError } from '$lib/utils';
 import { RegisterUserZodSchema } from '$lib/validations/AuthZodSchemas';
 import { eq } from 'drizzle-orm';
 import { users } from '$lib/server/db/schema';
@@ -67,7 +66,7 @@ export const actions: Actions = {
 
 			await createAndSetSession(lucia, userId, cookies);
 		} catch (error) {
-			logError(error);
+			console.error(error);
 
 			return message(registerUserFormData, {
 				alertType: 'error',
