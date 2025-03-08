@@ -43,12 +43,9 @@
 	let draftBoard = $derived(draftType === 'user' ? draftSystem.draftBoard : draftSystem?.nhlDraftBoard)
 
 	// $inspect('NHL BOARD -- INSIDE DRAFT BOARD: ', draftSystem?.nhlDraftBoard)
-
-
 </script>
 
 <div bind:clientWidth={draftBoardContainerWidth} class={`draft-board flex w-full flex-[2] flex-col gap-2 min-[950px]:min-w-[450px]`}>
-
 	{#if draftType === 'user'}
 	<div class="flex items-end justify-between gap-3 pr-3">
 		<div class="flex flex-col">
@@ -72,7 +69,6 @@
 				Submit Draft
 			</Button>
 		</div>
-		<!-- remove -->
 			{#if dev}
 				<Button onclick={seed} 
 				id='seed'
@@ -80,7 +76,6 @@
 					Seed DB
 				</Button>
 			{/if}
-			<!-- end remove -->
 		{/if}
 
 
@@ -132,6 +127,6 @@
 					{/if}
 				</div>
 			</Card>
-		{/each}
+		{/each} 
 	</div>
 </div>
