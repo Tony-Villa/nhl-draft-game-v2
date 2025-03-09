@@ -1,7 +1,7 @@
 import { tv, type VariantProps  } from 'tailwind-variants';
 
 export const buttonOptions = tv({
-  base: `border-black border-[3px] font-extrabold cursor-pointer text-sm uppercase relative transition-all duration-100 ease-in-out shadow-button-shadow
+  base: `border-black border-[3px] font-extrabold cursor-pointer text-sm uppercase relative transition-all duration-100 ease-in-out 
   active:translate-x-[5px] active:translate-y-[5px] active:shadow-none
   hover:bg-accent hover:text-black
   `,
@@ -18,6 +18,11 @@ export const buttonOptions = tv({
       md: 'p-3',
       lg: 'p-4',
     },
+    shadow: {
+      none: 'shadow-none',
+      sm:'shadow-button-sm',
+      md:'shadow-button-shadow'
+    },
     skew:{
       none: '',
       left: 'rotate-3',
@@ -27,6 +32,7 @@ export const buttonOptions = tv({
   defaultVariants: {
     variant: 'primary',
     size: 'md',
+    shadow: 'md',
     skew: 'none'
   }
 })
@@ -37,6 +43,7 @@ export interface ButtonProps {
   variant?: ButtonVariants['variant'];
   size?: ButtonVariants['size'];
   skew?: ButtonVariants['skew']; 
+  shadow?: ButtonVariants['shadow'];
   children: any;
   disabled?: boolean;
   id?: string;
