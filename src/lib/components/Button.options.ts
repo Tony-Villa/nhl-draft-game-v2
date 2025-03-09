@@ -44,7 +44,7 @@ export interface ButtonProps {
   size?: ButtonVariants['size'];
   skew?: ButtonVariants['skew']; 
   shadow?: ButtonVariants['shadow'];
-  class: string;
+  class?: string;
   children: any;
   disabled?: boolean;
   id?: string;
