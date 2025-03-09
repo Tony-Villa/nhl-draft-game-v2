@@ -106,9 +106,9 @@
 
 	<div class={`draft-card-container mb-16 flex flex-wrap justify-center gap-2 `}>
 		{#each draftBoard || [] as position}
-			<Card variant="small" class={`draft-card ${draftBoardContainerWidth > 300 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
+			<Card size="sm" class={`draft-card flex items-center ${draftBoardContainerWidth > 300 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
 				<div class="flex items-center px-2 py-2">
-					<h2>{position.draftPosition}</h2>
+					<h2 class="text-black font-extrabold text-[28px]">{position.draftPosition}</h2>
 					<div class="relative">
 						<img class="h-[50px] w-[50px] z-10" src={position.teamLogo} alt="" />
 						{#if position?.from}
@@ -117,7 +117,7 @@
 					</div>
 					{#if position.prospect}
 					<div in:fade class='flex flex-1 justify-between items-center'>
-						<p class="ml-2 font-bold">{position?.prospect?.name}</p>
+						<p class="ml-2 text-lg font-extrabold">{position?.prospect?.name}</p>
 						{#if draftState.currentState === 'open'}
 						<button
 							onclick={() => removeProspect(position.prospect as Prospect, position.draftPosition)}

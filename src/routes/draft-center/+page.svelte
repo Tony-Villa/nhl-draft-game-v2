@@ -174,7 +174,7 @@
 	{/if} -->
 
 	{#if draftState.currentState !== "started" && draftState.currentState !== 'locked' && draftState.currentState !== 'finalized'}
-	<div class=" flex gap-5 px-2">
+	<div class=" flex gap-8 px-2">
 		{#if innerWidth < 768}
 			<div class="w-full pb-10">
 				{#if selectedTab === tabs[1]}
