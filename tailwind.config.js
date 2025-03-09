@@ -1,8 +1,9 @@
 import { fontFamily } from "tailwindcss/defaultTheme";
 import tailwindcssAnimate from "tailwindcss-animate";
+import { withTV } from "tailwind-variants/dist/transformer.js";
 
 /** @type {import('tailwindcss').Config} */
-const config = {
+const config = withTV({
 	darkMode: ["class"],
 	content: ["./src/**/*.{html,js,svelte,ts}"],
 	safelist: ["dark"],
@@ -79,9 +80,13 @@ const config = {
 
 				sans: ["Courier New", ...fontFamily.sans]
 			},
+			textShadow: {
+				"text-shadow": "[text-shadow:3px_3px_0_#ff2d55]",
+			},
 			boxShadow: {
 				'brut-shadow': '4px 4px 0px 0px #000000',
 				'brut-shadow-sm': '2px 2px 0px 0px #000000',
+				'button-shadow': '5px 5px 0 #000000'
 			},
 			keyframes: {
 				"accordion-down": {
@@ -105,6 +110,6 @@ const config = {
 		},
 	},
 	plugins: [tailwindcssAnimate],
-};
+});
 
 export default config;
