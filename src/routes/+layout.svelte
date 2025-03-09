@@ -28,7 +28,7 @@
 {@render children()}
 
 {:else}
-<main class="bg-[#FFF4E8] font-medium">
+<main class="bg-offWhite font-medium">
 	<Toaster />
 	<div >
 
