@@ -86,7 +86,8 @@ const config = withTV({
 			boxShadow: {
 				'brut-shadow': '4px 4px 0px 0px #000000',
 				'brut-shadow-sm': '2px 2px 0px 0px #000000',
-				'button-shadow': '5px 5px 0 #000000'
+				'button-shadow': '5px 5px 0 #000000',
+				'section-shadow': '15px 15px 0 #000000'
 			},
 			keyframes: {
 				"accordion-down": {

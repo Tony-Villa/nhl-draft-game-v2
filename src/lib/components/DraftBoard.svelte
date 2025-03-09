@@ -45,37 +45,48 @@
 	// $inspect('NHL BOARD -- INSIDE DRAFT BOARD: ', draftSystem?.nhlDraftBoard)
 </script>
 
-<div bind:clientWidth={draftBoardContainerWidth} class={`draft-board flex w-full flex-[2] flex-col gap-2 min-[950px]:min-w-[450px]`}>
+<div bind:clientWidth={draftBoardContainerWidth} class={`
+	flex-1 max-h-fit p-6 bg-white border-black border-[5px] relative mb-7 shadow-section-shadow
+	-rotate-[0.1deg] md:-rotate-[0.3deg]
+`}>
+	<h2 class={`
+	text-3xl font-extrabold uppercase tracking-[-1px] relative inline-block mb-7
+	after:content-[''] after:absolute after:left-0 after:bottom-[-5px] after:w-full after:h-[5px] after:bg-primary
+	`}>
+		{#if draftType === 'user'}
+			Your Draft Board
+		{:else}
+			NHL Draft Board
+		{/if}
+	</h2>
 	{#if draftType === 'user'}
 	<div class="flex items-end justify-between gap-3 pr-3">
-		<div class="flex flex-col">
-			{#if !currentUser?.user}
-				<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
-				{:else}
-				<p class="font-bold md:text-lg">Your Draft</p>
-			{/if}
-		</div>
+		{#if !currentUser?.user}
+			<div class="mx-auto text-lg mb-5 p-4 border-dashed border-[3px] border-gray">
+				<p class="text-gray font-semibold md:text-lg">Sign in to submit your draft!</p>
+			</div>
+		{/if}
 
-		{#if draftState.currentState === "open"}
-		<div class="flex flex-col gap-2">
+		{#if draftState.currentState === "open" && currentUser?.user}
+		<div class="flex flex-col w-[60%] gap-2 mx-auto mb-7">
 			<Button onclick={() => submitDraftBoard({
 				draftboard: draftSystem.draftBoard,
 				user: currentUser.user,
 				draftState
 			})} 
 			id='submit-draft'
-			class="py-2" 
+			class='rotate-[1.5deg] text-lg'
 			disabled={!currentUser?.user || draftState?.isDraftLocked}>
 				Submit Draft
 			</Button>
 		</div>
-			{#if dev}
+			<!-- {#if dev}
 				<Button onclick={seed} 
 				id='seed'
 				class="py-2">
 					Seed DB
 				</Button>
-			{/if}
+			{/if} -->
 		{/if}
 
 
