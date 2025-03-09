@@ -7,8 +7,6 @@
 
   let { isAuthenticated, user } : {isAuthenticated : boolean; user: User} = $props() 
 
-  const baseButtonStyles = 'border-2 shadow-brut-shadow-sm rounded-md border-solid border-black px-3 py-1 relative';
-
   function clearLocalDraft() {
 		localStorage.removeItem('draftBoard');
 	}
