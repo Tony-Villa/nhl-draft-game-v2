@@ -80,6 +80,7 @@
 				Submit Draft
 			</Button>
 		</div>
+		<!-- TODO: figure out seed maybe a script instead of this button -->
 			<!-- {#if dev}
 				<Button onclick={seed} 
 				id='seed'
