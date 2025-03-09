@@ -12,6 +12,7 @@
 	import { setDraftState } from '$lib/globalState/draftState.svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { format, isAfter, } from 'date-fns';
+	import Header from '$lib/components/Header.svelte';
 	// import { PUBLIC_WEB_SOCKET } from '$env/static/public';
 
 	let { children, data }: {
@@ -133,7 +134,9 @@
 
 <svelte:window bind:innerWidth />
 <div class="mx-auto max-w-screen-2xl">
-	<h1 class="mb-4 text-center text-6xl font-bold uppercase">draft center</h1>
+	{#if innerWidth < 768}
+		<Header title="draft center" />
+	{/if}
 
 	{#if draftState.isDraftDaySet}
 		{#if isAfter(new Date(data.game.startDate), Date.now())}

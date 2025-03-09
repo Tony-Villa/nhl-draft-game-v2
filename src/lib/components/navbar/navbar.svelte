@@ -1,10 +1,9 @@
 <script lang="ts">
-  import Google from '$lib/icons/Google.svelte';
-  import Discord from '$lib/icons/Discord.svelte';
-	import Button from '$lib/components/Button.svelte';
-  import * as Dialog from "$lib/components/ui/dialog";
+	import Header from '$lib/components/Header.svelte';
   import {type User} from '$lib/types'
 	import HowToPlay from '../HowToPlay.svelte';
+	import { page } from '$app/state';
+	import { buttonOptions } from '../Button.options';
 
   let { isAuthenticated, user } : {isAuthenticated : boolean; user: User} = $props() 
 
@@ -16,22 +15,15 @@
     
 </script>
     
-<div class="flex flex-col justify-between flex-1 py-3  mx-3 md:mx-10 md:flex-row">
+<div class="grid grid-cols-[1fr_auto_1fr] items-center flex-1 py-3 mx-3 mb-8 pb-8 border-b-8 md:mx-10 md:flex-row ">
 
-  <Dialog.Root>
-    <Dialog.Trigger>
-      <Button variant='secondary' onclick={() => {}}> How to play </Button>
-    </Dialog.Trigger>
+  <HowToPlay />
 
-    <Dialog.Content>
-      <Dialog.Header>
-        <Dialog.Title class="font-black text-2xl text-[#64748B]">How to play</Dialog.Title>
-        <Dialog.Description>
-          <HowToPlay />
-        </Dialog.Description>
-      </Dialog.Header>
-    </Dialog.Content>
-  </Dialog.Root>
+  {#if page.url.pathname.includes('draft-center')}
+    <div class="justify-self-center">
+      <Header title="draft center" />
+    </div>
+  {/if}
 
   <nav class="flex flex-row gap-10 justify-end items-center py-3 ">
 
@@ -50,14 +42,11 @@
       </ul>
   {:else}
   <ul class="flex flex-row flex-end gap-5 items-center">
-        <p>Sign in with </p>
-          <a class={`${baseButtonStyles} flex gap-1 justify-center items-center hover:bg-yellow-500`} href="/auth/login/google">
-            <Google />
-            Google
+          <a class={`${buttonOptions({variant: 'outline'})}`} href="/auth/login/google">
+            Google Login
           </a>
-          <a class={`${baseButtonStyles} flex gap-1 justify-center items-center hover:bg-yellow-500`} href="/auth/login/discord">
-            <Discord />
-            Discord
+          <a class={`${buttonOptions({variant: 'secondary'})}`} href="/auth/login/discord">
+            Discord Login
           </a>
       </ul>
   {/if}
