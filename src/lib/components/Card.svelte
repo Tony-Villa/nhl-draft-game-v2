@@ -1,8 +1,12 @@
 <script lang="ts">
-  const { children, variant, class: className} : {children: any; variant?: string | null; class?: string;} = $props();
+	import { twMerge } from 'tailwind-merge';
+  import { cardOptions, type CardProps } from './Card.options'
+
+
+  const { children, size, class: className} : CardProps = $props();
 </script>
 
-<div class={`border-2 border-black rounded-md ${variant === 'small' ? 'p-0' : 'p-3'} ${className}`}>
+<div class={`${twMerge(cardOptions({size}), className)}`}>
   {@render children()}
 </div>
 
