@@ -7,6 +7,8 @@
 
 	const prospectList = getDraftSystem();
 
+	const tempProspectsList = prospectList.prospects.slice(0,12);
+
 	let searchInput: string = $state('');
 	let positions: string[] = $state([]);
 	let derivedPositionRegex = $derived.by(() => {
@@ -39,14 +41,26 @@
 	};
 </script>
 
-<div class="flex max-w-[880px] flex-[4] flex-col flex-wrap gap-2 pb-4">
-	<!-- <h2>Prospects</h2> -->
-	<div class="flex flex-col gap-5 lg:flex-row">
+<div class={`
+max-h-fit overflow-auto p-6 bg-white border-black border-[5px] relative mb-7 shadow-section-shadow rotate-[0.1deg] md:rotate-[0.3deg]
+max-w-[880px] 
+flex flex-[4] flex-col flex-wrap gap-2 pb-4`
+}>
+
+	<h2 class={`
+		text-3xl font-extrabold uppercase tracking-[-1px] relative inline-block mb-7
+		after:content-[''] after:absolute after:left-0 after:bottom-[-5px] after:w-[40%] after:h-[5px] after:bg-primary
+		`}>
+	Available Prospects	
+	</h2>
+
+	<div class="flex flex-col gap-5 lg:flex-row mb-4">
 		<Searchbar bind:value={searchInput} placeholder="Search Prospect" />
 		<MultipleSelect bind:sortFilter sortPosition={sortByPosition} />
 	</div>
-	<div class="mb-12 flex flex-wrap justify-between gap-2 md:justify-start">
-		{#each prospectList.prospects as prospect}
+	<div class="mb-12 grid grid-cols-1 md:grid-cols-2 justify-between gap-6 md:justify-start">
+		<!-- TODO: don't forget to switch back to prospectList.prospects here after testing -->
+		{#each tempProspectsList as prospect}
 			{#if !prospect.drafted && positions.length === 0 && (prospect?.name ?? '')
 					.toLowerCase()
 					.includes(searchInput.toLowerCase())}
