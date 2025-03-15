@@ -2,7 +2,7 @@ module.exports = async ({ github, context, issueNumber }) => {
   const { owner, repo } = context.repo;
   
   try {
-    // First get the issue to check for UI labels
+    console.log(`Checking issue #${issueNumber}`);
     const issue = await github.rest.issues.get({
       owner,
       repo,
@@ -14,16 +14,17 @@ module.exports = async ({ github, context, issueNumber }) => {
       label.name.toLowerCase().includes('ui') || 
       label.name.toLowerCase().includes('design')
     );
+
+    console.log(`Has UI label: ${hasUILabel}`);
     
     if (!hasUILabel) {
       console.log("Issue does not have a UI label");
       return {
-        hasUILabel: false
+        hasUILabel: false,
+        designerUsername: null
       };
     }
-    
-    // Now use GraphQL to get the custom field
-    // Need to get the node ID of the issue first
+ 
     const nodeIdResponse = await github.rest.issues.get({
       owner,
       repo,
@@ -97,15 +98,19 @@ module.exports = async ({ github, context, issueNumber }) => {
       }
       if (designerUsername) break;
     }
-    
-    return {
+
+    const result = {
       hasUILabel: true,
-      designerUsername: designerUsername
+      designerUsername: designerUsername || null
     };
+    
+    console.log("Returning result:", JSON.stringify(result));
+    return result;
   } catch (error) {
     console.log(`Error: ${error.message}`);
     return {
-      hasUILabel: false
+      hasUILabel: false,
+      designerUsername: null
     };
   }
 };
