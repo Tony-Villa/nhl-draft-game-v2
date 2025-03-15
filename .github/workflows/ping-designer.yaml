@@ -33,7 +33,7 @@ jobs:
         id: check-issue
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PROJECT_ACCESS_TOKEN }}
           script: |
             const script = require('./.github/scripts/check-issue.cjs')
             const issueNumber = ${{ steps.get-issue.outputs.issue_number }}
