@@ -2,6 +2,8 @@ module.exports = async ({ github, context, issueNumber }) => {
   const { owner, repo } = context.repo;
   
   try {
+    let designerUsername = null;
+
     console.log(`Checking issue #${issueNumber}`);
     const issue = await github.rest.issues.get({
       owner,
@@ -107,12 +109,9 @@ module.exports = async ({ github, context, issueNumber }) => {
               
               if (fieldName && fieldName.toLowerCase() === "designer attached") {
                 // Handle different field types
-                if (fieldValue.text) {
-                  designerUsername = fieldValue.text.replace('@', '');
-                } else if (fieldValue.users?.nodes?.[0]?.login) {
-                  designerUsername = fieldValue.users.nodes[0].login;
-                }
-                
+                if (fieldValue.name) {
+                  designerUsername = fieldValue.name;
+                } 
                 console.log(`Found designer: ${designerUsername}`);
                 break;
               }
@@ -125,7 +124,7 @@ module.exports = async ({ github, context, issueNumber }) => {
 
     const result = {
       hasUILabel: true,
-      designerUsername: designerUsername || null
+      designerUsername
     };
     
     console.log("Returning result:", JSON.stringify(result));
