@@ -36,41 +36,19 @@ module.exports = async ({ github, context, issueNumber }) => {
     const issueNodeId = nodeIdResponse.data.node_id;
     console.log(`Issue node ID: ${issueNodeId}`);
     
-// First, we need to identify the projects this issue belongs to
-    const projectsQuery = `
-    query {
-      node(id: "${issueNodeId}") {
-        ... on Issue {
-          projectsV2(first: 10) {
-            nodes {
+        // Now query the project items and their field values
+    const projectItemQuery = `
+         query {
+          repository(owner: "${owner}", name: "${repo}") {
+            issue(number: ${issueNumber}) {
               id
               title
-            }
-          }
-        }
-      }
-    }`;
-
-    const projectsResponse = await github.graphql(projectsQuery);
-    console.log("Projects:", JSON.stringify(projectsResponse, null, 2));
-
-    // If we find projects, query the specific project fields for this issue
-    if (projectsResponse.node.projectsV2.nodes.length > 0) {
-      for (const project of projectsResponse.node.projectsV2.nodes) {
-        console.log(`Checking project: ${project.title} (${project.id})`);
-        
-        // Now query the project items and their field values
-        const projectItemQuery = `
-         query {
-          node(id: "${project.id}") {
-            ... on ProjectV2 {
-              items(first: 100) {
+              projectItems(first: 10) {
                 nodes {
                   id
-                  content {
-                    ... on Issue {
-                      number
-                    }
+                  project {
+                    id
+                    title
                   }
                   fieldValues(first: 100) {
                     nodes {
@@ -93,33 +71,29 @@ module.exports = async ({ github, context, issueNumber }) => {
         const projectItemResponse = await github.graphql(projectItemQuery);
         console.log("Project items:", JSON.stringify(projectItemResponse, null, 2));
         
-        // Find the item for our specific issue
-        const items = projectItemResponse.node.items.nodes;
-        for (const item of items) {
-          if (item.content && item.content.number === parseInt(issueNumber)) {
-            console.log(`Found our issue (#${issueNumber}) in project!`);
+      // Find the item for our specific issue
+      const projectItems = projectItemResponse.repository.issue.projectItems.nodes;
+      for (const item of projectItems) {
+
+        const fieldValues = item.fieldValues.nodes;
+        console.log("Field values:", JSON.stringify(fieldValues, null, 2));
+          
+          for (const fieldValue of fieldValues) {
+            const fieldName = fieldValue.field?.name;
+            console.log(`Field: ${fieldName}`);
             
-            // Now check for the Designer Attached field
-            const fieldValues = item.fieldValues.nodes;
-            console.log("Field values:", JSON.stringify(fieldValues, null, 2));
-            
-            for (const fieldValue of fieldValues) {
-              const fieldName = fieldValue.field?.name;
-              console.log(`Field: ${fieldName}`);
-              
-              if (fieldName && fieldName.toLowerCase() === "designer attached") {
-                // Handle different field types
-                if (fieldValue.name) {
-                  designerUsername = fieldValue.name;
-                } 
-                console.log(`Found designer: ${designerUsername}`);
-                break;
-              }
+            if (fieldName && fieldName.toLowerCase() === "designer attached") {
+              // Handle different field types
+              if (fieldValue.name) {
+                designerUsername = fieldValue.name;
+              } 
+              console.log(`Found designer: ${designerUsername}`);
+              break;
             }
           }
         }
-      }
-    }
+
+
 
 
     const result = {
