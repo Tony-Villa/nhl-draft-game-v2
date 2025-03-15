@@ -37,7 +37,7 @@ jobs:
           script: |
             const script = require('./.github/scripts/check-issue.js')
             const issueNumber = ${{ steps.get-issue.outputs.issue_number }}
-            return await script({github, context, core, issueNumber})
+            return await script({github, context, issueNumber})
 
       - name: Find designer's Slack ID
         if: fromJSON(steps.check-issue.outputs.result).hasUILabel && fromJSON(steps.check-issue.outputs.result).designerUsername
