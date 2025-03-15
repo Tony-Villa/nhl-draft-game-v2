@@ -34,32 +34,71 @@ module.exports = async ({ github, context, issueNumber }) => {
     const issueNodeId = nodeIdResponse.data.node_id;
     console.log(`Issue node ID: ${issueNodeId}`);
     
-    // Query for the project item and its field values
-    const graphqlQuery = `
+// First, we need to identify the projects this issue belongs to
+    const projectsQuery = `
     query {
       node(id: "${issueNodeId}") {
         ... on Issue {
-          projectItems(first: 10) {
+          projectsV2(first: 10) {
             nodes {
-              fieldValues(first: 20) {
+              id
+              title
+            }
+          }
+        }
+      }
+    }`;
+
+    const projectsResponse = await github.graphql(projectsQuery);
+    console.log("Projects:", JSON.stringify(projectsResponse, null, 2));
+
+    // If we find projects, query the specific project fields for this issue
+    if (projectsResponse.node.projectsV2.nodes.length > 0) {
+      for (const project of projectsResponse.node.projectsV2.nodes) {
+        console.log(`Checking project: ${project.title} (${project.id})`);
+        
+        // Now query the project items and their field values
+        const projectItemQuery = `
+        query {
+          node(id: "${project.id}") {
+            ... on ProjectV2 {
+              items(first: 100) {
                 nodes {
-                  ... on ProjectV2ItemFieldTextValue {
-                    field {
-                      ... on ProjectV2FieldCommon {
-                        name
-                      }
+                  id
+                  content {
+                    ... on Issue {
+                      number
                     }
-                    text
                   }
-                  ... on ProjectV2ItemFieldUserValue {
-                    field {
-                      ... on ProjectV2FieldCommon {
-                        name
+                  fieldValues(first: 100) {
+                    nodes {
+                      ... on ProjectV2ItemFieldTextValue {
+                        field {
+                          ... on ProjectV2FieldCommon {
+                            name
+                          }
+                        }
+                        text
                       }
-                    }
-                    users(first: 1) {
-                      nodes {
-                        login
+                      ... on ProjectV2ItemFieldUserValue {
+                        field {
+                          ... on ProjectV2FieldCommon {
+                            name
+                          }
+                        }
+                        users(first: 1) {
+                          nodes {
+                            login
+                          }
+                        }
+                      }
+                      ... on ProjectV2ItemFieldSingleSelectValue {
+                        field {
+                          ... on ProjectV2FieldCommon {
+                            name
+                          }
+                        }
+                        name
                       }
                     }
                   }
@@ -67,37 +106,42 @@ module.exports = async ({ github, context, issueNumber }) => {
               }
             }
           }
-        }
-      }
-    }`;
+        }`;
     
-    const graphqlResponse = await github.graphql(graphqlQuery);
-    console.log("GraphQL response:", JSON.stringify(graphqlResponse, null, 2));
-    
-    // Process the response to find the designer
-    let designerUsername = null;
-    const projectItems = graphqlResponse.node.projectItems.nodes;
-    
-    for (const item of projectItems) {
-      const fieldValues = item.fieldValues.nodes;
-      for (const fieldValue of fieldValues) {
-        // Check if this is our "Designer Attached" field
-        const fieldName = fieldValue.field?.name;
-        if (fieldName && fieldName.toLowerCase() === "designer attached") {
-          if (fieldValue.text) {
-            // For text fields that might contain @username format
-            const match = fieldValue.text.match(/@([a-zA-Z0-9-]+)/);
-            designerUsername = match ? match[1] : fieldValue.text;
-          } else if (fieldValue.users?.nodes?.[0]?.login) {
-            // For user fields that directly reference a GitHub user
-            designerUsername = fieldValue.users.nodes[0].login;
+        const projectItemResponse = await github.graphql(projectItemQuery);
+        console.log("Project items:", JSON.stringify(projectItemResponse, null, 2));
+        
+        // Find the item for our specific issue
+        const items = projectItemResponse.node.items.nodes;
+        for (const item of items) {
+          if (item.content && item.content.number === parseInt(issueNumber)) {
+            console.log(`Found our issue (#${issueNumber}) in project!`);
+            
+            // Now check for the Designer Attached field
+            const fieldValues = item.fieldValues.nodes;
+            console.log("Field values:", JSON.stringify(fieldValues, null, 2));
+            
+            for (const fieldValue of fieldValues) {
+              const fieldName = fieldValue.field?.name;
+              console.log(`Field: ${fieldName}`);
+              
+              if (fieldName && fieldName.toLowerCase() === "designer attached") {
+                // Handle different field types
+                if (fieldValue.text) {
+                  designerUsername = fieldValue.text.replace('@', '');
+                } else if (fieldValue.users?.nodes?.[0]?.login) {
+                  designerUsername = fieldValue.users.nodes[0].login;
+                }
+                
+                console.log(`Found designer: ${designerUsername}`);
+                break;
+              }
+            }
           }
-          console.log(`Found designer: ${designerUsername}`);
-          break;
         }
       }
-      if (designerUsername) break;
     }
+
 
     const result = {
       hasUILabel: true,
