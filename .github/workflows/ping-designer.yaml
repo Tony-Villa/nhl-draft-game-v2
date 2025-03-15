@@ -45,16 +45,16 @@ jobs:
         run: |
           echo "Debug output: ${{ toJSON(steps.check-issue.outputs.result) }}"
           DESIGNER_USERNAME="${{ fromJSON(steps.check-issue.outputs.result).designerUsername }}"
-          echo "Looking for Slack ID for GitHub user: @$DESIGNER_USERNAME"
+          echo "Looking for Slack ID for GitHub user: $DESIGNER_USERNAME"
           
           # Read from designer_map.txt and find the matching Slack ID
           if [ -f "designer_map.txt" ]; then
-            SLACK_ID=$(grep -E "^@$DESIGNER_USERNAME [A-Z0-9]+" designer_map.txt | awk '{print $2}')
+            SLACK_ID=$(grep -E "^$DESIGNER_USERNAME [A-Z0-9]+" designer_map.txt | awk '{print $2}')
             if [ -n "$SLACK_ID" ]; then
               echo "Found Slack ID: $SLACK_ID"
               echo "slack_id=$SLACK_ID" >> $GITHUB_OUTPUT
             else
-              echo "No Slack ID found for @$DESIGNER_USERNAME"
+              echo "No Slack ID found for $DESIGNER_USERNAME"
               echo "slack_id=" >> $GITHUB_OUTPUT
             fi
           else
