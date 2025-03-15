@@ -1,5 +1,4 @@
-module.exports = async ({ github, context, core }) => {
-  const issueNumber = core.getInput('issue_number');
+module.exports = async ({ github, context, issueNumber }) => {
   const { owner, repo } = context.repo;
   
   try {
