@@ -19,7 +19,7 @@ jobs:
         run: |
           PR_BODY="${{ github.event.pull_request.body }}"
           # Extract issue number from PR body (assumes format like "Closes #123" or "Fixes #123")
-          ISSUE_NUMBER=$(echo "$PR_BODY" | grep -oE "(Close|Closes|Closed|Fix|Fixes|Fixed|Resolve|Resolves|Resolved)\s+#[0-9]+" | grep -oE "#[0-9]+" | sed 's/#//')
+          ISSUE_NUMBER=$(echo "$PR_BODY" | grep -oE "(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s+#[0-9]+" | grep -oE "#[0-9]+" | sed 's/#//')
           if [ -z "$ISSUE_NUMBER" ]; then
             echo "No linked issue found in PR description"
             echo "issue_number=" >> $GITHUB_OUTPUT
@@ -35,46 +35,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const issueNumber = ${{ steps.get-issue.outputs.issue_number }};
-            const { owner, repo } = context.repo;
-            
-            try {
-              // Get issue data
-              const issue = await github.rest.issues.get({
-                owner,
-                repo,
-                issue_number: issueNumber
-              });
-              
-              // Check for UI label
-              const hasUILabel = issue.data.labels.some(label => 
-                label.name.toLowerCase().includes('ui') || 
-                label.name.toLowerCase().includes('design')
-              );
-              
-              if (!hasUILabel) {
-                console.log("Issue does not have a UI label");
-                return {
-                  hasUILabel: false
-                };
-              }
-              
-              // Look for Designer Attached field in the issue body
-              const issueBody = issue.data.body || "";
-              const designerMatch = issueBody.match(/Designer Attached:?\s*@([a-zA-Z0-9-]+)/);
-              const designerUsername = designerMatch ? designerMatch[1] : null;
-              
-              // If we have both a UI label and a designer, proceed
-              return {
-                hasUILabel: true,
-                designerUsername: designerUsername
-              };
-            } catch (error) {
-              console.log(`Error getting issue: ${error}`);
-              return {
-                hasUILabel: false
-              };
-            }
+            const script = require('./.github/scripts/check-issue.js')
+            const issueNumber = ${{ steps.get-issue.outputs.issue_number }}
+            return await script({github, context, core, issueNumber})
 
       - name: Find designer's Slack ID
         if: fromJSON(steps.check-issue.outputs.result).hasUILabel && fromJSON(steps.check-issue.outputs.result).designerUsername
