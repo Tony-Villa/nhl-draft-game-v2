@@ -28,6 +28,7 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 
 
 	// testing cicd webhook, will delete later
+	// testing cicd webhook, will delete later
 
 	const cached = await redis.get('top_prospects');
 	let topProspects: Prospect[] = [];
