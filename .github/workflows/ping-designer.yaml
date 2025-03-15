@@ -43,6 +43,7 @@ jobs:
         if: fromJSON(steps.check-issue.outputs.result).hasUILabel && fromJSON(steps.check-issue.outputs.result).designerUsername
         id: find-slack-id
         run: |
+          echo "Debug output: ${{ toJSON(steps.check-issue.outputs.result) }}"
           DESIGNER_USERNAME="${{ fromJSON(steps.check-issue.outputs.result).designerUsername }}"
           echo "Looking for Slack ID for GitHub user: @$DESIGNER_USERNAME"
           
