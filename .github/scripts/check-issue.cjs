@@ -59,7 +59,7 @@ module.exports = async ({ github, context, issueNumber }) => {
         
         // Now query the project items and their field values
         const projectItemQuery = `
-        query {
+         query {
           node(id: "${project.id}") {
             ... on ProjectV2 {
               items(first: 100) {
@@ -72,26 +72,6 @@ module.exports = async ({ github, context, issueNumber }) => {
                   }
                   fieldValues(first: 100) {
                     nodes {
-                      ... on ProjectV2ItemFieldTextValue {
-                        field {
-                          ... on ProjectV2FieldCommon {
-                            name
-                          }
-                        }
-                        text
-                      }
-                      ... on ProjectV2ItemFieldUserValue {
-                        field {
-                          ... on ProjectV2FieldCommon {
-                            name
-                          }
-                        }
-                        users(first: 1) {
-                          nodes {
-                            login
-                          }
-                        }
-                      }
                       ... on ProjectV2ItemFieldSingleSelectValue {
                         field {
                           ... on ProjectV2FieldCommon {
