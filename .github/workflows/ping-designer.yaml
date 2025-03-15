@@ -35,7 +35,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const script = require('./.github/workflows/check-issue.js')
+            const script = require('./.github/scripts/check-issue.cjs')
             const issueNumber = ${{ steps.get-issue.outputs.issue_number }}
             return await script({github, context, issueNumber})
 
