@@ -36,7 +36,7 @@ module.exports = async ({ github, context, issueNumber }) => {
     const issueNodeId = nodeIdResponse.data.node_id;
     console.log(`Issue node ID: ${issueNodeId}`);
     
-        // Now query the project items and their field values
+    // Query the project items and their field values
     const projectItemQuery = `
          query {
           repository(owner: "${owner}", name: "${repo}") {
@@ -83,7 +83,6 @@ module.exports = async ({ github, context, issueNumber }) => {
             console.log(`Field: ${fieldName}`);
             
             if (fieldName && fieldName.toLowerCase() === "designer attached") {
-              // Handle different field types
               if (fieldValue.name) {
                 designerUsername = fieldValue.name;
               } 
