@@ -69,7 +69,7 @@ jobs:
           if [ -n "${{ steps.find-slack-id.outputs.slack_id }}" ] && [ "${{ fromJSON(steps.check-issue.outputs.result).designerUsername }}" != "null" ]; then
             echo "message=👋 <@${{ steps.find-slack-id.outputs.slack_id }}> This PR includes UI changes that need your review!" >> $GITHUB_OUTPUT
           else
-            echo "message=This PR includes UI changes." >> $GITHUB_OUTPUT
+            echo "message=👋 @tdm-designers . This PR includes UI changes." >> $GITHUB_OUTPUT
           fi
 
       - name: Send Slack notification
