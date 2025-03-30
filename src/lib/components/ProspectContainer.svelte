@@ -42,7 +42,7 @@
 </script>
 
 <div class={`
-max-h-fit overflow-auto p-6 bg-white border-black border-[5px] relative mb-7 shadow-section-shadow rotate-[0.1deg] md:rotate-[0.3deg]
+max-h-fit overflow-auto p-6 bg-white border-black border-[5px] relative mb-7 md:shadow-section-shadow md:rotate-[0.3deg]
 max-w-[880px] 
 flex flex-[4] flex-col flex-wrap gap-2 pb-4`
 }>
