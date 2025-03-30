@@ -23,7 +23,8 @@ const config = withTV({
 				background: "hsl(var(--background) / <alpha-value>)",
 				foreground: "hsl(var(--foreground) / <alpha-value>)",
 
-				"primary": "#ff2d55",
+				// "primary": "#ff2d55",
+				"primary": "#ff4f01",
 				"secondary": "#0055ff",
 				"accent": "#ffdf00",
 				"black": "#000000",
@@ -81,7 +82,7 @@ const config = withTV({
 				sans: ["Courier New", ...fontFamily.sans]
 			},
 			textShadow: {
-				"text-shadow": "[text-shadow:3px_3px_0_#ff2d55]",
+				"text-shadow": "[text-shadow:3px_3px_0_#ff4f01]",
 			},
 			boxShadow: {
 				'brut-shadow': '4px 4px 0px 0px #000000',
