@@ -188,11 +188,12 @@
 			<ProspectContainer />
 		{/if}
 	</div>
-	<div
-		class="h-15 fixed bottom-0 flex w-full justify-center border-t-2 bg-[#FFF4E8] shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"
+	<!-- <div
+		class="h-15 fixed bottom-0 flex w-full justify-center border-t-4 bg-white shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"
 	>
 		<SliderSwitch switchVariable={switchScreens} left={tabs[0]} right={tabs[1]} />
-	</div>
+	</div> -->
+	{@render slider({left: tabs[0], right: tabs[1]})}
 	{:else}
 	<div class=" flex gap-5 px-2">
 		{#if innerWidth < 768}
@@ -208,11 +209,12 @@
 			<DraftBoard draftType="nhl" nhlBoard={data.nhlBoard} />
 		{/if}
 		</div>
-		<div
-		class="h-15 fixed bottom-0 flex w-full justify-center border-t-2 bg-[#FFF4E8] shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"
+		<!-- <div
+		class="h-15 fixed bottom-0 flex w-full justify-center border-t-4 bg-white shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"
 		>
 		<SliderSwitch switchVariable={switchScreens} left={tabs[0]} right={tabs[1]} />
-		</div>
+		</div> -->
+		{@render slider({left: tabs[0], right: tabs[1]})}
 	{/if}
 </div>
 
@@ -221,3 +223,9 @@
 	<title>Hockey Draft Showdown</title>
 	<meta name="description" content="Play against friends and strangers to see who can predict the first round of the official NHL draft">
 </svelte:head>
+
+{#snippet slider({left, right}: {left: string; right: string})}
+	<div class="h-15 fixed bottom-0 flex w-full justify-center border-t-4 bg-white shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"> 
+		<SliderSwitch switchVariable={switchScreens} left={left} right={right} />
+	</div>
+{/snippet}
