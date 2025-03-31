@@ -2,7 +2,6 @@
 	import { getDraftSystem } from '$lib/globalState/prospectsState.svelte';
 	import { getCurrentUser } from '$lib/globalState/userState.svelte';
 	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
-	import { fade } from 'svelte/transition';
 
 	import type { DraftBoard, Prospect } from '$lib/types';
 	import Card from './Card.svelte';
@@ -70,41 +69,6 @@
 			<Dialog.Trigger class={buttonOptions({class: 'w-[60%] mt-[15px]'})}>
 				draft
 			</Dialog.Trigger>
-
-	
-			<!-- < class="flex justify-between">
-				<p class="font-semibold">{prospect?.rank !== '-' ? 'Rank: ' + prospect?.rank : 'NR'}</p>
-				<div class="flex content-end justify-end gap-2 text-xs opacity-55">
-					<p>{prospect?.position}</p>
-					<p>|</p>
-					<p>{prospect?.shoots}</p>
-				</div>
-			</>
-	
-			<div class="flex  flex-1 flex-col justify-between">
-					<h3 class="text-center font-bold text-lg mt-3 whitespace-break-spaces leading-6 max-w-[14ch]">{prospect?.name}</h3>
-		
-					<div class="flex flex-col text-center mt-2 content-center justify-center gap-[0]">
-						<p class="text-sm font-semibold">{prospect?.league}</p>
-						<p class="text-xs opacity-55">{prospect?.team}</p>
-					</div>
-			
-					<div class="flex flex-col gap-3 justify-end">
-		
-					<div class="flex content-end justify-between gap-2 text-xs opacity-55">
-						<p>{prospect?.birthDay}</p>
-						<p>{prospect?.height}</p>
-						<p>{prospect?.weight} lbs</p>
-					</div>
-			
-					<div class="flex items-end justify-center gap-2">
-						<Dialog.Trigger>
-							<div class={`border-2 shadow-brut-shadow-sm rounded-md border-solid border-black px-3 py-1 relative 
-						bg-yellow-400 font-semibold`}>Draft</div>
-						</Dialog.Trigger>
-					</div>
-				</div>
-			</div> -->
 
 
 		</div>
