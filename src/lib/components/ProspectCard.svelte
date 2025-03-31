@@ -109,16 +109,17 @@
 
 		</div>
 	</Card>
-	<Dialog.Content class="max-w-[90%] md:max-w-[50%]">
+	
+	<Dialog.Content class="max-w-[90%] md:max-w-[70%] rounded-none md:rounded-none shadow-button-shadow md:shadow-button-shadow">
 		<Dialog.Header class='md:mx-auto'>
       <Dialog.Title>
-				<h2>
+				<h2 class="text-center self-center text-black font-extrabold text-[20px] md:text-[28px] h-6 md:h-8 mb-2 pb-0">
 					Who will be drafting {prospect.name}?
 				</h2>
 			</Dialog.Title>
     </Dialog.Header>
 
-		<div class="flex flex-wrap justify-center gap-2 pb-10 max-h-[75dvh] overflow-y-scroll ">
+		<div class="flex flex-wrap justify-center gap-1 md:gap-2 pb-10 max-h-[75dvh] overflow-y-scroll ">
 			{#each draftSystem.draftBoard as cell}
 				{@render teamPicker(cell)}
 			{/each}
@@ -129,12 +130,12 @@
 
 {#snippet teamPicker(cell: DraftBoard)}
 	<button
-		class={`flex flex-col content-center justify-center gap-2 border border-black rounded-md p-2 w-20 h-20 md:w-28 md:h-28
-		 ${!!cell?.prospect ? '' : 'hover:bg-[#f2dabd]'} ${!!cell?.prospect ? 'bg-neutral-400' : 'bg-orange-100'}`}
+		class={`flex flex-col content-center justify-center gap-1 md:gap-2 border-[3px] border-black p-2 w-20 h-20 md:w-28 md:h-28
+		 ${!!cell?.prospect ? '' : 'hover:bg-primary'} ${!!cell?.prospect ? 'bg-neutral-400' : 'bg-white'}`}
 		onclick={() => draft(prospect as Prospect, cell?.draftPosition)}
 		disabled={!!cell?.prospect}
 	>
-		<h3 class="text-center self-center font-semibold">
+		<h3 class="text-center self-center text-black font-extrabold text-[20px] md:text-[28px] h-6 md:h-8 mb-0 pb-0 ">
 			{cell?.draftPosition}
 		</h3>
 		<img class="w-16 md:w-20 self-center" src={cell?.teamLogo} alt="team logo" />
