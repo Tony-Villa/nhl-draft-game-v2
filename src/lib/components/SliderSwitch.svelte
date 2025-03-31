@@ -76,6 +76,6 @@
 		border: 3px solid black;
 		box-shadow: 5px 5px 0px 0px #000000;
 		/* rotate: rotation; */
-		transition: 0.75s;
+		transition: 0.15s;
 	}
 </style>
