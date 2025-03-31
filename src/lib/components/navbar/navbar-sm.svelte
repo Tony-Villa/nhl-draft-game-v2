@@ -5,8 +5,6 @@
     
   let { isAuthenticated } : {isAuthenticated : boolean} = $props() 
 
-    const baseButtonStyles = 'border-2 shadow-brut-shadow-sm rounded-md border-solid border-black px-3 py-1 relative';
-
     function clearLocalDraft() {
 		localStorage.removeItem('draftBoard');
 	}
@@ -20,7 +18,7 @@
 
       <div class="dropdown ">
          <Hamburger />
-        <div class="dropdown-content bg-[#FFF4E8] overflow-hidden shadow-brut-shadow border-2 border-black rounded-md right-0">
+        <div class="dropdown-content bg-white overflow-hidden shadow-button-shadow border-2 border-black right-0">
           {#if isAuthenticated}
           <div>
               <ul class="flex flex-row flex-end">
