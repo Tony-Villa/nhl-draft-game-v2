@@ -45,37 +45,48 @@
 	// $inspect('NHL BOARD -- INSIDE DRAFT BOARD: ', draftSystem?.nhlDraftBoard)
 </script>
 
-<div bind:clientWidth={draftBoardContainerWidth} class={`draft-board flex w-full flex-[2] flex-col gap-2 min-[950px]:min-w-[450px]`}>
+<div bind:clientWidth={draftBoardContainerWidth} class={`
+	flex-1 max-h-fit p-6 bg-white border-black border-[5px] relative mb-7 md:shadow-section-shadow md:-rotate-[0.3deg]
+`}>
+	<h2 class={`
+	text-3xl font-extrabold uppercase tracking-[-1px] relative inline-block mb-7
+	after:content-[''] after:absolute after:left-0 after:bottom-[-5px] after:w-full after:h-[5px] after:bg-primary
+	`}>
+		{#if draftType === 'user'}
+			Your Draft Board
+		{:else}
+			NHL Draft Board
+		{/if}
+	</h2>
 	{#if draftType === 'user'}
 	<div class="flex items-end justify-between gap-3 pr-3">
-		<div class="flex flex-col">
-			{#if !currentUser?.user}
-				<p class="font-bold md:text-lg">Please sign in to submit your draft</p>
-				{:else}
-				<p class="font-bold md:text-lg">Your Draft</p>
-			{/if}
-		</div>
+		{#if !currentUser?.user}
+			<div class="mx-auto text-lg mb-5 p-4 border-dashed border-[3px] border-gray">
+				<p class="text-gray font-semibold md:text-lg">Sign in to submit your draft!</p>
+			</div>
+		{/if}
 
-		{#if draftState.currentState === "open"}
-		<div class="flex flex-col gap-2">
+		{#if draftState.currentState === "open" && currentUser?.user}
+		<div class="flex flex-col w-[60%] gap-2 mx-auto mb-7">
 			<Button onclick={() => submitDraftBoard({
 				draftboard: draftSystem.draftBoard,
 				user: currentUser.user,
 				draftState
 			})} 
 			id='submit-draft'
-			class="py-2" 
+			class='rotate-[1.5deg] text-lg'
 			disabled={!currentUser?.user || draftState?.isDraftLocked}>
 				Submit Draft
 			</Button>
 		</div>
-			{#if dev}
+		<!-- TODO: figure out seed maybe a script instead of this button -->
+			<!-- {#if dev}
 				<Button onclick={seed} 
 				id='seed'
 				class="py-2">
 					Seed DB
 				</Button>
-			{/if}
+			{/if} -->
 		{/if}
 
 
@@ -95,9 +106,9 @@
 
 	<div class={`draft-card-container mb-16 flex flex-wrap justify-center gap-2 `}>
 		{#each draftBoard || [] as position}
-			<Card variant="small" class={`draft-card ${draftBoardContainerWidth > 300 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
+			<Card size="sm" class={`draft-card flex items-center ${draftBoardContainerWidth > 300 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
 				<div class="flex items-center px-2 py-2">
-					<h2>{position.draftPosition}</h2>
+					<h2 class="text-black font-extrabold text-[28px]">{position.draftPosition}</h2>
 					<div class="relative">
 						<img class="h-[50px] w-[50px] z-10" src={position.teamLogo} alt="" />
 						{#if position?.from}
@@ -106,7 +117,7 @@
 					</div>
 					{#if position.prospect}
 					<div in:fade class='flex flex-1 justify-between items-center'>
-						<p class="ml-2 font-bold">{position?.prospect?.name}</p>
+						<p class="ml-2 text-lg font-extrabold">{position?.prospect?.name}</p>
 						{#if draftState.currentState === 'open'}
 						<button
 							onclick={() => removeProspect(position.prospect as Prospect, position.draftPosition)}

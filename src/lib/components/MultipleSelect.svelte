@@ -17,14 +17,27 @@
 	// };
 </script>
 
-<div class="flex gap-2">
+<div class="flex gap-[10px]">
 
 	{#each Object.keys(sortFilter) as option (option)}
 		<Button
-			variant="{sortFilter[option] ? 'primary' : 'secondary'}"
+			variant={sortFilter[option] ? 'info' : 'outline'}
+			shadow={sortFilter[option] ? 'none' : 'md'}
+			class={`px-[15px] py-[10px] font-extrabold cursor-pointer
+			${sortFilter[option] ? 'translate-x-[5px] translate-y-[5px]' : ''}`}
 			onclick={() => sortPosition(sortFilter, option)}>{option}</Button
 		>
 	{/each}
 </div>
 
 
+<!-- .position-btn {
+	padding: 10px 15px;
+	border: 3px solid var(--black);
+	background-color: var(--white);
+	color: var(--black);
+	font-weight: 800;
+	cursor: pointer;
+	font-size: 16px;
+	transition: all 0.1s ease;
+} -->

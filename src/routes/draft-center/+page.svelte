@@ -12,6 +12,7 @@
 	import { setDraftState } from '$lib/globalState/draftState.svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { format, isAfter, } from 'date-fns';
+	import Header from '$lib/components/Header.svelte';
 	// import { PUBLIC_WEB_SOCKET } from '$env/static/public';
 
 	let { children, data }: {
@@ -133,7 +134,9 @@
 
 <svelte:window bind:innerWidth />
 <div class="mx-auto max-w-screen-2xl">
-	<h1 class="mb-4 text-center text-6xl font-bold uppercase">draft center</h1>
+	{#if innerWidth < 768}
+		<Header title="draft center" />
+	{/if}
 
 	{#if draftState.isDraftDaySet}
 		{#if isAfter(new Date(data.game.startDate), Date.now())}
@@ -171,7 +174,7 @@
 	{/if} -->
 
 	{#if draftState.currentState !== "started" && draftState.currentState !== 'locked' && draftState.currentState !== 'finalized'}
-	<div class=" flex gap-5 px-2">
+	<div class=" flex gap-8 px-1">
 		{#if innerWidth < 768}
 			<div class="w-full pb-10">
 				{#if selectedTab === tabs[1]}
@@ -185,11 +188,12 @@
 			<ProspectContainer />
 		{/if}
 	</div>
-	<div
-		class="h-15 fixed bottom-0 flex w-full justify-center border-t-2 bg-[#FFF4E8] shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"
+	<!-- <div
+		class="h-15 fixed bottom-0 flex w-full justify-center border-t-4 bg-white shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"
 	>
 		<SliderSwitch switchVariable={switchScreens} left={tabs[0]} right={tabs[1]} />
-	</div>
+	</div> -->
+	{@render slider({left: tabs[0], right: tabs[1]})}
 	{:else}
 	<div class=" flex gap-5 px-2">
 		{#if innerWidth < 768}
@@ -205,11 +209,12 @@
 			<DraftBoard draftType="nhl" nhlBoard={data.nhlBoard} />
 		{/if}
 		</div>
-		<div
-		class="h-15 fixed bottom-0 flex w-full justify-center border-t-2 bg-[#FFF4E8] shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"
+		<!-- <div
+		class="h-15 fixed bottom-0 flex w-full justify-center border-t-4 bg-white shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"
 		>
 		<SliderSwitch switchVariable={switchScreens} left={tabs[0]} right={tabs[1]} />
-		</div>
+		</div> -->
+		{@render slider({left: tabs[0], right: tabs[1]})}
 	{/if}
 </div>
 
@@ -218,3 +223,9 @@
 	<title>Hockey Draft Showdown</title>
 	<meta name="description" content="Play against friends and strangers to see who can predict the first round of the official NHL draft">
 </svelte:head>
+
+{#snippet slider({left, right}: {left: string; right: string})}
+	<div class="h-15 fixed bottom-0 flex w-full justify-center border-t-4 bg-white shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"> 
+		<SliderSwitch switchVariable={switchScreens} left={left} right={right} />
+	</div>
+{/snippet}

@@ -4,6 +4,12 @@
 	let {  left, right, switchVariable }: { left: string; right: string;switchVariable: (tab: string) => void } = $props();
 
 	let currentTab = $state(left)
+	let rotation = $derived.by(() => {
+		if(currentTab === left){
+			return '-rotate-[1deg]'
+		}
+		return 'rotate-[1deg]'
+	})
 
 	function switchLeft() {
 		const btn = document.getElementById('btn');
@@ -16,14 +22,14 @@
 	function switchRight() {
 		const btn = document.getElementById('btn');
 		if (btn?.style) {
-			btn.style.left = 'calc(50% + 2px)';
+			btn.style.left = 'calc(50% + 1px)';
 		}
 		currentTab = right
 	}
 </script>
 
-<div class="button-box h-full my-5 relative border-2 border-black rounded-[30px] bg-orange-200 flex justify-center">
-	<div id="btn"></div>
+<div class="button-box h-full my-5 relative border-[3px] border-black bg-white flex justify-center">
+	<div id="btn" class={`${rotation}`}></div>
 	<button
 		onclick={() => {
 			switchLeft();
@@ -52,22 +58,24 @@
 		border: 2px solid transparent;
 		border-bottom: 4px solid transparent;
 		border-right: 4px solid transparent;
-		border-radius: 30px;
+		/* border-radius: 30px; */
 		outline: none;
 		position: relative;
 		text-align: center;
+		font-weight: 600;
+		font-size: large;
 	}
 
 	#btn {
-		left: -3px;
-		top: -2px;
+		left: -5px;
+		top: -5px;
 		position: absolute;
 		width: 50%;
 		height: calc(100% + 4px);
-		background: #e67e22;
-		border: 2px solid black;
-		box-shadow: 2px 2px 0px 0px #000000;
-		border-radius: 30px;
-		transition: 0.75s;
+		background: #ff4f01;
+		border: 3px solid black;
+		box-shadow: 5px 5px 0px 0px #000000;
+		/* rotate: rotation; */
+		transition: 0.15s;
 	}
 </style>
