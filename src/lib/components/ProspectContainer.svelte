@@ -56,8 +56,6 @@
 
 	let maxPage = $derived(Math.ceil( filteredProspects.length / itemsPerPage ))
 
-	$inspect(curPage)
-
 
 	const sortByPosition = (options: PositionFilter, option: string) => {
 		options[option] = !options[option];
@@ -104,7 +102,7 @@ flex flex-[4] flex-col flex-wrap gap-2 pb-4`
 			{#snippet children({ pages, currentPage })}
 				<Pagination.Content>
 					<Pagination.Item>
-						<Pagination.PrevButton class={`${buttonOptions({variant: 'outline'})} rounded-none`} onclick={() => curPage = currentPage - 1}>
+						<Pagination.PrevButton class={`${buttonOptions({variant: 'outline'})} rounded-none mr-2`} onclick={() => curPage = currentPage - 1}>
 							<ChevronLeft class="size-4" />
 							<span class="hidden sm:block">Previous</span>
 						</Pagination.PrevButton>

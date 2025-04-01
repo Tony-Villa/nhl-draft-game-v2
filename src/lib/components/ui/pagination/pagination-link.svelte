@@ -26,7 +26,7 @@
 	{page}
 	class={cn(
 		buttonVariants({
-			variant: isActive ? "outline" : "ghost",
+			variant: isActive ? "primary" : "ghost",
 			size,
 		}),
 		className
