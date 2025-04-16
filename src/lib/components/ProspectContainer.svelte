@@ -56,8 +56,6 @@
 
 	let maxPage = $derived(Math.ceil( filteredProspects.length / itemsPerPage ))
 
-	$inspect(curPage)
-
 
 	const sortByPosition = (options: PositionFilter, option: string) => {
 		options[option] = !options[option];
@@ -104,7 +102,10 @@ flex flex-[4] flex-col flex-wrap gap-2 pb-4`
 			{#snippet children({ pages, currentPage })}
 				<Pagination.Content>
 					<Pagination.Item>
-						<Pagination.PrevButton class={`${buttonOptions({variant: 'outline'})} rounded-none`} onclick={() => curPage = currentPage - 1}>
+						<Pagination.PrevButton class={`${buttonOptions({variant: 'outline'})} rounded-none mr-2`} onclick={() => {
+								window.scrollTo(0, 0);
+								curPage = currentPage - 1
+							}}>
 							<ChevronLeft class="size-4" />
 							<span class="hidden sm:block">Previous</span>
 						</Pagination.PrevButton>
@@ -116,14 +117,20 @@ flex flex-[4] flex-col flex-wrap gap-2 pb-4`
 							</Pagination.Item>
 						{:else}
 							<Pagination.Item >
-								<Pagination.Link {page} isActive={currentPage === page.value} onclick={() => curPage = page.value}>
+								<Pagination.Link {page} isActive={currentPage === page.value} onclick={() => {
+										window.scrollTo(0, 0);
+										curPage = page.value
+									}}>
 									{page.value}
 								</Pagination.Link>
 							</Pagination.Item>
 						{/if}
 					{/each}
 					<Pagination.Item>
-						<Pagination.NextButton class={`${buttonOptions({variant: 'outline'})} rounded-none`} onclick={() => curPage = currentPage + 1}>
+						<Pagination.NextButton class={`${buttonOptions({variant: 'outline'})} rounded-none`} onclick={() => {
+								window.scrollTo(0, 0);
+								curPage = currentPage + 1
+							}}>
 							<span class="hidden sm:block">Next</span>
 							<ChevronRight class="size-4" />
 						</Pagination.NextButton>
