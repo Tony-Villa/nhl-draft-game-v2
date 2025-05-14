@@ -1,26 +1,26 @@
 import { teamInfoLookup } from "./team-info-lookup"
 
-export function parseTeamAndTrade(teamStr: string) {
-
-  // let team = teamStr.match(/^.*?(?=\s\()/)
-  const team: string = teamStr.includes('(') ? teamStr.substring(0, teamStr.indexOf(" (")) : teamStr
-  let from: string | undefined
+export function parseTeamAndTrade(mainTeam: string, fromTeam?: string) {
+  // Replace NY with New York
+  mainTeam = mainTeam.replace('NY ', 'New York ')
   
-  if(teamStr.includes('(')){
-    from = teamStr.replace(/^[^(]*\(/, "").replace(/\)[^(]*$/, "").toLocaleLowerCase().replace('from ', '')
-    if(from.includes('islanders')){
-      from = 'islanders'
-    } else {
-      from = from.split(' ')?.[0]
-    }
+  // Special case for Utah
+  if (mainTeam.toLowerCase() === 'utah') {
+    mainTeam = 'Utah Hockey Club'
   }
 
-  const {defaultName, logo} = teamInfoLookup(team) 
+  const {defaultName, logo} = teamInfoLookup(mainTeam)
   let fromLogo
-  if(from){
-    const {logo: fromL} = teamInfoLookup(from)
+
+  if (fromTeam) {
+    // Clean up the from team name
+    const {logo: fromL} = teamInfoLookup(fromTeam, 'trade')
     fromLogo = fromL
   }
 
-  return {team: defaultName, teamLogo: logo ,from: fromLogo }
+  return {
+    team: defaultName,
+    teamLogo: logo,
+    from: fromLogo
+  }
 }
