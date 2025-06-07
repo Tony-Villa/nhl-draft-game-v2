@@ -34,7 +34,6 @@ export async function getDraftBoardOrder() {
           const tradeTeam = teamCell.find('.trade')
           if (tradeTeam) {
             fromTeam = tradeTeam.find('a > .desktop').text().trim()
-
           }
           
           const {team, teamLogo, from} = parseTeamAndTrade(mainTeam, fromTeam)
