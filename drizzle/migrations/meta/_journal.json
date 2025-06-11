@@ -71,6 +71,13 @@
       "when": 1737930662171,
       "tag": "0009_lame_pet_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1749361747395,
+      "tag": "0010_loud_starhawk",
+      "breakpoints": true
     }
   ]
 }
