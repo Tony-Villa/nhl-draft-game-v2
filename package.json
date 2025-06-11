@@ -18,7 +18,8 @@
 		"db:up": "drizzle-kit up",
 		"db:migrate": "drizzle-kit migrate",
 		"db:pull": "drizzle-kit pull:sqlite",
-		"db:studio": "drizzle-kit studio"
+		"db:studio": "drizzle-kit studio",
+		"db:local-run": "turso dev --db-file local.db"
 	},
 	"devDependencies": {
 		"@lucide/svelte": "^0.486.0",
