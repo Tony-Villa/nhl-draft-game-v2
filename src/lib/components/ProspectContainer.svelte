@@ -99,7 +99,7 @@ flex flex-[4] flex-col flex-wrap gap-2 pb-4`
 	</div>
 	<div class="w-full mx-auto mb-4">
 		<Pagination.Root count={filteredProspects.length} perPage={itemsPerPage} siblingCount={1} >
-			{#snippet children({ pages, currentPage })}
+			{#snippet children({ pages, currentPage }: { pages: any[]; currentPage: number })}
 				<Pagination.Content>
 					<Pagination.Item>
 						<Pagination.PrevButton class={`${buttonOptions({variant: 'outline'})} rounded-none mr-2`} onclick={() => {
