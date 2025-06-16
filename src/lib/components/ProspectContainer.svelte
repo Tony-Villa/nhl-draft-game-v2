@@ -142,16 +142,3 @@ flex flex-[4] flex-col flex-wrap gap-2 pb-4`
 		</Pagination.Root>
 	</div>
 </div>
-
-
-<!-- {#each tempProspectsList as prospect} 
-	{#if !prospect.drafted && positions.length === 0 && (prospect?.name ?? '')
-			.toLowerCase()
-			.includes(searchInput.toLowerCase())}
-		<ProspectCard {prospect} />
-	{:else if positions.length > 0 && !prospect.drafted && (prospect?.name ?? '')
-			.toLowerCase()
-			.includes(searchInput.toLowerCase()) && derivedPositionRegex.test(prospect?.position ?? '')}
-		<ProspectCard {prospect} />
-	{/if}
-{/each} -->
