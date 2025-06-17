@@ -5,7 +5,7 @@ import { games } from '.';
 export const prospects = sqliteTable(
 	'prospects',
 	{
-		id: integer('id').notNull().primaryKey().unique(),
+		id: text('id').notNull().primaryKey(),
 		rank: text('rank').notNull(),
 		name: text('name').notNull(),
 		position: text('position'),
@@ -13,8 +13,8 @@ export const prospects = sqliteTable(
 		team: text('team').notNull(),
 		league: text('league').notNull(),
 		birthDay: text('birth_day').notNull(),
-		height: text('height').notNull(),
-		weight: text('weight').notNull(),
+		height: integer('height').notNull(),
+		weight: integer('weight').notNull(),
 		shoots: text('shoots').notNull(),
     draftYear: integer('draft_year').notNull(),
 		createdAt: integer('created_at')
