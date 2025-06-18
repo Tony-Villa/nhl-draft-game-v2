@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 
 import { integer, sqliteTable, index, text, unique, blob } from 'drizzle-orm/sqlite-core';
-import { games, users } from '.';
+import { games, users, prospects } from '.';
 
 export const drafts = sqliteTable(
 	'drafts',
@@ -14,7 +14,7 @@ export const drafts = sqliteTable(
 		positionDrafted: integer('position_drafted').notNull(),
 		points: integer('points'),
 		team: text('team').notNull(),
-		prospect: blob('prospect').notNull(),
+		prospectId: text('prospect_id').references(() => prospects.id),
 		createdAt: integer('created_at')
 			.notNull()
 			.default(sql`(cast (unixepoch() as int))`)

@@ -27,7 +27,7 @@ export const prospects = sqliteTable(
 	(table) => {
 		return {
 			rankGameIndex: index('prospects_name_year_index').on(table.name, table.draftYear),
-			unq: unique().on(table.name,)
+			unq: unique().on(table.id, table.name, table.draftYear),
 		};
 	}
 );
