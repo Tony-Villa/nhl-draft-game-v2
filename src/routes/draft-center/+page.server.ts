@@ -11,46 +11,38 @@ import { db } from '$lib/server/db/index.js';
 import { drafts, prospects } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
 
-export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent) => {
-	// Fetch game data
+export const load = async ({ setHeaders, locals, fetch }: RequestEvent) => {
 	const response = await fetch('/api/game')
 	const game = await response.json()
 	
-	// Fetch NHL board
 	const nhlBoardRes = await fetch('api/board?game=' + CURRENT_GAME)
 	const nhlBoard = await nhlBoardRes.json()
 
-	// Fetch ladder if game is finalized
 	let ladder;
 	if(game?.gamePhase && game?.gamePhase === 'finalized' ){
 		const ladderRes = await fetch('api/ladder')
 		ladder = await ladderRes.json()
 	}
 
-	// Get initial prospects (only if game is not finalized)
 	let topProspects: Prospect[] = [];
 	if(game?.gamePhase !== 'finalized') {
 		topProspects = await getInitialProspects(
 			new Date().getFullYear(), 
-			12, // Load only first page for initial render
+			12,
 			setHeaders
 		);
 	}
 
-	// Get draft board with user's picks
 	let draftBoard: DraftBoard[] = [];
 	if(locals?.user) {
-		// Get the base draft board template with all positions
 		const baseDraftBoard = await getCachedDraftBoardOrder();
 		
-		// Get user's existing draft picks from database directly
 		const userDraftData = await db
 			.select({
 				draftPosition: drafts.positionDrafted,
 				team: drafts.team,
 				points: drafts.points,
 				prospectId: drafts.prospectId,
-				// Prospect details
 				prospectRank: prospects.rank,
 				prospectName: prospects.name,
 				prospectPosition: prospects.position,
@@ -110,11 +102,9 @@ export const load = async ({ request, setHeaders, locals, fetch }: RequestEvent)
 				return basePosition;
 			});
 		} else {
-			// Use base draft board if no picks yet
 			draftBoard = baseDraftBoard;
 		}
 	} else {
-		// Get empty draft board with cached order
 		draftBoard = await getCachedDraftBoardOrder();
 	}
 

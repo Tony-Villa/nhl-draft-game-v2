@@ -20,7 +20,6 @@
 		data: any;
 	} = $props();
 
-	
 	let playersDrafted = $state(0);
 	let draftBoard = $state(data.draftBoard);
 	
@@ -28,8 +27,6 @@
 	setDraftSystem(data.prospects, data.draftBoard, data.nhlBoard);
 	setDraftState(data.game.gamePhase, data.game.draftDaySet, data.nhlBoard.filter((x: any) => x?.prospect?.name).length)
 
-
-	// const storedDraftBoard = getDraftSystem()
 	const draftState = getDraftState();
 	const draftSystem = getDraftSystem();
 	const userState = getCurrentUser();

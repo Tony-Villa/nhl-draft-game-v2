@@ -5,7 +5,7 @@ import { db } from '$lib/server/db/index.js';
 import { CURRENT_GAME } from '$env/static/private';
 import { and, eq } from 'drizzle-orm';
 
-export async function POST({ request, fetch }) {
+export async function POST({ request }) {
   const { data } = await request.json();
 
   const { draftboard, user, undraftedProspectIds = [] } = data;

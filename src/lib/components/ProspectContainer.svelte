@@ -13,7 +13,7 @@
 
 	const prospectSystem = getDraftSystem();
 
-	// State for filters and pagination
+	// Filters and pagination
 	let searchInput: string = $state('');
 	let positions: string[] = $state([]);
 	let currentPage = $state(1);
@@ -54,9 +54,7 @@
 		G: false
 	});
 
-	// Get prospects with draft status applied
 	let currentProspects = $derived.by(() => {
-		// Access the reactive sets to trigger reactivity
 		prospectSystem.temporaryDraftedIds.size;
 		prospectSystem.permanentDraftedIds.size;
 		
@@ -65,7 +63,7 @@
 		}
 		
 		try {
-			// Add proper draft status to the API response prospects
+
 			const result = prospectsResponse.prospects.map((prospect) => {
 				const isDrafted = prospect.id ? prospectSystem.isDrafted(prospect.id) : false;
 				const isTemporary = prospect.id ? prospectSystem.isTemporarilyDrafted(prospect.id) : false;
@@ -81,14 +79,11 @@
 			
 			return result;
 		} catch (error) {
-			// Error in prospect processing - logged on server side
 			return [];
 		}
 	});
 
-	// All prospects for display - show all prospects but with draft status
 	let displayProspects = $derived.by(() => {
-		// Return all prospects - don't filter out drafted ones
 		return currentProspects;
 	});
 
@@ -100,12 +95,9 @@
 		
 		isLoading = true;
 		try {
-			// Fetch a few extra prospects to account for potential filtering
-			const fetchLimit = itemsPerPage + 4; // Fetch 4 extra to account for drafted prospects
-			
 			const response = await fetchProspects({
 				page: currentPage,
-				limit: fetchLimit,
+				limit: itemsPerPage,
 				search: searchInput.trim() || undefined,
 				position: derivedPositionFilter || undefined,
 				sortBy,
@@ -155,12 +147,10 @@
 			positions.push(option);
 		}
 		
-		// Manually trigger filter reload
 		currentPage = 1;
 		loadProspects();
 	};
 
-	// Handle page changes
 	function handlePageChange(page: number) {
 		currentPage = page;
 		loadProspects();
@@ -265,12 +255,12 @@ flex flex-[4] flex-col flex-wrap gap-2 pb-4`
 			{/snippet}
 		</Pagination.Root>
 		
-		<!-- Pagination info -->
-		<div class="text-center mt-2 text-sm text-gray-600">
+
+		<!-- <div class="text-center mt-2 text-sm text-gray-600">
 			Showing {displayProspects.length} prospects 
 			({prospectsResponse.prospects.length} from API)
 			of {prospectsResponse.pagination.totalCount} total
 			(Page {prospectsResponse.pagination.currentPage} of {prospectsResponse.pagination.totalPages})
-		</div>
+		</div> -->
 	</div>
 </div>
