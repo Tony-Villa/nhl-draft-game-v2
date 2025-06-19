@@ -22,7 +22,7 @@
 		"db:local-run": "turso dev --db-file local.db"
 	},
 	"devDependencies": {
-		"@lucide/svelte": "^0.486.0",
+		"@lucide/svelte": "^0.482.0",
 		"@playwright/test": "^1.28.1",
 		"@sveltejs/adapter-auto": "^4.0.0",
 		"@sveltejs/kit": "^2.19.0",

@@ -67,8 +67,8 @@ importers:
         version: 2.1.0
     devDependencies:
       '@lucide/svelte':
-        specifier: ^0.486.0
-        version: 0.486.0(svelte@5.34.6)
+        specifier: ^0.482.0
+        version: 0.482.0(svelte@5.34.6)
       '@playwright/test':
         specifier: ^1.28.1
         version: 1.51.1
@@ -1188,8 +1188,8 @@ packages:
       drizzle-orm: '>= 0.29 <1'
       lucia: 3.x
 
-  '@lucide/svelte@0.486.0':
-    resolution: {integrity: sha512-Q8dav9ruYhdLepb2NNngYeGaMHxFv4Qd1FPc7YYkqouHfjTOJ3fLeyKmbANioRRmtMrLBNfOez9v5EIca+VCFg==}
+  '@lucide/svelte@0.482.0':
+    resolution: {integrity: sha512-n2ycHU9cNcleRDwwpEHBJ6pYzVhHIaL3a+9dQa8kns9hB2g05bY+v2p2KP8v0pZwtNhYTHk/F2o2uZ1bVtQGhw==}
     peerDependencies:
       svelte: ^5
 
@@ -4573,7 +4573,7 @@ snapshots:
       drizzle-orm: 0.31.4(@libsql/client@0.9.0)(better-sqlite3@9.6.0)
       lucia: 3.2.2
 
-  '@lucide/svelte@0.486.0(svelte@5.34.6)':
+  '@lucide/svelte@0.482.0(svelte@5.34.6)':
     dependencies:
       svelte: 5.34.6
 
