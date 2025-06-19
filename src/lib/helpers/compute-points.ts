@@ -1,9 +1,33 @@
-import type { DraftBoard } from "$lib/types";
+interface Prospect {
+  name: string;
+}
 
-export function computePoints(user, nhl) {
-  let startingPoints = 10;
-  let tempProspectCompare: Record<string,Record<string,number>> = {}
-  let userId = user[0]?.userId
+interface DraftPick {
+  userId?: string;
+  prospect?: Prospect;
+  positionDrafted: number;
+  points?: number;
+}
+
+interface NHLDraftPick {
+  prospect: string;
+  positionDrafted: number;
+}
+
+interface ProspectComparison {
+  user?: number;
+  nhl?: number;
+}
+
+interface ComputePointsResult {
+  userId: string;
+  score: number;
+}
+
+export function computePoints(user: DraftPick[], nhl: NHLDraftPick[]): ComputePointsResult | undefined {
+  let startingPoints: number = 10;
+  let tempProspectCompare: Record<string, ProspectComparison> = {}
+  let userId: string | undefined = user[0]?.userId
 
   if(!userId){
     return;
@@ -38,13 +62,13 @@ export function computePoints(user, nhl) {
 
     if(user[i].prospect?.name && tempProspectCompare?.[user[i].prospect?.name as string]) {
       // this is dumb ass code but it works, fix it later
-      user[i].points = startingPoints - Math.abs(tempProspectCompare[user[i].prospect?.name as string]?.user - tempProspectCompare[user[i].prospect?.name as string]?.nhl) < 0 ? 0 : startingPoints - Math.abs(tempProspectCompare[user[i].prospect?.name as string]?.user - tempProspectCompare[user[i].prospect?.name as string]?.nhl)
+      user[i].points = startingPoints - Math.abs(tempProspectCompare[user[i].prospect?.name as string]?.user! - tempProspectCompare[user[i].prospect?.name as string]?.nhl!) < 0 ? 0 : startingPoints - Math.abs(tempProspectCompare[user[i].prospect?.name as string]?.user! - tempProspectCompare[user[i].prospect?.name as string]?.nhl!)
     }
   }
 
   return {
     userId,
-    score: user.reduce((acc,d) => acc + (d.points || 0), 0)
+    score: user.reduce((acc: number, d: DraftPick) => acc + (d.points || 0), 0)
   }
   
 }
