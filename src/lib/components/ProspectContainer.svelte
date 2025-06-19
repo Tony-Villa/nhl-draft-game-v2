@@ -8,10 +8,22 @@
 
 	import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
+  import ArrowUp from "@lucide/svelte/icons/arrow-up";
+  import ArrowDown from "@lucide/svelte/icons/arrow-down";
   import * as Pagination from "$lib/components/ui/pagination/index.js";
+	import Button from './Button.svelte';
 	import { buttonOptions } from './Button.options';
 
 	const prospectSystem = getDraftSystem();
+
+	const verbeekJoke = `Verbeek's only important stat (Height)`
+
+	const prospectSortOptions = [
+		{ label: 'Rank', value: 'rank' },
+		{ label: verbeekJoke , value: 'height' },
+		{ label: 'Age', value: 'age' },
+		{ label: 'Name', value: 'name' },
+	];
 
 	// Filters and pagination
 	let searchInput: string = $state('');
@@ -20,6 +32,7 @@
 	let sortBy: 'rank' | 'name' | 'height' | 'age' = $state('rank');
 	let sortOrder: 'asc' | 'desc' = $state('asc');
 	let isLoading = $state(false);
+	let isDropdownOpen = $state(false);
 	
 	const itemsPerPage = 12;
 	const currentYear = new Date().getFullYear();
@@ -156,12 +169,67 @@
 		loadProspects();
 		window.scrollTo(0, 0);
 	}
+
+	function handleSortChange(value: string | undefined) {
+		if (value && (value === 'rank' || value === 'name' || value === 'height' || value === 'age')) {
+			if(value === 'height') {
+				sortBy = value;
+				sortOrder = 'desc'; // Default to descending for height
+				currentPage = 1;
+				loadProspects();
+			} else {
+				sortBy = value;
+				sortOrder = 'asc'; // Default to ascending for other fields
+				currentPage = 1;
+				loadProspects();
+			}
+		}
+	}
+
+	function toggleSortOrder() {
+		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+		currentPage = 1;
+		loadProspects();
+	}
+
+	// Handle select change from native select
+	function handleNativeSortChange(event: Event) {
+		const target = event.target as HTMLSelectElement;
+		handleSortChange(target.value);
+	}
+
+	// Close dropdown when clicking outside
+	function handleClickOutside(event: MouseEvent) {
+		const target = event.target as HTMLElement;
+		if (!target.closest('.custom-select')) {
+			isDropdownOpen = false;
+		}
+	}
+
+	// Handle keyboard navigation
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			isDropdownOpen = false;
+		}
+	}
+
+	// Add click outside listener
+	$effect(() => {
+		if (isDropdownOpen) {
+			document.addEventListener('click', handleClickOutside);
+			document.addEventListener('keydown', handleKeydown);
+			return () => {
+				document.removeEventListener('click', handleClickOutside);
+				document.removeEventListener('keydown', handleKeydown);
+			};
+		}
+	});
 </script>
 
 <div class={`
-max-h-fit overflow-auto p-6 bg-white border-black border-[5px] relative mb-7 min-h-dvh md:shadow-section-shadow md:rotate-[0.3deg]
-max-w-[880px] 
-flex flex-[4] flex-col flex-wrap gap-2 pb-4`
+	max-h-fit overflow-auto p-6 bg-white border-black border-[5px] relative mb-7 min-h-dvh md:shadow-section-shadow md:rotate-[0.3deg]
+	max-w-[880px] 
+	flex flex-[4] flex-col flex-wrap gap-2 pb-4`
 }>
 
 	<div class="flex w-full justify-between">
@@ -174,8 +242,56 @@ flex flex-[4] flex-col flex-wrap gap-2 pb-4`
 		</h2>
 	</div>
 
-	<div class="flex flex-col gap-5 lg:flex-row mb-4">
+	<!-- Search bar on its own row -->
+	<div class="mb-4">
 		<Searchbar bind:value={searchInput} placeholder="Search Prospect" />
+	</div>
+
+	<!-- Sort and position filters row -->
+	<div class="flex flex-col gap-5 lg:flex-row mb-4">
+		<div class="flex gap-2">
+			<!-- Custom Neo-Brutalist Select Dropdown -->
+			<div class="relative w-[180px] custom-select">
+				<button
+					onclick={() => isDropdownOpen = !isDropdownOpen}
+					class="w-full p-4 border-black border-[3px] bg-white text-black font-bold shadow-button-shadow focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] hover:bg-accent hover:text-black uppercase cursor-pointer transition-all duration-100 ease-in-out text-left flex justify-between items-center"
+				>
+					<span>{prospectSortOptions.find(option => option.value === sortBy)?.label === verbeekJoke ? 'Height' : prospectSortOptions.find(option => option.value === sortBy)?.label  || 'Sort by'}</span>
+					<ArrowDown class="size-4 {isDropdownOpen ? 'rotate-180' : ''} transition-transform duration-100" />
+				</button>
+				
+				{#if isDropdownOpen}
+					<div class="absolute top-full left-0 w-full mt-1 bg-white border-black border-[3px] shadow-button-shadow z-50 animate-in fade-in duration-100">
+						{#each prospectSortOptions as sortOption (sortOption.value)}
+							<button
+								onclick={() => {
+									handleSortChange(sortOption.value);
+									isDropdownOpen = false;
+								}}
+								class="w-full p-4 text-left font-bold uppercase cursor-pointer transition-all duration-100 ease-in-out hover:bg-accent hover:text-black hover:translate-x-[2px] hover:shadow-none border-b border-black last:border-b-0 active:translate-x-[2px] active:shadow-none {sortBy === sortOption.value ? 'bg-accent text-black shadow-none translate-x-[2px]' : 'bg-white text-black'}"
+							>
+								{sortOption.label}
+							</button>
+						{/each}
+					</div>
+				{/if}
+			</div>
+			<Button
+				onclick={toggleSortOrder}
+				variant="outline"
+				size="md"
+				shadow="md"
+				class="flex items-center gap-1"
+			>
+				{#if sortOrder === 'asc'}
+					<ArrowUp class="size-4" />
+					<span>Asc</span>
+				{:else}
+					<ArrowDown class="size-4" />
+					<span>Desc</span>
+				{/if}
+			</Button>
+		</div>
 		<MultipleSelect bind:sortFilter sortPosition={sortByPosition} />
 	</div>
 
