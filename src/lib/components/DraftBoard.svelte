@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { getDraftState } from '$lib/globalState/draftState.svelte';
-	import { getDraftSystem } from '$lib/globalState/prospectsState.svelte';
-	import { getCurrentUser } from '$lib/globalState/userState.svelte';
+	import { getDraftState } from '$lib/global-state/draft-state.svelte';
+	import { getDraftSystem } from '$lib/global-state/prospect-state.svelte';
+	import { getCurrentUser } from '$lib/global-state/user-state.svelte';
 	import Close from '$lib/icons/Close.svelte';
-	import type { DraftBoard, Prospect } from '$lib/types';
+	import type { Prospect } from '$lib/types';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
 	import { Popover } from 'flowbite-svelte';
@@ -11,6 +11,7 @@
 	import { fade } from 'svelte/transition';
 	import { seedDb } from '$lib/helpers/seed-db';
 	import { submitDraftBoard } from '$lib/helpers/submit-draft-board';
+	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
 
 	let {draftType, nhlBoard}: {
 		draftType: 'user' | 'nhl';
@@ -28,6 +29,13 @@
 
 	function removeProspect(prospect: Prospect, position: number) {
 		draftSystem.removeProspectFromBoard(prospect, position);
+		
+		// Update draft state and localStorage (same as in ProspectCard)
+		draftState.updateDraftStatus(false);
+
+		if(!currentUser.user){
+			localStorage.setItem('draftBoard', JSON.stringify(draftboardToMap(draftSystem.draftBoard)));
+		}
 	}
 
 	function seed() {
@@ -71,7 +79,8 @@
 			<Button onclick={() => submitDraftBoard({
 				draftboard: draftSystem.draftBoard,
 				user: currentUser.user,
-				draftState
+				draftState,
+				draftSystem
 			})} 
 			id='submit-draft'
 			class='rotate-[1.5deg] text-lg'

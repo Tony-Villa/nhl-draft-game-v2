@@ -1,12 +1,13 @@
 <script lang="ts">
-	import { getDraftSystem } from '$lib/globalState/prospectsState.svelte';
-	import { getCurrentUser } from '$lib/globalState/userState.svelte';
+	import { getDraftSystem } from '$lib/global-state/prospect-state.svelte';
+	import { getCurrentUser } from '$lib/global-state/user-state.svelte';
 	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
+	import { cmToFeetInches, isHeightInCm } from '$lib/helpers/height-conversion';
 
 	import type { DraftBoard, Prospect } from '$lib/types';
 	import Card from './Card.svelte';
 	import * as Dialog from "$lib/components/ui/dialog/index.js";
-	import { getDraftState } from '$lib/globalState/draftState.svelte';
+	import { getDraftState } from '$lib/global-state/draft-state.svelte';
 	import { buttonOptions } from './Button.options';
 
 	const draftSystem = getDraftSystem();
@@ -16,8 +17,33 @@
 	let {
 		prospect
 	}: {
-		prospect: Prospect;
+		prospect: Prospect & { isDrafted?: boolean; isTemporary?: boolean; isPermanent?: boolean };
 	} = $props();
+
+	// Check if prospect is drafted (use passed-in status since it's calculated reactively in ProspectContainer)
+	const isDrafted = $derived.by(() => {
+		// Access the reactive sets to trigger reactivity
+		draftSystem.temporaryDraftedIds.size;
+		draftSystem.permanentDraftedIds.size;
+		
+		// Always check the draft system directly for most up-to-date status
+		const drafted = prospect.id ? draftSystem.isDrafted(prospect.id) : false;
+		
+		return drafted;
+	});
+	const isTemporary = $derived.by(() => {
+		// Access the reactive sets to trigger reactivity
+		draftSystem.temporaryDraftedIds.size;
+		
+		// Always check the draft system directly for most up-to-date status
+		return prospect.id ? draftSystem.isTemporarilyDrafted(prospect.id) : false;
+	});
+
+	// Format height for display
+	const formattedHeight = isHeightInCm(prospect.height) ? cmToFeetInches(prospect.height) : prospect.height;
+
+
+	let dialogOpen = $state(false);
 
 	function draft(prospect: Prospect, draftPosition: number) {
 		draftSystem.addProspectToBoard(prospect, draftPosition);
@@ -27,50 +53,96 @@
 		if(!currentUser.user){
 			localStorage.setItem('draftBoard', JSON.stringify(draftboardToMap(draftSystem.draftBoard)));
 		}
+
+		// Close the dialog after drafting
+		dialogOpen = false;
+	}
+
+	function undraft(prospect: Prospect) {
+		// Find which position this prospect is drafted to
+		const draftedPosition = draftSystem.draftBoard.find(cell => cell.prospect?.id === prospect.id);
+		if (draftedPosition) {
+			draftSystem.removeProspectFromBoard(prospect, draftedPosition.draftPosition);
+			
+			draftState.updateDraftStatus(false);
+
+			if(!currentUser.user){
+				localStorage.setItem('draftBoard', JSON.stringify(draftboardToMap(draftSystem.draftBoard)));
+			}
+		}
 	}
 </script>
 
-<Dialog.Root>
-	<Card size='md'>
-		<div class={`prospect-card relative flex flex-col content-between gap-2 pb-4 px-4`}>
-
+<Dialog.Root bind:open={dialogOpen}>	<Card size='md' class={isDrafted ? 'border-dashed border-gray-500 bg-gray-50 opacity-50' : ''}>
+		<div class="prospect-card relative flex flex-col h-full content-between gap-2 pb4 px-4">
+			<!-- Header -->
 			<div class="prospect-header flex justify-between mb-[15px] border-black border-b-[3px] pb-[10px]">
 				<p class="text-lg font-extrabold uppercase">
 					{prospect?.rank !== '-' ? 'Rank: ' + prospect?.rank : 'NR'}
 				</p>
 
-				<div class="inline-block px-[10px] py-[5px] font-extrabold text-lg border-black border-[3px]">
-					<p>
-						{#if prospect?.position === "D" || prospect?.position === "F"}
-							{prospect?.shoots}{prospect?.position}
-						{:else}
-							{prospect?.position}
-						{/if}
-					</p>
+				<div class="flex gap-2">
+					{#if isDrafted}
+						<div class="flex items-center  px-[8px] py-[3px] font-extrabold text-sm border-dashed border-[2px] border-gray-500 text-gray-600 bg-red-400 ">
+							<p>DRAFTED</p>
+						</div>
+					{/if}
+					<div class="inline-block px-[10px] py-[5px] font-extrabold text-lg border-black border-[3px]">
+						<p>
+							{#if prospect?.position === "D" || prospect?.position === "F"}
+								{prospect?.shoots}{prospect?.position}
+							{:else}
+								{prospect?.position}
+							{/if}
+						</p>
+					</div>
 				</div>
 			</div>
 
-			<div class="prospect-name text-2xl font-extrabold mb-[5px] uppercase">
-				<p>
-					{prospect?.name}
-				</p>	
-			</div>
+			<!-- Content -->
+			<div class="flex-1 flex flex-col">
+				<div class="prospect-name text-2xl font-extrabold mb-[5px] uppercase">
+					<p>
+						{prospect?.name}
+					</p>	
+				</div>
 
-			<div class="prospect-team font-bold mb-[15px] bg-black text-white px-2 py-[3px] -skew-x-3">
-				<p>{prospect?.team} - {prospect?.league}</p>
-			</div>
-
-			<div class="prospect-details flex flex-wrap gap-[15px] mt-[15px] border-t-2 border-black border-dashed pt-[15px]">
-				{@render prospectStat(prospect?.height, 'Height')}
-				{@render prospectStat(prospect?.weight, 'Weight')}
-				{@render prospectStat(prospect?.birthDay, 'DOB')}
+				<div class="prospect-team font-bold mb-[15px] bg-black text-white px-2 py-[3px] -skew-x-3">
+					<p>{prospect?.team} - {prospect?.league}</p>
+				</div>
+				
+				<div class="prospect-details flex flex-wrap gap-[15px] mt-[15px] border-t-2 border-black border-dashed pt-[15px]">
+					{@render prospectStat(formattedHeight, 'Height')}
+					{@render prospectStat(prospect?.weight, 'Weight')}
+					{@render prospectStat(prospect?.birthDay, 'DOB')}
+				</div>
 			</div>
 			
-			<Dialog.Trigger class={buttonOptions({class: 'w-[60%] mt-[15px]'})}>
-				draft
-			</Dialog.Trigger>
-
-
+			<!-- Button at bottom -->
+			<div class="flex justify-center mt-4">
+				{#if isDrafted}
+					<!-- Show "Undraft" button for drafted players -->
+					<button
+						class={buttonOptions({
+							class: 'w-[60%]',
+							variant: 'outline'
+						})}
+						onclick={() => undraft(prospect)}
+					>
+						Undraft
+					</button>
+				{:else}
+					<!-- Show normal "Draft" button -->
+					<Dialog.Trigger 
+						class={buttonOptions({
+							class: 'w-[60%]',
+							variant: 'primary'
+						})}
+					>
+						Draft
+					</Dialog.Trigger>
+				{/if}
+			</div>
 		</div>
 	</Card>
 	

@@ -6,10 +6,10 @@
 	import HeadToHead from '$lib/components/HeadToHead.svelte';
 	import Countdown from '$lib/components/Countdown.svelte';
 
-	import { getDraftState } from '$lib/globalState/draftState.svelte';
-	import { getDraftSystem, setDraftSystem } from '$lib/globalState/prospectsState.svelte';
-	import { getCurrentUser, setCurrentUser } from '$lib/globalState/userState.svelte';
-	import { setDraftState } from '$lib/globalState/draftState.svelte';
+	import { getDraftState } from '$lib/global-state/draft-state.svelte';
+	import { getDraftSystem, setDraftSystem } from '$lib/global-state/prospect-state.svelte';
+	import { getCurrentUser, setCurrentUser } from '$lib/global-state/user-state.svelte';
+	import { setDraftState } from '$lib/global-state/draft-state.svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { format, isAfter, } from 'date-fns';
 	import Header from '$lib/components/Header.svelte';
@@ -45,7 +45,6 @@
 
 
 	// function checkForLocalDraftBoard() {
-	// 	console.log('Check for local draft board')
 	// 	if(globalThis) {
 	// 		const localStorageDraft = JSON.parse(localStorage.getItem('draftBoard') || '{}')
 	
@@ -82,7 +81,6 @@
 	// })
 
 	$effect(() => {
-		// console.log(data.game.gamePhase);
 		// setDraftState(data.game.gamePhase)
 		// if(data.game.gamePhase !== draftState.currentState) {
 			draftState.currentState = data.game.gamePhase
@@ -99,17 +97,11 @@
 			if(nhlDraftBoardLength <= 31){
 
 				const interval = setInterval(() => {
-					// console.log('before refresh: ', nhlDraftBoardLength);
 					refresh()
 
 					draftState.currentNhlDraft = data.nhlBoard.filter((x: any) => x?.prospect?.name).length
 
 					draftSystem.nhlDraftBoard = data.nhlBoard
-
-
-					// console.log('After refresh: ', data.nhlBoard.filter((x: any) => x?.prospect?.name).length);
-					// console.log('After refresh NHL BOARD: ', data.nhlBoard);
-					
 
 					const totalPoints = draftSystem.computePoints()
 					userState.points = totalPoints
