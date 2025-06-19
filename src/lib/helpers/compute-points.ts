@@ -25,8 +25,6 @@ export function computePoints(user, nhl) {
       continue
     } 
 
-    // console.log('inside nhl loop: ', nhl[i]);
-    
     if(nhl[i].prospect) {
       tempProspectCompare[nhl[i].prospect as string] = {...tempProspectCompare[nhl[i].prospect as string], nhl: nhl[i].positionDrafted }
     }
@@ -44,9 +42,6 @@ export function computePoints(user, nhl) {
     }
   }
 
-  // console.log(tempProspectCompare);
-
-  
   return {
     userId,
     score: user.reduce((acc,d) => acc + (d.points || 0), 0)

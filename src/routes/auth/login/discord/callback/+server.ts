@@ -14,7 +14,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const storedState = event.cookies.get('discord_oauth_state') ?? null;
 
 	if (!code || !state || !storedState || state !== storedState) {
-		console.log('Invalid OAuth state or code verifier');
+		console.log('Auth error: Invalid OAuth state or code verifier');
 		return new Response('Invalid OAuth state or code verifier', {
 			status: 400
 		});
@@ -107,7 +107,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		);
 		
 	} catch (e) {
-		console.error('error: ', e);
+		console.error('Discord OAuth callback error:', e);
 		// the specific error message depends on the provider
 		if (e instanceof OAuth2RequestError) {
 			// invalid code

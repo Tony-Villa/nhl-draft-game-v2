@@ -53,6 +53,6 @@ export async function getDraftBoardOrder() {
     return draftBoard
     
   } catch (error) {
-    console.error('ERROR in tankathon scrape: ', error);
+    console.error('Error in tankathon scrape:', error);
   }
 }

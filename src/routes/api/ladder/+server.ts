@@ -18,13 +18,6 @@ export async function GET({url}) {
       year: games.year
     }).from(scores).leftJoin(users, eq(users.id, scores.userId)).leftJoin(games, eq(games.id, scores.gameId)).where(eq(games.year, year)).orderBy(desc(scores.score)).limit(10)
 
-
-    // console.log({
-    //   year,
-    //   ladder
-    // })
-
-
 		return new Response(JSON.stringify(ladder), {
       "headers": {
         "Content-Type" : "application/json"

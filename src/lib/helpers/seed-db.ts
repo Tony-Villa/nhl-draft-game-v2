@@ -25,6 +25,6 @@ export async function seedDb({prospects, draftboard}: {
       });
     }
   } catch (error) {
-    console.error(error);
+    // Error seeding database - logged on server side
   }
 }

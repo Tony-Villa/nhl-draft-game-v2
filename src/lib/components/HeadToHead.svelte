@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { getDraftSystem } from '$lib/globalState/prospectsState.svelte';
+  import { getDraftSystem } from '$lib/global-state/prospect-state.svelte';
 	import { fade } from 'svelte/transition';
 	import Card from "./Card.svelte";
-	import { getDraftState } from '$lib/globalState/draftState.svelte';
+	import { getDraftState } from '$lib/global-state/draft-state.svelte';
 	import { compareString } from '$lib/helpers/compare-strings';
 
   const draftSystem = getDraftSystem();
@@ -19,7 +19,7 @@
     if(draftSystem?.nhlDraftBoard[currentDraftPosition]?.prospect?.name ){
       const draftPos = Math.min(currentPick, 31)
       let totalPoints = draftSystem.computePoints()
-      console.log(totalPoints);
+      // User head-to-head comparison
   
       const timeout = setTimeout(() => {
         currentDraftPosition = draftPos

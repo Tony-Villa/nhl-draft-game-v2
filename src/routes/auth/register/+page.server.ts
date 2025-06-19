@@ -66,7 +66,7 @@ export const actions: Actions = {
 
 			await createAndSetSession(lucia, userId, cookies);
 		} catch (error) {
-			console.error(error);
+			console.error('Registration error:', error);
 
 			return message(registerUserFormData, {
 				alertType: 'error',

@@ -32,24 +32,6 @@ export async function GET() {
     //   if(d.length > 0){
     //     const {userId, score} = computePoints(d, officialDraft)
   
-    //     return {
-    //       userId,
-    //       score
-    //     }
-    //   } else {
-    //     console.log('score list issue, maybe no draft? ', d);
-    //   }
-    // })
-
-    // console.log(scoreList);
-
-    // await Promise.all(scoreList.map(async user => {
-    //   if(user?.userId) {
-    //     await db.update(scores).set({score: user.score}).where(eq(scores.userId, user?.userId))
-    //   }
-    // }))
-
-
 		return new Response(JSON.stringify({dope: 'yeah'}), {
       "headers": {
         "Content-Type" : "application/json"

@@ -135,7 +135,7 @@ export const GET = async (event : RequestEvent) => {
 				}
 		});
 	} catch (error) {
-		console.error(error);
+		console.error('Google OAuth callback error:', error);
 
 		// the specific error message depends on the provider
 		if (error instanceof OAuth2RequestError) {

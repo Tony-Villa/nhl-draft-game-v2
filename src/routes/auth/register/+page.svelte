@@ -14,11 +14,11 @@
 			const { alertType, alertText } = $message;
 
 			if (alertType === 'success') {
-				console.log(alertText);
+				// Registration successful
 			}
 
 			if (alertType === 'error') {
-				console.log(alertText);
+				// Registration error
 			}
 		}
 	});
