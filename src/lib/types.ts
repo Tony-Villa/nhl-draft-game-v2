@@ -1,4 +1,5 @@
 export interface Prospect {
+	id?: string; // Prospect ID for tracking (matches DB type)
 	rank: string;
 	name: string | undefined;
 	position: string | undefined;
@@ -9,7 +10,6 @@ export interface Prospect {
 	height: string;
 	weight: string;
 	shoots: string;
-	drafted: boolean;
 }
 
 export interface DraftBoard {
