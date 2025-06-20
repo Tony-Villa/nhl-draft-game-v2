@@ -1,3 +1,12 @@
+<script>
+  import DevAdminPanel from '$lib/components/DevAdminPanel.svelte';
+  import DataVizDemo from '$lib/components/DataVizDemo.svelte';
+</script>
+
+<DevAdminPanel />
+
+<DataVizDemo />
+
 <h1>Welcome to Drafting Game V2</h1>
 
 

@@ -19,7 +19,9 @@
 		"db:migrate": "drizzle-kit migrate",
 		"db:pull": "drizzle-kit pull:sqlite",
 		"db:studio": "drizzle-kit studio",
-		"db:local-run": "turso dev --db-file local.db"
+		"db:local-run": "turso dev --db-file local.db",
+		"seed": "node scripts/seed-data.js",
+		"seed:help": "node scripts/seed-data.js --help"
 	},
 	"devDependencies": {
 		"@lucide/svelte": "^0.482.0",
