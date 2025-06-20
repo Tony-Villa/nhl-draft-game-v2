@@ -147,7 +147,7 @@
 		</div>
 	</Card>
 	
-	<Dialog.Content class="max-w-[90%] md:max-w-[70%] rounded-none md:rounded-none shadow-button-shadow md:shadow-button-shadow">
+	<Dialog.Content class="max-w-[90%] md:max-w-[50%] rounded-none md:rounded-none shadow-button-shadow md:shadow-button-shadow">
 		<Dialog.Header class='md:mx-auto'>
       <Dialog.Title>
 				<h2 class="text-center self-center text-black font-extrabold text-[20px] md:text-[28px] h-6 md:h-8 mb-2 pb-0">
