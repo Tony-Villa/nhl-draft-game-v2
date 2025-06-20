@@ -3,6 +3,7 @@
 	import type { PositionFilter } from '$lib/types';
 	import MultipleSelect from './MultipleSelect.svelte';
 	import ProspectCard from './ProspectCard.svelte';
+	import ProspectCardSkeleton from './ProspectCardSkeleton.svelte';
 	import Searchbar from './Searchbar.svelte';
 	import { fetchProspects, type ProspectsResponse } from '$lib/helpers/fetch-prospects';
 
@@ -13,6 +14,7 @@
   import * as Pagination from "$lib/components/ui/pagination/index.js";
 	import Button from './Button.svelte';
 	import { buttonOptions } from './Button.options';
+	import { dev } from '$app/environment';
 
 	const prospectSystem = getDraftSystem();
 
@@ -296,8 +298,10 @@
 	</div>
 
 	{#if isLoading}
-		<div class="flex justify-center items-center py-8">
-			<div class="text-lg font-bold">Loading prospects...</div>
+		<div class="mb-12 grid grid-cols-1 md:grid-cols-2 justify-between gap-6 md:justify-start">
+			{#each Array(12) as _, i}
+				<ProspectCardSkeleton />
+			{/each}
 		</div>
 	{:else}
 		<div class="mb-12 grid grid-cols-1 md:grid-cols-2 justify-between gap-6 md:justify-start">
@@ -308,6 +312,7 @@
 			{#if displayProspects.length === 0}
 				<div class="col-span-full text-center py-8">
 					<p class="text-lg font-bold">No prospects found</p>
+					{#if dev} 
 					<p class="text-sm text-gray-600">
 						API Response: {prospectsResponse.prospects.length} prospects
 						<br>
@@ -315,6 +320,7 @@
 						<br>
 						Total: {prospectsResponse.pagination.totalCount}
 					</p>
+					{/if}
 				</div>
 			{/if}
 		</div>
