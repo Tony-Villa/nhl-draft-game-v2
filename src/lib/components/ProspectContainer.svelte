@@ -52,6 +52,12 @@
 		}
 	});
 
+	let innerWidth = $state(0);
+	let shouldtakeHalfScreen = $derived.by(() => {
+			return innerWidth < 1250 && innerWidth > 768
+		})
+
+
 	let derivedPositionFilter = $derived.by(() => {
 		let p = [...positions];
 		
@@ -228,9 +234,11 @@
 	});
 </script>
 
+
+<svelte:window bind:innerWidth />
 <div class={`
 	max-h-fit overflow-auto p-6 bg-white border-black border-[5px] relative mb-7 min-h-dvh md:shadow-section-shadow md:rotate-[0.3deg]
-	max-w-[880px] 
+	${shouldtakeHalfScreen ? "max-w-[60%]" : "max-w-[880px]"} 
 	flex flex-[4] flex-col flex-wrap gap-2 pb-4`
 }>
 
@@ -298,13 +306,13 @@
 	</div>
 
 	{#if isLoading}
-		<div class="mb-12 grid grid-cols-1 md:grid-cols-2 justify-between gap-6 md:justify-start">
+		<div class={`mb-12 grid ${innerWidth < 1001 ? 'grid-cols-1 justify-center' : 'grid-cols-2'} justify-between gap-6`}>
 			{#each Array(12) as _, i}
 				<ProspectCardSkeleton />
 			{/each}
 		</div>
 	{:else}
-		<div class="mb-12 grid grid-cols-1 md:grid-cols-2 justify-between gap-6 md:justify-start">
+		<div class={`mb-12 grid ${innerWidth < 1001 ? 'grid-cols-1 mx-auto' : 'grid-cols-2'} justify-between gap-6`}>
 			{#each displayProspects as prospect}
 				<ProspectCard {prospect} />
 			{/each}
