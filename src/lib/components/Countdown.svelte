@@ -12,11 +12,6 @@
 
   let secondsRemaining = $state(differenceInSeconds(end, now))
 
-  // let d = $derived(Math.floor(secondsRemaining / (24*60*60)))
-  // let h = $derived(Math.floor(secondsRemaining / 3600));
-  // let m = $derived(Math.floor((secondsRemaining - h * 3600) / 60))
-  // let s = $derived(secondsRemaining - h * 3600 - m * 60)
-
   let {days, hours, minutes ,seconds} = $derived(convertSecToDHMS(secondsRemaining))
 
   function convertSecToDHMS(secondsRemaining: number) {
@@ -64,9 +59,9 @@ function zeroPad(n: number | string) {
 </script>
 
 {#if secondsRemaining > 0}
-  <div class="border-black border-2 rounded-xl shadow-brut-shadow max-w-fit px-4 py-2 bg-orange-100 mx-auto">
-    <h2 class="font-bold text-sm mb-1">{heading}</h2>
-    <div class="flex gap-2 justify-center font-bold text-3xl border-black border-2 bg-blue-200 rounded-md p-4">
+  <div class="bg-white border-black border-[3px] shadow-brut-shadow max-w-fit p-4 mx-auto">
+    <h2 class="font-extrabold text-sm mb-3 uppercase">{heading}</h2>
+    <div class="flex gap-3 justify-center font-extrabold text-3xl bg-accent border-black border-[3px]  p-4">
       {@render CountdownSection(days, 'days')}
       {@render CountdownClockSeparator()}
       {@render CountdownSection(hours, 'hours')}
@@ -80,16 +75,16 @@ function zeroPad(n: number | string) {
 {/if}
 
 {#snippet CountdownClockSeparator()}
-  <h2 class="font-bold text-3xl">
+  <h2 class="font-extrabold text-3xl text-black">
     :
   </h2>
 {/snippet}
     
-{#snippet CountdownSection(t, label)}
-  <div class="flex flex-col">
-    <h2 class="font-bold text-3xl">
+{#snippet CountdownSection(t: number, label: string)}
+  <div class="flex flex-col items-center">
+    <h2 class="font-extrabold text-3xl text-black">
       {zeroPad(t)}
     </h2>
-    <p class="text-xs">{label}</p>
+    <p class="text-xs font-extrabold uppercase text-black">{label}</p>
   </div>
 {/snippet}
