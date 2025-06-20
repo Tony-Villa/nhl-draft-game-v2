@@ -32,14 +32,6 @@ const config = withTV({
 				"offWhite": "#f2f2f2",
 				"gray": "#888888",
 
-				// primary: {
-				// 	DEFAULT: "hsl(var(--primary) / <alpha-value>)",
-				// 	foreground: "hsl(var(--primary-foreground) / <alpha-value>)"
-				// },
-				// secondary: {
-				// 	DEFAULT: "hsl(var(--secondary) / <alpha-value>)",
-				// 	foreground: "hsl(var(--secondary-foreground) / <alpha-value>)"
-				// },
 				destructive: {
 					DEFAULT: "hsl(var(--destructive) / <alpha-value>)",
 					foreground: "hsl(var(--destructive-foreground) / <alpha-value>)"
@@ -48,10 +40,6 @@ const config = withTV({
 					DEFAULT: "hsl(var(--muted) / <alpha-value>)",
 					foreground: "hsl(var(--muted-foreground) / <alpha-value>)"
 				},
-				// accent: {
-				// 	DEFAULT: "hsl(var(--accent) / <alpha-value>)",
-				// 	foreground: "hsl(var(--accent-foreground) / <alpha-value>)"
-				// },
 				popover: {
 					DEFAULT: "hsl(var(--popover) / <alpha-value>)",
 					foreground: "hsl(var(--popover-foreground) / <alpha-value>)"
