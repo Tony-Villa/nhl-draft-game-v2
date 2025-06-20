@@ -73,7 +73,8 @@
 	}
 </script>
 
-<Dialog.Root bind:open={dialogOpen}>	<Card size='md' class={isDrafted ? 'border-dashed border-gray-500 bg-gray-50 opacity-50' : ''}>
+<Dialog.Root bind:open={dialogOpen}>	
+	<Card size='md' class={isDrafted ? 'border-dashed border-gray-500 bg-gray-50 opacity-50' : ''}>
 		<div class="prospect-card relative flex flex-col h-full content-between gap-2 pb4 px-4">
 			<!-- Header -->
 			<div class="prospect-header flex justify-between mb-[15px] border-black border-b-[3px] pb-[10px]">
