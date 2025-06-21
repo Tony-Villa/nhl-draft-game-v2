@@ -172,8 +172,8 @@ export const GET: RequestHandler = async ({ url, locals }) => {
         // Calculate consistency (simple version based on range)
         const range = (stats?.maxPosition || 0) - (stats?.minPosition || 0);
         let consistency: 'HIGH' | 'MEDIUM' | 'LOW' = 'HIGH';
-        if (range > 4) consistency = 'LOW';
-        else if (range > 2) consistency = 'MEDIUM';
+        if (range > 10) consistency = 'LOW';
+        else if (range > 7) consistency = 'MEDIUM';
 
         return {
           prospectId: prospect.prospectId || '',
