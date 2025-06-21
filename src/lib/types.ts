@@ -40,6 +40,7 @@ export type AlertMessageType = {
 
 // Draft Insights Types
 export interface DraftInsightProspect {
+	prospectId: string;
 	name: string;
 	position: string;
 	team: string;
@@ -50,6 +51,7 @@ export interface DraftInsightProspect {
 	mostCommonPosition: number;
 	consistency: 'HIGH' | 'MEDIUM' | 'LOW';
 	heatmapData: Record<number, number>;
+	userDraftedAt?: number; // Position where user drafted this prospect, if any
 }
 
 export interface DraftInsightsResponse {
