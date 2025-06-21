@@ -64,8 +64,30 @@ export const GET: RequestHandler = async ({ url }) => {
 
     const topProspectIds = topProspectsAtPosition.map(p => p.prospectId).filter(Boolean);
 
-    // Get position distribution for these prospects
-    const positionDistribution = await db
+    // Create a 7-position window centered around the target position
+    // 3 positions before, target position, 3 positions after
+    const windowMinPosition = Math.max(1, position - 3); // Don't go below pick 1
+    const windowMaxPosition = Math.min(32, position + 3); // Assuming 32 picks max (adjust as needed)
+
+    // Get position distribution for these prospects (only within the window for heatmap)
+    const windowPositionDistribution = await db
+      .select({
+        prospectId: drafts.prospectId,
+        positionDrafted: drafts.positionDrafted,
+        countAtPosition: count(drafts.id).as('count_at_position')
+      })
+      .from(drafts)
+      .where(and(
+        eq(drafts.gameId, gameId),
+        sql`${drafts.prospectId} IN (${sql.join(topProspectIds.map(id => sql`${id}`), sql`, `)})`,
+        sql`${drafts.positionDrafted} >= ${windowMinPosition}`,
+        sql`${drafts.positionDrafted} <= ${windowMaxPosition}`
+      ))
+      .groupBy(drafts.prospectId, drafts.positionDrafted)
+      .orderBy(drafts.prospectId, drafts.positionDrafted);
+
+    // Get all position distribution for these prospects (for most common position calculation)
+    const allPositionDistribution = await db
       .select({
         prospectId: drafts.prospectId,
         positionDrafted: drafts.positionDrafted,
@@ -97,18 +119,28 @@ export const GET: RequestHandler = async ({ url }) => {
     // Process the data to create the final response
     const processedData = topProspectsAtPosition.map(prospect => {
       const stats = prospectStats.find(s => s.prospectId === prospect.prospectId);
-      const positions = positionDistribution.filter(p => p.prospectId === prospect.prospectId);
+      const windowPositions = windowPositionDistribution.filter(p => p.prospectId === prospect.prospectId);
       
-      // Create position heatmap data
+      // Create normalized position heatmap data for the 7-position window
       const heatmapData: Record<number, number> = {};
-      positions.forEach(pos => {
+      
+      // Initialize all positions in the window with 0
+      for (let pos = windowMinPosition; pos <= windowMaxPosition; pos++) {
+        heatmapData[pos] = 0;
+      }
+      
+      // Fill in actual values (all positions are already within our window due to query filter)
+      windowPositions.forEach(pos => {
         heatmapData[pos.positionDrafted] = pos.countAtPosition;
       });
 
-      // Find most common position
-      const mostCommonPosition = positions.reduce((prev, current) => 
-        current.countAtPosition > prev.countAtPosition ? current : prev
-      );
+      // Find most common position (from all positions, not just window)
+      const allPositions = allPositionDistribution.filter(p => p.prospectId === prospect.prospectId);
+      const mostCommonPosition = allPositions.length > 0 
+        ? allPositions.reduce((prev, current) => 
+            current.countAtPosition > prev.countAtPosition ? current : prev
+          )
+        : { positionDrafted: position };
 
       // Calculate consistency (simple version based on range)
       const range = (stats?.maxPosition || 0) - (stats?.minPosition || 0);
@@ -124,7 +156,7 @@ export const GET: RequestHandler = async ({ url }) => {
         targetPositionCount: prospect.targetPositionCount,
         avgPosition: stats?.avgPosition || 0,
         draftRange: `${stats?.minPosition || 0}-${stats?.maxPosition || 0}`,
-        mostCommonPosition: mostCommonPosition?.positionDrafted || position,
+        mostCommonPosition: mostCommonPosition.positionDrafted,
         consistency,
         heatmapData
       };
