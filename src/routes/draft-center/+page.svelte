@@ -14,6 +14,7 @@
 	import { format, isAfter, } from 'date-fns';
 	import Header from '$lib/components/Header.svelte';
 	// import { PUBLIC_WEB_SOCKET } from '$env/static/public';
+	import DataVizSidebar from '$lib/components/DataVizSidebar.svelte';
 
 	let { children, data }: {
 		children: any;
@@ -32,6 +33,13 @@
 	const userState = getCurrentUser();
 
 	let nhlDraftBoardLength = $state(data.nhlBoard.filter((x: any) => x?.prospect?.name).length)
+	
+	// Calculate next available pick position
+	const nextAvailablePickPosition = $derived(() => {
+		// Find the first position without a prospect
+		const nextPosition = draftSystem.draftBoard.find(cell => !cell.prospect);
+		return nextPosition ? nextPosition.draftPosition : 1;
+	});
 
 
 	// TODO: figure out local storage for unsubmitted drafts or users that haven't logged in yet.
@@ -139,6 +147,8 @@
 					</div>
 				</Countdown>
 			</div>
+
+			<DataVizSidebar position={nextAvailablePickPosition()} gameId={data.game.id?.toString() || '2'} />
 		{/if}
 	{/if}
 	
