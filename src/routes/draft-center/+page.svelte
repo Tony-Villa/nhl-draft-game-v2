@@ -15,6 +15,7 @@
 	import Header from '$lib/components/Header.svelte';
 	// import { PUBLIC_WEB_SOCKET } from '$env/static/public';
 	import DataVizSidebar from '$lib/components/DataVizSidebar.svelte';
+	import { env } from '$env/dynamic/public';
 
 	let { children, data }: {
 		children: any;
@@ -147,7 +148,9 @@
 					</div>
 				</Countdown>
 				<div>
-					<DataVizSidebar position={nextAvailablePickPosition()} gameId={data.game.id?.toString() || '2'} />
+					{#if env.PUBLIC_FEATURE_DATA_VIZ === '1'}
+						<DataVizSidebar position={nextAvailablePickPosition()} gameId={data.game.id?.toString() || '2'} />
+					{/if}
 				</div>
 			</div>
 
