@@ -37,3 +37,29 @@ export type AlertMessageType = {
 	alertType: 'success' | 'error' | 'warning' | 'info';
 	alertText: string;
 };
+
+// Draft Insights Types
+export interface DraftInsightProspect {
+	prospectId: string;
+	name: string;
+	position: string;
+	team: string;
+	percentage: number;
+	targetPositionCount: number;
+	avgPosition: number;
+	draftRange: string;
+	mostCommonPosition: number;
+	consistency: 'HIGH' | 'MEDIUM' | 'LOW';
+	heatmapData: Record<number, number>;
+	userDraftedAt?: number; // Position where user drafted this prospect, if any
+}
+
+export interface DraftInsightsResponse {
+	success: boolean;
+	data?: {
+		targetPosition: number;
+		gameId: string;
+		prospects: DraftInsightProspect[];
+	};
+	error?: string;
+}

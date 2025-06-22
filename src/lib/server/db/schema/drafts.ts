@@ -22,6 +22,10 @@ export const drafts = sqliteTable(
 	(table) => {
 		return {
 			userIdIndex: index('drafts_user_id_index').on(table.userId),
+			// Performance indexes for draft insights queries
+			gamePositionIndex: index('drafts_game_position_index').on(table.gameId, table.positionDrafted),
+			gameProspectIndex: index('drafts_game_prospect_index').on(table.gameId, table.prospectId),
+			prospectPositionIndex: index('drafts_prospect_position_index').on(table.prospectId, table.positionDrafted),
 			unq: unique().on(table.userId, table.positionDrafted, table.gameId)
 		};
 	}

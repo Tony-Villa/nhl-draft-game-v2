@@ -14,6 +14,8 @@
 	import { format, isAfter, } from 'date-fns';
 	import Header from '$lib/components/Header.svelte';
 	// import { PUBLIC_WEB_SOCKET } from '$env/static/public';
+	import DataVizSidebar from '$lib/components/DataVizSidebar.svelte';
+	import { env } from '$env/dynamic/public';
 
 	let { children, data }: {
 		children: any;
@@ -32,6 +34,13 @@
 	const userState = getCurrentUser();
 
 	let nhlDraftBoardLength = $state(data.nhlBoard.filter((x: any) => x?.prospect?.name).length)
+	
+	// Calculate next available pick position
+	const nextAvailablePickPosition = $derived(() => {
+		// Find the first position without a prospect
+		const nextPosition = draftSystem.draftBoard.find(cell => !cell.prospect);
+		return nextPosition ? nextPosition.draftPosition : 1;
+	});
 
 
 	// TODO: figure out local storage for unsubmitted drafts or users that haven't logged in yet.
@@ -129,7 +138,7 @@
 
 	{#if draftState.isDraftDaySet}
 		{#if isAfter(new Date(data.game.startDate), Date.now())}
-			<div class="text-center mb-6">
+			<div class="flex flex-col text-center mb-6 gap-3">
 				<Countdown heading="NHL Draft starts in:" endTime={data.game.startDate}>
 					<div class="flex flex-col mt-2 leading-tight">
 						<small>Note: Your draft will lock 16 hours<br/> before the official nhl draft</small>
@@ -138,7 +147,13 @@
 						</small>
 					</div>
 				</Countdown>
+				<div>
+					{#if env.PUBLIC_FEATURE_DATA_VIZ === '1'}
+						<DataVizSidebar position={nextAvailablePickPosition()} gameId={data.game.id?.toString() || '2'} />
+					{/if}
+				</div>
 			</div>
+
 		{/if}
 	{/if}
 	
