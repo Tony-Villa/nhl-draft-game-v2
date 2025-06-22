@@ -7,7 +7,7 @@ export const users = sqliteTable('user', {
 	avatarUrl: text('avatar_url'),
 	email: text('email').notNull(),
 	password: text('password'),
-	keys: text('keys').notNull(),
+	keys: text('keys', {mode: 'json'}).$type<string[]>().notNull(),
 	createdAt: text('created_at')
 		.notNull()
 		.default(sql`(CURRENT_TIMESTAMP)`)

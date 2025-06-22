@@ -30,40 +30,87 @@ export const GET = async (event : RequestEvent) => {
 	const storedState = event.cookies.get(GOOGLE_OAUTH_STATE_COOKIE_NAME);
 	const storedCodeVerifier = event.cookies.get(GOOGLE_OAUTH_CODE_VERIFIER_COOKIE_NAME);
 
+	console.log('[Google OAuth] Starting callback process', {
+		hasCode: !!code,
+		hasState: !!state,
+		hasStoredState: !!storedState,
+		hasCodeVerifier: !!storedCodeVerifier,
+		stateMatch: state === storedState,
+		codeLength: code?.length || 0
+	});
+
 	// Validate OAuth state and code verifier
 	if (!code || !state || !storedState || !storedCodeVerifier || state !== storedState) {
+		console.error('[Google OAuth] Invalid OAuth parameters', {
+			hasCode: !!code,
+			hasState: !!state,
+			hasStoredState: !!storedState,
+			hasCodeVerifier: !!storedCodeVerifier,
+			stateMatch: state === storedState,
+			codeLength: code?.length || 0
+		});
 		return new Response('Invalid OAuth state or code verifier', {
 			status: 400
 		});
 	}
 
 	try {
+		console.log('[Google OAuth] Validating authorization code...');
 		const tokens = await googleOauth.validateAuthorizationCode(code, storedCodeVerifier);
+		console.log('[Google OAuth] Authorization code validated successfully');
 
+		console.log('[Google OAuth] Fetching user data from Google API...');
 		const googleUserResponse = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
 			headers: {
 				Authorization: `Bearer ${tokens.accessToken}`
 			}
 		});
 
+		if (!googleUserResponse.ok) {
+			console.error('[Google OAuth] Failed to fetch user data from Google API', {
+				status: googleUserResponse.status,
+				statusText: googleUserResponse.statusText
+			});
+			throw new Error(`Google API error: ${googleUserResponse.status}`);
+		}
+
 		const googleUser = (await googleUserResponse.json()) as GoogleUser;
+		console.log('[Google OAuth] Google user data received', {
+			sub: googleUser.sub,
+			emailDomain: googleUser.email?.split('@')[1] || 'unknown',
+			name: googleUser.name,
+			emailVerified: googleUser.email_verified,
+			hasPicture: !!googleUser.picture
+		});
 
 		if (!googleUser.email) {
+			console.error('[Google OAuth] No email address provided by Google');
 			return new Response('No primary email address', {
 				status: 400
 			});
 		}
 
 		if (!googleUser.email_verified) {
+			console.error('[Google OAuth] Email not verified by Google', {
+				emailDomain: googleUser.email?.split('@')[1] || 'unknown'
+			});
 			return new Response('Unverified email', {
 				status: 400
 			});
 		}
 
+		console.log('[Google OAuth] Checking for existing user by email...');
 		// Check if the user already exists
     const [existingUser] = await db.select().from(users).where(eq(users.email, googleUser.email))
 
 		if (existingUser) {
+			console.log('[Google OAuth] Existing user found', {
+				userId: existingUser.id,
+				emailDomain: existingUser.email?.split('@')[1] || 'unknown',
+				keysCount: Array.isArray(existingUser.keys) ? existingUser.keys.length : 'unknown'
+			});
+
+			console.log('[Google OAuth] Checking for existing Google key...');
 			// Check if the user already has a Google OAuth account linked
 			const [existingKey] = await db
 			.select()
@@ -76,12 +123,13 @@ export const GET = async (event : RequestEvent) => {
 				);
 
 			if (!existingKey) {
+				console.log('[Google OAuth] No existing Google key found, linking account...');
 				// Add the 'google' auth provider to the user's authMethods list
 				const authKeys = existingUser.keys || [];
 				authKeys.push('google');
 
 				await db.transaction(async (trx) => {
-					// link discord oauth account to the existing user
+					// link google oauth account to the existing user
 					await trx.insert(keys).values({
 						providerId: 'google',
 						providerUserId: googleUser.sub,
@@ -93,14 +141,36 @@ export const GET = async (event : RequestEvent) => {
 						keys: authKeys
 					}).where(eq(users.id, existingUser.id));
 				});
+				
+				console.log('[Google OAuth] Successfully linked Google account to existing user', {
+					userId: existingUser.id,
+					totalKeysCount: authKeys.length
+				});
+			} else {
+				console.log('[Google OAuth] Existing Google key found, user already linked');
 			}
 
+			console.log('[Google OAuth] Creating session for existing user...');
 			await createAndSetSession(lucia, existingUser.id, event.cookies);
+			console.log('[Google OAuth] Session created successfully for existing user');
 		} else {
+			console.log('[Google OAuth] No existing user found, creating new user...');
 			// Create a new user and their OAuth account
 			const userId = generateId(15);
 
+			console.log('[Google OAuth] Fetching default game...');
 			const [defaultGame] = await db.select().from(games).where(eq(games.defaultGame, true))
+			
+			if (!defaultGame) {
+				console.error('[Google OAuth] No default game found in database');
+				throw new Error('No default game configured');
+			}
+
+			console.log('[Google OAuth] Creating new user with transaction...', {
+				newUserId: userId,
+				emailDomain: googleUser.email?.split('@')[1] || 'unknown',
+				defaultGameId: defaultGame.id
+			});
 
 			await db.transaction(async (trx) => {
         await trx.insert(users).values({
@@ -122,12 +192,19 @@ export const GET = async (event : RequestEvent) => {
 					userId,
 					score: 0
 				})
-
 			});
 
+			console.log('[Google OAuth] Successfully created new user and related records', {
+				userId: userId,
+				emailDomain: googleUser.email?.split('@')[1] || 'unknown'
+			});
+
+			console.log('[Google OAuth] Creating session for new user...');
 			await createAndSetSession(lucia, userId, event.cookies);
+			console.log('[Google OAuth] Session created successfully for new user');
 		}
 
+		console.log('[Google OAuth] Login process completed successfully, redirecting to /draft-center');
 		return new Response(null, {
 			status: 302,
 			headers: {
@@ -135,16 +212,24 @@ export const GET = async (event : RequestEvent) => {
 				}
 		});
 	} catch (error) {
-		console.error('Google OAuth callback error:', error);
+		console.error('[Google OAuth] Authentication error occurred:', {
+			error: error instanceof Error ? error.message : 'Unknown error',
+			stack: error instanceof Error ? error.stack : undefined,
+			type: error?.constructor?.name
+		});
 
 		// the specific error message depends on the provider
 		if (error instanceof OAuth2RequestError) {
-			// invalid code
+			console.error('[Google OAuth] OAuth2 request error - invalid code', {
+				message: error.message,
+				description: error.description
+			});
 			return new Response(null, {
 				status: 400
 			});
 		}
 
+		console.error('[Google OAuth] Unexpected server error, returning 500');
 		return new Response(null, {
 			status: 500
 		});
