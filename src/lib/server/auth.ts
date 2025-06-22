@@ -7,6 +7,7 @@ import { sessions } from './db/schema/sessions';
 import { Discord, Google } from 'arctic';
 import { DISCORD_APP_ID, DISCORD_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '$env/static/private';
 
+// @ts-ignore
 const adapter = new DrizzleSQLiteAdapter(db, sessions, users); // your adapter
 
 const discordCallback = dev ? 'http://localhost:5173/auth/login/discord/callback' : 'https://hockeydraftshowdown.com/auth/login/discord/callback';
