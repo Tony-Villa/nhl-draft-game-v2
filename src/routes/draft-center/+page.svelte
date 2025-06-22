@@ -137,7 +137,7 @@
 
 	{#if draftState.isDraftDaySet}
 		{#if isAfter(new Date(data.game.startDate), Date.now())}
-			<div class="text-center mb-6">
+			<div class="flex flex-col text-center mb-6 gap-3">
 				<Countdown heading="NHL Draft starts in:" endTime={data.game.startDate}>
 					<div class="flex flex-col mt-2 leading-tight">
 						<small>Note: Your draft will lock 16 hours<br/> before the official nhl draft</small>
@@ -146,9 +146,11 @@
 						</small>
 					</div>
 				</Countdown>
+				<div>
+					<DataVizSidebar position={nextAvailablePickPosition()} gameId={data.game.id?.toString() || '2'} />
+				</div>
 			</div>
 
-			<DataVizSidebar position={nextAvailablePickPosition()} gameId={data.game.id?.toString() || '2'} />
 		{/if}
 	{/if}
 	

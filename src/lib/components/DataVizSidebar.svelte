@@ -8,6 +8,7 @@
 	import { getCurrentUser } from '$lib/global-state/user-state.svelte';
 	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
 	import { getDraftState } from '$lib/global-state/draft-state.svelte';
+	import Button from "./Button.svelte";
 	
 	// Props
 	let { position = 7, gameId = '2' }: { position?: number; gameId?: string } = $props();
@@ -17,6 +18,23 @@
 	let loading = $state(true);
 	let error: string | null = $state(null);
 	let sheetOpen = $state(false);
+	
+	// Frozen position - locks the position when sidebar opens to prevent jumping
+	let frozenPosition = $state(position);
+	
+	// Update frozen position only when the sheet is closed
+	$effect(() => {
+		if (!sheetOpen) {
+			// When sheet is closed, allow position to update
+			frozenPosition = position;
+		}
+	});
+	
+	// Function to handle opening the sheet and freezing position
+	function openSheet() {
+		// frozenPosition is already set to current position from the effect above
+		sheetOpen = true;
+	}
 
   // let maxCount = $derived.by(() => {
   //   if (insightsData?.data?.prospects.length) {
@@ -36,15 +54,11 @@
 			loading = true;
 			error = null;
 			
-			// Build URL with userId if available
+			// Use frozen position to prevent sidebar from jumping when drafts change
 			const params = new URLSearchParams({
 				gameId,
-				position: position.toString()
+				position: frozenPosition.toString()
 			});
-			
-			if (currentUser?.user && typeof currentUser.user === 'object' && 'id' in currentUser.user) {
-				params.set('userId', currentUser.user.id as string);
-			}
 			
 			const response = await fetch(`/api/draft-insights?${params}`);
 			const data = await response.json();
@@ -52,14 +66,7 @@
 			if (data.success) {
 				insightsData = data;
 			} else {
-				// Handle specific authentication/authorization errors
-				if (response.status === 401) {
-					error = 'Please log in to see personalized draft insights';
-				} else if (response.status === 403) {
-					error = 'Unauthorized access to draft data';
-				} else {
-					error = data.error || 'Failed to load draft insights';
-				}
+				error = data.error || 'Failed to load draft insights';
 			}
 		} catch (err) {
 			error = 'Failed to load draft insights';
@@ -120,23 +127,60 @@
 			shoots: ''
 		};
 		
-		draftSystem.addProspectToBoard(prospectToDraft, position);
+		// Use frozen position to ensure consistent drafting behavior
+		draftSystem.addProspectToBoard(prospectToDraft, frozenPosition);
 		draftState.updateDraftStatus(false);
 
 		if (!currentUser?.user || !('id' in currentUser.user)) {
 			localStorage.setItem('draftBoard', JSON.stringify(draftboardToMap(draftSystem.draftBoard)));
 		}
 		
-		// Refresh insights data to update user draft status
-		fetchDraftInsights();
-		
 		// Close the sheet after drafting
 		sheetOpen = false;
 	}
+
+	// Undraft function - adapted from ProspectCard
+	function undraftProspect(prospect: DraftInsightProspect) {
+		// Find which position this prospect is drafted to
+		const draftedPosition = draftSystem.draftBoard.find(cell => cell.prospect?.id === prospect.prospectId);
+		if (draftedPosition) {
+			const prospectToUndraft: Prospect = {
+				id: prospect.prospectId,
+				name: prospect.name,
+				position: prospect.position,
+				team: prospect.team,
+				rank: '-',
+				nation: '',
+				league: '',
+				birthDay: '',
+				height: '',
+				weight: '',
+				shoots: ''
+			};
+			
+			draftSystem.removeProspectFromBoard(prospectToUndraft, draftedPosition.draftPosition);
+			draftState.updateDraftStatus(false);
+
+			if (!currentUser?.user || !('id' in currentUser.user)) {
+				localStorage.setItem('draftBoard', JSON.stringify(draftboardToMap(draftSystem.draftBoard)));
+			}
+		}
+	}
+
+	// Check if a prospect is drafted using global state (includes temporary drafts)
+	function isProspectDrafted(prospectId: string): boolean {
+		return draftSystem.isDrafted(prospectId);
+	}
+
+	// Get the position where a prospect is drafted (if any)
+	function getProspectDraftPosition(prospectId: string): number | null {
+		const draftedCell = draftSystem.draftBoard.find(cell => cell.prospect?.id === prospectId);
+		return draftedCell ? draftedCell.draftPosition : null;
+	}
 	
-	// Reactive statement to fetch data when position changes
+	// Reactive statement to fetch data when frozen position or gameId changes
 	$effect(() => {
-		if (position || gameId) {
+		if (frozenPosition || gameId) {
 			fetchDraftInsights();
 		}
 	});
@@ -151,11 +195,16 @@
 
 <svelte:window bind:innerWidth />
 <Sheet.Root bind:open={sheetOpen}>
-	<Sheet.Trigger class={buttonVariants({ variant: "outline" })}>
-		Draft Insights for Pick {position}
-	</Sheet.Trigger>
-	
-	<Sheet.Content side="left" class="{innerWidth > 768 ? 'w-[600px] max-w-2xl' : 'w-full'} overflow-y-auto">
+
+  <Button 
+    class={buttonOptions({ variant: "info" })}
+    onclick={openSheet}
+  >
+  Draft Insights for Pick {position}
+</Button>
+  
+  
+  <Sheet.Content side="left" class="{innerWidth > 768 ? 'w-[600px] max-w-2xl' : 'w-full'} overflow-y-auto">
     <div class="max-w-[395px] mx-auto">
 		<Sheet.Header class="space-y-2 pb-4">
 			<div class="text-black px-4 py-3 ">
@@ -181,28 +230,29 @@
 			</div>
 		{:else if insightsData?.data?.prospects.length === 0}
 			<div class="bg-gray-50 border border-gray-200 p-4">
-				<p class="text-gray-600 text-center">No draft data available for position {position}</p>
+				<p class="text-gray-600 text-center">No draft data available for position {frozenPosition}</p>
 			</div>
 		{:else if insightsData?.data}
 			<div class="space-y-6">
 				<!-- Header Section -->
 				<div class="border-2 border-black p-4 bg-white">
 					<h2 class="text-xl font-bold text-center">DRAFT POSITION RANGES</h2>
-					<p class="text-center font-bold mt-1">POSITION {position} ANALYSIS</p>
+					<p class="text-center font-bold mt-1">POSITION {frozenPosition} ANALYSIS</p>
 				</div>
 
 				<!-- Prospects List -->
 				<div class="space-y-6">
 					{#each insightsData.data.prospects as prospect, index}
-						<div class="border-2 border-black {prospect.userDraftedAt ? 'border-[3px] border-stone-500 border-dashed' :"border-[3px]"} p-5 bg-white prospect-card">
+						<div class="border-2 border-black {isProspectDrafted(prospect.prospectId) ? 'border-[3px] border-stone-500 border-dashed' :"border-[3px]"} p-5 bg-white prospect-card">
 							<!-- Prospect Header -->
 							<div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 space-y-2 sm:space-y-0">
 								<div class="flex-1">
 									<div class="flex items-center gap-3 mb-1">
-										<h3 class="text-xl font-bold {prospect.userDraftedAt ? 'text-stone-500' :"text-black"} ">{prospect.name}</h3>
-										{#if prospect.userDraftedAt}
+										<h3 class="text-xl font-bold {isProspectDrafted(prospect.prospectId) ? 'text-stone-500' :"text-black"} ">{prospect.name}</h3>
+										{#if isProspectDrafted(prospect.prospectId)}
+											{@const draftPosition = getProspectDraftPosition(prospect.prospectId)}
 											<div class="px-2 py-1 bg-accent text-sm font-bold border-[3px] border-black mr-3">
-												DRAFTED #{prospect.userDraftedAt}
+												DRAFTED #{draftPosition}
 											</div>
 										{/if}
 									</div>
@@ -221,7 +271,7 @@
 								<div class="grid grid-cols-7 gap-3 justify-center">
 									{#each Object.entries(prospect.heatmapData) as [pos, count]}
 										{@const maxCount = Math.max(...Object.values(prospect.heatmapData))}
-										{@const isTargetPosition = parseInt(pos) === position}
+										{@const isTargetPosition = parseInt(pos) === frozenPosition}
 										<div class="flex flex-col items-center">
 											<div class="text-xs font-bold mb-1 text-black">{pos}</div>
 											<div 
@@ -254,15 +304,15 @@
 							
 							<!-- Draft Button -->
 							<div class="flex justify-center">
-								{#if prospect.userDraftedAt}
+								{#if isProspectDrafted(prospect.prospectId)}
 									<button
 										class={buttonOptions({
 											class: 'w-full sm:w-[60%]',
 											variant: 'outline'
 										})}
-										disabled
+										onclick={() => undraftProspect(prospect)}
 									>
-										Already Drafted
+										Undraft
 									</button>
 								{:else}
 									<button
@@ -281,12 +331,12 @@
 				</div>
 
 				<!-- Legend -->
-				<div class="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-4">
+				<div class="bg-yellow-100 border-[3px] border-yellow-400 p-4">
 					<h4 class="text-sm font-bold text-black mb-3 uppercase tracking-wide">LEGEND:</h4>
 					<div class="flex flex-col gap-6 text-sm">
 						<div class="flex flex-col gap-2">
 							<div class="w-5 h-5 bg-orange-500 border-[3px] border-black rounded shadow-lg ring-4"></div>
-							<span class="font-medium">CURRENT PICK ({position})</span>
+							<span class="font-medium">CURRENT PICK ({frozenPosition})</span>
 						</div>
 						<div class="flex flex-col gap-2">
               <div class="flex gap-2">
