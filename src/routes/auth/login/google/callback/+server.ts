@@ -125,27 +125,48 @@ export const GET = async (event : RequestEvent) => {
 			if (!existingKey) {
 				console.log('[Google OAuth] No existing Google key found, linking account...');
 				// Add the 'google' auth provider to the user's authMethods list
-				const authKeys = existingUser.keys || [];
-				authKeys.push('google');
-
-				await db.transaction(async (trx) => {
-					// link google oauth account to the existing user
-					await trx.insert(keys).values({
-						providerId: 'google',
-						providerUserId: googleUser.sub,
-						userId: existingUser.id
-					});
-
-					// Update the user's keys list
-					await trx.update(users).set({
-						keys: authKeys
-					}).where(eq(users.id, existingUser.id));
-				});
+				// Create a new array to avoid mutating the original database result
+				const existingKeys = Array.isArray(existingUser.keys) ? existingUser.keys : [];
 				
-				console.log('[Google OAuth] Successfully linked Google account to existing user', {
-					userId: existingUser.id,
-					totalKeysCount: authKeys.length
+				// Only add 'google' if it's not already in the keys array
+				const authKeys = existingKeys.includes('google') 
+					? existingKeys 
+					: [...existingKeys, 'google'];
+				
+				console.log('[Google OAuth] Keys debug:', {
+					existingKeysType: typeof existingUser.keys,
+					existingKeysValue: existingUser.keys,
+					existingKeysIsArray: Array.isArray(existingUser.keys),
+					newAuthKeysType: typeof authKeys,
+					newAuthKeysValue: authKeys,
+					newAuthKeysIsArray: Array.isArray(authKeys),
+					googleAlreadyExists: existingKeys.includes('google'),
+					keysChanged: existingKeys.length !== authKeys.length
 				});
+
+				// Only update if keys actually changed
+				if (existingKeys.length !== authKeys.length) {
+					await db.transaction(async (trx) => {
+						// link google oauth account to the existing user
+						await trx.insert(keys).values({
+							providerId: 'google',
+							providerUserId: googleUser.sub,
+							userId: existingUser.id
+						});
+
+						// Update the user's keys list
+						await trx.update(users).set({
+							keys: authKeys
+						}).where(eq(users.id, existingUser.id));
+					});
+					
+					console.log('[Google OAuth] Successfully linked Google account to existing user', {
+						userId: existingUser.id,
+						totalKeysCount: authKeys.length
+					});
+				} else {
+					console.log('[Google OAuth] Google key already exists in user keys, skipping update');
+				}
 			} else {
 				console.log('[Google OAuth] Existing Google key found, user already linked');
 			}

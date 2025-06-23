@@ -85,8 +85,34 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 			if(!existingKey) {
 				console.log('[Discord OAuth] No existing Discord key found, linking account...');
-				const authKeys = existingUser.keys || [];
-				authKeys.push('discord');
+				
+				// Defensive validation for the keys array
+				let safeKeys: string[] = [];
+				try {
+					if (Array.isArray(existingUser.keys)) {
+						safeKeys = [...existingUser.keys];
+					} else {
+						console.warn('[Discord OAuth] Keys is not an array, using empty array');
+						safeKeys = [];
+					}
+				} catch (e) {
+					console.error('[Discord OAuth] Error processing keys, using empty array:', e);
+					safeKeys = [];
+				}
+				
+				// Only add discord if not already present
+				if (!safeKeys.includes('discord')) {
+					safeKeys.push('discord');
+				}
+				
+				console.log('[Discord OAuth] Keys validation:', {
+					originalKeysType: typeof existingUser.keys,
+					originalKeysValue: existingUser.keys,
+					safeKeysType: typeof safeKeys,
+					safeKeysValue: safeKeys,
+					safeKeysIsArray: Array.isArray(safeKeys),
+					allElementsAreStrings: safeKeys.every(k => typeof k === 'string')
+				});
 
 				await db.transaction(async (trx) => {
 					// link discord oauth account to the existing user
@@ -96,15 +122,21 @@ export async function GET(event: RequestEvent): Promise<Response> {
 						userId: existingUser.id
 					});
 
-					// Update the user's keys list
+					console.log('[Discord OAuth] About to update keys with:', {
+						keysValue: safeKeys,
+						keysType: typeof safeKeys,
+						isArray: Array.isArray(safeKeys)
+					});
+
+					// Update the user's keys list - THIS IS THE LINE THAT FAILS
 					await trx.update(users).set({
-						keys: authKeys
+						keys: safeKeys
 					}).where(eq(users.id, existingUser.id));
 				});
 				
 				console.log('[Discord OAuth] Successfully linked Discord account to existing user', {
 					userId: existingUser.id,
-					totalKeysCount: authKeys.length
+					totalKeysCount: safeKeys.length
 				});
 			} else {
 				console.log('[Discord OAuth] Existing Discord key found, user already linked');
