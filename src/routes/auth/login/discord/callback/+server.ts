@@ -57,12 +57,15 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		const discordUser: DiscordUser = await discordUserResponse.json();
 		console.log('[Discord OAuth] Discord user data received', {
 			userId: discordUser.id,
+			email: discordUser.email ? `${discordUser.email.slice(0, 3)}***` : 'No email provided',
 			emailDomain: discordUser.email?.split('@')[1] || 'unknown',
 			username: discordUser.username,
 			hasAvatar: !!discordUser.avatar
 		});
 
 		console.log('[Discord OAuth] Checking for existing user by email...');
+		console.log('[Discord OAuth] Email exists:', !!discordUser.email);
+
 		const [existingUser] = await db.select().from(users).where(eq(users.email, discordUser.email))
 
 		if (existingUser) {
