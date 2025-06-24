@@ -225,12 +225,25 @@
 
 <svelte:head>
 	<title>Hockey Draft Showdown</title>
+	<meta name="description" content="The ultimate NHL draft prediction game. Compete with friends to see who can best predict the first round." />
 
-	<meta property="og:title" content="Hockey Draft Showdown" />
-	<meta property="og:description" content="Play against friends and strangers to see who can predict the first round of the official NHL draft" />
-	<meta property="og:image" content="https://hockeydraftshowdown.com/og-image.jpg" />
-	<meta property="og:url" content="https://hockeydraftshowdown.com/draft-center" />
+	<!-- Open Graph / Facebook -->
 	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://hockeydraftshowdown.com/draft-center" />
+	<meta property="og:title" content="Hockey Draft Showdown" />
+	<meta property="og:description" content="The ultimate NHL draft prediction game. Compete with friends to see who can best predict the first round." />
+	<meta property="og:image" content="https://hockeydraftshowdown.com/og-image.jpg" />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
+	<meta property="og:image:alt" content="Hockey Draft Showdown - NHL Draft Prediction Game" />
+	<meta property="og:site_name" content="Hockey Draft Showdown" />
+
+	<!-- Twitter -->
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:url" content="https://hockeydraftshowdown.com/draft-center" />
+	<meta name="twitter:title" content="Hockey Draft Showdown" />
+	<meta name="twitter:description" content="The ultimate NHL draft prediction game. Compete with friends to see who can best predict the first round." />
+	<meta name="twitter:image" content="https://hockeydraftshowdown.com/og-image.jpg" />
 
 </svelte:head>
 
