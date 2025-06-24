@@ -225,8 +225,13 @@
 
 <svelte:head>
 	<title>Hockey Draft Showdown</title>
-	<meta name="description" content="Play against friends and strangers to see who can predict the first round of the official NHL draft">
-  <meta property="og:image" content="https://hockeydraftshowdown.com/assets/og-image.jpg" />
+
+	<meta property="og:title" content="Hockey Draft Showdown" />
+	<meta property="og:description" content="Play against friends and strangers to see who can predict the first round of the official NHL draft" />
+	<meta property="og:image" content="https://hockeydraftshowdown.com/og-image.jpg" />
+	<meta property="og:url" content="https://hockeydraftshowdown.com/draft-center" />
+	<meta property="og:type" content="website" />
+
 </svelte:head>
 
 {#snippet slider({left, right}: {left: string; right: string})}
