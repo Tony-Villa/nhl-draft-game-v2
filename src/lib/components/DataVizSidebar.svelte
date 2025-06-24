@@ -36,12 +36,12 @@
 		sheetOpen = true;
 	}
 
-  // let maxCount = $derived.by(() => {
-  //   if (insightsData?.data?.prospects.length) {
-  //     return Math.max(...insightsData.data.prospects.map(p => Math.max(...Object.values(p.heatmapData))));
-  //   }
-  //   return 0;
-  // });
+  let maxCount = $derived.by(() => {
+    if (insightsData?.data?.prospects.length) {
+      return Math.max(...insightsData.data.prospects.map(p => Math.max(...Object.values(p.heatmapData))));
+    }
+    return 0;
+  });
 	
 	// Global state
 	const draftSystem = getDraftSystem();
@@ -270,7 +270,7 @@
 							<div class="mb-6">
 								<div class="grid grid-cols-7 gap-3 justify-center">
 									{#each Object.entries(prospect.heatmapData) as [pos, count]}
-										{@const maxCount = Math.max(...Object.values(prospect.heatmapData))}
+										<!-- {@const maxCount = Math.max(...Object.values(prospect.heatmapData))} -->
 										{@const isTargetPosition = parseInt(pos) === frozenPosition}
 										<div class="flex flex-col items-center">
 											<div class="text-xs font-bold mb-1 text-black">{pos}</div>
