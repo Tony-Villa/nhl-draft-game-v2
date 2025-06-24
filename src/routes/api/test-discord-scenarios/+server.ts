@@ -5,7 +5,6 @@ import type { RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { and, eq, desc, count } from 'drizzle-orm';
 import { games, users, keys, scores, drafts } from '$lib/server/db/schema';
-import { createAndSetSession } from '$lib/server/authUtils';
 
 // Copy the helper functions from the actual callback
 const DISCORD_TEMP_EMAIL_PREFIX = 'discord-temp-';
