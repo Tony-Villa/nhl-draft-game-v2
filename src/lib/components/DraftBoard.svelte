@@ -113,22 +113,29 @@
 		<p class="font-bold md:text-lg">NHL Draft</p>
 	{/if}
 
-	<div class={`draft-card-container mb-16 flex flex-wrap justify-center gap-2 `}>
+	<div class={`draft-card-container mb-16 flex flex-wrap justify-center gap-2 -z-50 `}>
 		{#each draftBoard || [] as position}
-			<Card size="sm" class={`draft-card flex py-5 items-center ${draftBoardContainerWidth > 500 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
+			<Card size="sm" class={`draft-card -z-20 flex py-5 items-center overflow-hidden ${draftBoardContainerWidth > 500 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
 				<div class="flex items-center justify-between w-full">
 					<div  class="flex items-center ">
-						<h2 class="text-black font-extrabold text-[28px]">{position.draftPosition}</h2>
-						<div class="relative">
-							<img class="h-[50px] w-[50px] z-10" src={position.teamLogo} alt="" />
-							{#if position?.from}
-								<img class="h-6 w-6 absolute right-0 top-[64%]" src={position.from} alt=""/>
-							{/if}
+						<div class="after:content-[''] after:absolute {position?.draftPosition < 10 ? 'after:left-[35px]' : 'after:left-[50px]'} after:bottom-3 after:w-[5px] after:h-3/4 after:bg-primary">
+							<h2 class="text-black mx-auto font-extrabold text-[28px] mr-2">{position.draftPosition}</h2>
+						</div>
+						<div class="absolute -z-10 {position?.teamLogo && position.teamLogo.toLowerCase().includes('pit') && 'top-[-80px]'} ">
+							<div class="relative">
+								<img class="h-[300px] w-[300px] opacity-15 " src={position.teamLogo} alt="" />
+								{#if position?.from}
+									<img class="h-6 w-6 absolute right-0 top-[64%]" src={position.from} alt=""/>
+								{/if}
+							</div>
 						</div>
 					</div>
 					{#if position.prospect}
-					<div in:fade class='flex flex-1 justify-between items-center'>
-						<p class="ml-2 text-lg font-extrabold">{position?.prospect?.name}</p>
+					<div in:fade class='flex flex-1 justify-between items-center z-10'>
+						<div class="flex flex-col ml-3 ">
+							<p class="ml-2 text-xl font-extrabold">{position?.prospect?.name && position?.prospect?.name.split(' ')[0]}</p>
+							<p class="ml-2 text-xl font-extrabold">{position?.prospect?.name && position?.prospect?.name.split(' ')[1]}</p>
+						</div>
 						{#if draftState.currentState === 'open'}
 						<button
 							onclick={() => removeProspect(position.prospect as Prospect, position.draftPosition)}
@@ -141,7 +148,7 @@
 						{#if draftState.currentState === 'started' || draftState.currentState === 'finalized'}
 							<div class="flex flex-col justify-center items-center gap-0">
 								<p class="text-sm">Points</p>
-								<h3 class="text-lg font-bold">{position?.points || 0}</h3>
+								<h3 class="text-lg font-bold">{position?.points || 10}</h3>
 							</div>
 						{/if}
 					{/if}
