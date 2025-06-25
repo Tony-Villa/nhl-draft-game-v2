@@ -310,89 +310,91 @@
 		</Dialog.Trigger>
 	<!-- {/if} -->
 
-	<Dialog.Content class="max-w-[95%] md:max-w-[900px] rounded-none shadow-section-shadow">
+	<Dialog.Content class="max-w-[98%] w-full md:max-w-[900px] max-h-[95vh] overflow-y-auto rounded-none shadow-section-shadow">
 		<Dialog.Header>
-			<Dialog.Title class="text-2xl font-extrabold uppercase text-center mb-4">
+			<Dialog.Title class="text-xl md:text-2xl font-extrabold uppercase text-center mb-2 md:mb-4">
 				Share Your Draft Picks
 			</Dialog.Title>
 		</Dialog.Header>
 
-		<div class="space-y-6">
+		<div class="space-y-4 md:space-y-6">
 			<!-- Preview of the shareable image -->
-			<div class="border-[3px] border-black p-4 bg-gray-50">
-				<h3 class="font-bold mb-4 text-center">Preview (this is what gets shared):</h3>
+			<div class="border-[3px] border-black p-2 md:p-4 bg-gray-50">
+				<h3 class="font-bold mb-2 md:mb-4 text-center text-sm md:text-base">Preview (this is what gets shared):</h3>
 				
 				<!-- This is the component that gets rendered as an image -->
-				<div bind:this={shareImageRef} class="share-image-container" style="width: 800px; min-height: 600px;">
-					<div class="bg-white p-8 border-[5px] border-black shadow-section-shadow" style="width: 800px; min-height: 600px; box-sizing: border-box;">
-						<!-- Header -->
-						<div class="text-center mb-8">
-							<h1 class="text-4xl font-extrabold uppercase tracking-tight text-black mb-2">
-								My NHL Draft Top 10
-							</h1>
-							<div class="w-full h-[5px] bg-primary mb-4"></div>
-							<p class="text-lg font-bold text-gray-700">
-								🏒 HockeyDraftShowdown.com 🏒
-							</p>
-						</div>
-
-						<!-- Two column layout -->
-						<div class="grid grid-cols-2 gap-8" style="min-height: 400px;">
-							<!-- Left column (1-5) -->
-							<div class="space-y-4">
-								{#each leftColumn() as pick}
-									<div class="flex items-center gap-3 p-4 border-[3px] border-black bg-white shadow-brut-shadow">
-										<span class="text-black font-extrabold text-xl z-10">{pick.position}</span>
-                    {#if pick.teamLogo}
-                      <img 
-                        class="h-[50px] w-[50px] object-contain" 
-                        src={pick.teamLogo} 
-                        alt="{pick.teamName} logo"
-                        loading="eager"
-                      />
-                    {/if}
-										<div class="flex-1 min-w-0">
-											<p class="font-extrabold text-lg text-black truncate">{pick.name}</p>
-											<p class="text-sm font-bold text-gray-700 uppercase">{pick.team} • {pick.position_played}</p>
-										</div>
-									</div>
-								{/each}
+				<div class="w-full overflow-x-auto">
+					<div bind:this={shareImageRef} class="share-image-container mx-auto" style="width: 800px; min-height: 600px;">
+						<div class="bg-white p-8 border-[5px] border-black shadow-section-shadow" style="width: 800px; min-height: 600px; box-sizing: border-box;">
+							<!-- Header -->
+							<div class="text-center mb-8">
+								<h1 class="text-4xl font-extrabold uppercase tracking-tight text-black mb-2">
+									My NHL Draft Top 10
+								</h1>
+								<div class="w-full h-[5px] bg-primary mb-4"></div>
+								<p class="text-lg font-bold text-gray-700">
+									🏒 HockeyDraftShowdown.com 🏒
+								</p>
 							</div>
 
-							<!-- Right column (6-10) -->
-							<div class="space-y-4">
-								{#each rightColumn() as pick}
-									<div class="flex items-center gap-3 p-4 border-[3px] border-black bg-white shadow-brut-shadow">
-										<span class="text-black font-extrabold text-xl z-10">{pick.position}</span>
-                    {#if pick.teamLogo}
-                      <img 
-                        class="h-[50px] w-[50px] object-contain" 
-                        src={pick.teamLogo} 
-                        alt="{pick.teamName} logo"
-                        loading="eager"
-                      />
-                    {/if}
-										<div class="flex-1 min-w-0">
-											<p class="font-extrabold text-lg text-black truncate">{pick.name}</p>
-											<p class="text-sm font-bold text-gray-700 uppercase">{pick.team} • {pick.position_played}</p>
+							<!-- Two column layout -->
+							<div class="grid grid-cols-2 gap-8" style="min-height: 400px;">
+								<!-- Left column (1-5) -->
+								<div class="space-y-4">
+									{#each leftColumn() as pick}
+										<div class="flex items-center gap-3 p-4 border-[3px] border-black bg-white shadow-brut-shadow">
+											<span class="text-black font-extrabold text-xl z-10">{pick.position}</span>
+											{#if pick.teamLogo}
+												<img 
+													class="h-[50px] w-[50px] object-contain" 
+													src={pick.teamLogo} 
+													alt="{pick.teamName} logo"
+													loading="eager"
+												/>
+											{/if}
+											<div class="flex-1 min-w-0">
+												<p class="font-extrabold text-lg text-black truncate">{pick.name}</p>
+												<p class="text-sm font-bold text-gray-700 uppercase">{pick.team} • {pick.position_played}</p>
+											</div>
 										</div>
-									</div>
-								{/each}
-							</div>
-						</div>
+									{/each}
+								</div>
 
-						<!-- Footer -->
-						<div class="text-center mt-8 pt-6 border-t-[3px] border-black border-dashed">
-							<p class="text-sm font-bold text-gray-600 uppercase tracking-wide">
-								🏒 Play at HockeyDraftShowdown.com 🏒
-							</p>
+								<!-- Right column (6-10) -->
+								<div class="space-y-4">
+									{#each rightColumn() as pick}
+										<div class="flex items-center gap-3 p-4 border-[3px] border-black bg-white shadow-brut-shadow">
+											<span class="text-black font-extrabold text-xl z-10">{pick.position}</span>
+											{#if pick.teamLogo}
+												<img 
+													class="h-[50px] w-[50px] object-contain" 
+													src={pick.teamLogo} 
+													alt="{pick.teamName} logo"
+													loading="eager"
+												/>
+											{/if}
+											<div class="flex-1 min-w-0">
+												<p class="font-extrabold text-lg text-black truncate">{pick.name}</p>
+												<p class="text-sm font-bold text-gray-700 uppercase">{pick.team} • {pick.position_played}</p>
+											</div>
+										</div>
+									{/each}
+								</div>
+							</div>
+
+							<!-- Footer -->
+							<div class="text-center mt-8 pt-6 border-t-[3px] border-black border-dashed">
+								<p class="text-sm font-bold text-gray-600 uppercase tracking-wide">
+									🏒 Play at HockeyDraftShowdown.com 🏒
+								</p>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 
 			<!-- Action buttons -->
-			<div class="flex flex-wrap gap-4 justify-center">
+			<div class="flex flex-wrap gap-2 md:gap-4 justify-center px-1 md:px-2">
 				{#if !generatedImageUrl}
 					<Button
 						variant="primary"
@@ -402,28 +404,28 @@
 						{isGeneratingImage ? 'Generating...' : 'Generate Image'}
 					</Button>
 				{:else}
-        <Button variant="primary" onclick={shareToBluesky}>
-          📤 Bluesky + Copy Image
-        </Button>
-        
-        <Button variant="primary" onclick={shareToTwitter}>
-          📤 Twitter + Copy Image
-        </Button>
+					<Button variant="primary" onclick={shareToBluesky}>
+						📤 Bluesky + Copy Image
+					</Button>
+					
+					<Button variant="primary" onclick={shareToTwitter}>
+						📤 Twitter + Copy Image
+					</Button>
 
-        <Button variant="info" onclick={copyToClipboard}>
-          Copy to Clipboard
-        </Button>
-        
-        <Button variant="outline" onclick={downloadImage}>
-          Download Image
-        </Button>
+					<Button variant="info" onclick={copyToClipboard}>
+						Copy to Clipboard
+					</Button>
+					
+					<Button variant="outline" onclick={downloadImage}>
+						Download Image
+					</Button>
 				{/if}
 			</div>
 
 			{#if generatedImageUrl}
-				<div class="border-[3px] border-black p-4 bg-accent/20">
-					<h4 class="font-bold mb-2">✅ Image Generated!</h4>
-					<p class="text-sm">
+				<div class="border-[3px] border-black p-2 md:p-4 bg-accent/20 mx-1 md:mx-2">
+					<h4 class="font-bold mb-2 text-sm md:text-base">✅ Image Generated!</h4>
+					<p class="text-xs md:text-sm">
 						<strong>How to share:</strong><br>
 						• <strong>Download:</strong> Save image to your device<br>
 						• <strong>Copy to Clipboard:</strong> Paste directly into Discord/Slack<br>
@@ -434,8 +436,8 @@
 			{/if}
 
 			{#if !canShare()}
-				<div class="border-[3px] border-black p-4 bg-red-100">
-					<p class="font-bold text-red-800">
+				<div class="border-[3px] border-black p-2 md:p-4 bg-red-100 mx-1 md:mx-2">
+					<p class="font-bold text-red-800 text-sm md:text-base">
 						You need to complete your top 10 draft picks before you can share them!
 					</p>
 				</div>
@@ -448,8 +450,8 @@
 	/* Ensure the share image renders consistently */
 	:global(.share-image-container) {
 		font-family: "Courier New", monospace;
-		width: 800px !important;
-		min-height: 600px !important;
+		width: 800px;
+		min-height: 600px;
 		overflow: visible !important;
 		position: relative;
 	}
