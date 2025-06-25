@@ -115,9 +115,9 @@
 
 	<div class={`draft-card-container mb-16 flex flex-wrap justify-center gap-2 `}>
 		{#each draftBoard || [] as position}
-			<Card size="sm" class={`draft-card flex items-center ${draftBoardContainerWidth > 500 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
-				<div class="flex items-center px-2 py-2 justify-between w-full">
-					<div  class="flex items-center px-2 py-2">
+			<Card size="sm" class={`draft-card flex py-5 items-center ${draftBoardContainerWidth > 500 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
+				<div class="flex items-center justify-between w-full">
+					<div  class="flex items-center ">
 						<h2 class="text-black font-extrabold text-[28px]">{position.draftPosition}</h2>
 						<div class="relative">
 							<img class="h-[50px] w-[50px] z-10" src={position.teamLogo} alt="" />
