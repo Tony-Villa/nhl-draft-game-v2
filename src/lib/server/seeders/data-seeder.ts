@@ -88,7 +88,7 @@ export class DataSeeder {
           name: username,
           email: email,
           password: 'fake-password-hash', // In real app, this would be hashed
-          keys: '[]', // Empty keys array for fake users
+          keys: [], // Empty keys array for fake users
           avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
         });
         
