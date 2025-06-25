@@ -5,6 +5,7 @@
 	// import Ladder from '$lib/components/Ladder.svelte';
 	import HeadToHead from '$lib/components/HeadToHead.svelte';
 	import Countdown from '$lib/components/Countdown.svelte';
+	import ShareDraft from '$lib/components/ShareDraft.svelte';
 
 	import { getDraftState } from '$lib/global-state/draft-state.svelte';
 	import { getDraftSystem, setDraftSystem } from '$lib/global-state/prospect-state.svelte';
@@ -178,6 +179,12 @@
 	{/if} -->
 
 	{#if draftState.currentState !== "started" && draftState.currentState !== 'locked' && draftState.currentState !== 'finalized'}
+	
+	<!-- Share Draft Button - Show when user has picks -->
+	<div class="flex mb-3">
+		<ShareDraft />
+	</div>
+	
 	<div class=" flex gap-8 px-1">
 		{#if innerWidth < 768}
 			<div class="w-full pb-10">
@@ -191,7 +198,7 @@
 			<DraftBoard draftType="user" />
 			<ProspectContainer />
 		{/if}
-	</div>
+</div>
 	<!-- <div
 		class="h-15 fixed bottom-0 flex w-full justify-center border-t-4 bg-white shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"
 	>
@@ -199,6 +206,12 @@
 	</div> -->
 	{@render slider({left: tabs[0], right: tabs[1]})}
 	{:else}
+	
+	<!-- Share Draft Button - Also show during/after draft -->
+	<div class="flex mb-3">
+		<ShareDraft />
+	</div>
+	
 	<div class=" flex gap-5 px-2">
 		{#if innerWidth < 768}
 			<div class="w-full pb-10">
