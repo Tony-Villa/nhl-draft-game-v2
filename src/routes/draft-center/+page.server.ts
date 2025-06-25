@@ -15,7 +15,7 @@ export const load = async ({ setHeaders, locals, fetch }: RequestEvent) => {
 	const response = await fetch('/api/game')
 	const game = await response.json()
 	
-	const nhlBoardRes = await fetch('api/board?game=' + CURRENT_GAME)
+	const nhlBoardRes = await fetch('api/nhl-board?game=' + CURRENT_GAME)
 	const nhlBoard = await nhlBoardRes.json()
 
 	let ladder;
