@@ -7,11 +7,12 @@ export const buttonOptions = tv({
   `,
   variants: {
     variant: {
-      primary: "text-white bg-primary",
+      primary: "text-black bg-primary",
       secondary: "text-white bg-secondary",
       outline: "text-black bg-white",
-      info: "text-black bg-accent hover:bg-primary hover:text-white",
+      info: "text-black bg-accent hover:bg-primary ",
       danger: "bg-danger",
+      disabled: "bg-white text-black cursor-not-allowed translate-x-0 translate-y-0 shadow-none active:translate-x-0 active:translate-y-0 opacity-45 hover:bg-white",
     },
     size: {
       sm: 'p-1',

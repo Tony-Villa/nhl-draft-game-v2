@@ -2,7 +2,7 @@
 	import TeamStats from './TeamStats.svelte';
 
 	export let draft: any;
-	export let draftType: any;
+	export const draftType: any = undefined; // For external reference only
 </script>
 
 <div class="details">
