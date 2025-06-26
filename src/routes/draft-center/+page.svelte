@@ -2,7 +2,7 @@
 	import ProspectContainer from '$lib/components/ProspectContainer.svelte';
 	import DraftBoard from '$lib/components/DraftBoard.svelte';
 	import SliderSwitch from '$lib/components/SliderSwitch.svelte';
-	// import Ladder from '$lib/components/Ladder.svelte';
+	import Ladder from '$lib/components/Ladder.svelte';
 	import HeadToHead from '$lib/components/HeadToHead.svelte';
 	import Countdown from '$lib/components/Countdown.svelte';
 	import ShareDraft from '$lib/components/ShareDraft.svelte';
@@ -76,7 +76,7 @@
 	// checkForLocalDraftBoard();
 
 	let innerWidth = $state(0);
-	let tabs = $derived(draftState.currentState !== "started" ? ['prospects', 'draftboard'] : ['draftboard', 'Nhl Draft']);
+	let tabs = $derived(draftState.currentState === "open" ? ['prospects', 'draftboard'] : ['draftboard', 'Nhl Draft']);
 	let tabIndex = $state(0);
 	let selectedTab = $derived(tabs[tabIndex]);
 
@@ -179,9 +179,16 @@
 		}
 	})
 
-	$inspect(draftState.currentState, {
-		name: 'Draft State Game Phase',
-	});
+	// $inspect(draftState.currentState, {
+	// 	name: 'Draft State Game Phase',
+	// });
+
+	// $inspect(data.game.startDate, {
+	// 	name: 'Draft Start Date',
+	// });
+	// $inspect(isAfter(new Date(data.game.startDate), Date.now()), {
+	// 	name: 'Is Draft Day After Now',
+	// });
 
 </script>
 
@@ -192,23 +199,40 @@
 	{/if}
 
 	{#if draftState.isDraftDaySet}
-		{#if isAfter(new Date(data.game.startDate), Date.now())}
+		{#if draftState.currentState === 'open' && isAfter(new Date(data.game.lockDate), Date.now())}
 			<div class="flex flex-col text-center mb-6 gap-3">
-				<Countdown heading="NHL Draft starts in:" endTime={data.game.startDate}>
+				<Countdown heading="Draft locks in:" endTime={data.game.lockDate}>
 					<div class="flex flex-col mt-2 leading-tight">
-						<small>Note: Your draft will lock 16 hours<br/> before the official nhl draft</small>
+						<small>Draft locks at:</small>
 						<small class="font-bold">
 							{format(new Date(data?.game?.lockDate), 'iii, LLL do p')}
 						</small>
+						<small class="mt-2">NHL Draft starts at:</small>
+						<small class="font-bold">
+							{format(new Date(data?.game?.startDate), 'iii, LLL do p')}
+						</small>
 					</div>
 				</Countdown>
+				{#if draftState.currentState === 'open'}
 				<div>
 					{#if env.PUBLIC_FEATURE_DATA_VIZ === '1'}
 						<DataVizSidebar position={nextAvailablePickPosition()} gameId={data.game.id?.toString() || '2'} />
 					{/if}
 				</div>
+				{/if}
 			</div>
-
+		{:else if draftState.currentState === 'locked' && isAfter(new Date(data.game.startDate), Date.now())}
+			<div class="flex flex-col text-center mb-6 gap-3">
+				<Countdown heading="NHL Draft starts in:" endTime={data.game.startDate}>
+					<div class="flex flex-col mt-2 leading-tight">
+						<small>Draft is locked - no more changes allowed</small>
+						<small class="mt-2">NHL Draft starts at:</small>
+						<small class="font-bold">
+							{format(new Date(data?.game?.startDate), 'iii, LLL do p')}
+						</small>
+					</div>
+				</Countdown>
+			</div>
 		{/if}
 	{/if}
 	
@@ -227,7 +251,7 @@
 		</div>
 	</Card>
 
-	<!-- Head-to-Head - Right after points -->
+	<!-- Head-to-Head - Only show during started phase -->
 	{#if data.nhlBoard}
 		<HeadToHead currentPick={data.nhlBoard.filter((x: any) => x?.prospect?.name).length} />
 	{/if}
@@ -251,6 +275,24 @@
 			{/if}
 		</Card>
 	</div>
+	{:else if draftState.currentState === "finalized"}
+	<!-- Final Score Display -->
+	<Card class="max-w-fit mx-auto mb-6 shadow-brut-shadow bg-white">
+		<div class="text-center">
+			<h2 class="mb-3 text-xl font-bold uppercase tracking-wide">Final Score</h2>
+			<Card class="bg-white inline-block shadow-brut-shadow-sm">
+				<div class="px-6 py-3">
+					<span class="text-5xl font-bold text-primary">{userState?.points || 0}</span>
+					<p class="text-sm font-semibold mt-1 text-gray-700">Points</p>
+				</div>
+			</Card>
+		</div>
+	</Card>
+
+	<!-- Final Ladder/Results -->
+	{#if data?.ladder}
+		<Ladder ladder={data.ladder} />
+	{/if}
 	{/if}
 
 	<!-- {#if draftState.currentState === "finalized"}
@@ -327,7 +369,7 @@
 </svelte:head>
 
 {#snippet slider({left, right}: {left: string; right: string})}
-	<div class="h-15 fixed bottom-0 flex w-full justify-center border-t-4 bg-white shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"> 
+	<div class="h-15 fixed z-50 bottom-0 flex w-full justify-center border-t-4 bg-white shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"> 
 		<SliderSwitch switchVariable={switchScreens} left={left} right={right} />
 	</div>
 {/snippet}
