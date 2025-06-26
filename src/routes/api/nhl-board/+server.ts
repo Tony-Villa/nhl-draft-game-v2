@@ -10,12 +10,20 @@ export async function GET({url}) {
   try {
 		const draftboard =  await getDraftBoardOrder()
 
-    const nhlBoard = await  db.select().from(nhlDraft).where(eq(nhlDraft.gameId, +gameId!)) 
+    const nhlBoard = await  db.select({
+      positionDrafted: nhlDraft.positionDrafted,
+      prospectId: nhlDraft.prospectId,
+      prospectName: nhlDraft.prospectName,
+      team: nhlDraft.team
+    }).from(nhlDraft).where(eq(nhlDraft.gameId, +gameId!)) 
 
     if(nhlBoard.length > 0) {
       nhlBoard.forEach(pick => {
         if(draftboard){
-          draftboard[pick.positionDrafted - 1].prospect = {name: pick.prospect} as any
+          draftboard[pick.positionDrafted - 1].prospect = {
+            id: pick.prospectId,
+            name: pick.prospectName
+          } as any
         }
       })
     }
