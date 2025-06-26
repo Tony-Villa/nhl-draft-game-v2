@@ -131,7 +131,7 @@
 					<div in:fade class='flex flex-1 justify-between items-center'>
 						<div class="flex flex-col ml-3 ">
 							<p class="ml-2 text-xl font-extrabold">{position?.prospect?.name && position?.prospect?.name.split(' ')[0]}</p>
-							<p class="ml-2 text-xl font-extrabold">{position?.prospect?.name && position?.prospect?.name.split(' ')[1]}</p>
+							<p class="ml-2 text-xl font-extrabold">{position?.prospect?.name && position?.prospect?.name.split(' ').slice(1).join(' ')}</p>
 						</div>
 						{#if draftState.currentState === 'open'}
 						<button
