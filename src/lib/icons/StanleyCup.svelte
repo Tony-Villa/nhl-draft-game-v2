@@ -1,5 +1,8 @@
 <script lang="ts">
 	let { size = 32, color = '#000' }: { size?: number; color?: string } = $props();
+	
+	// Generate unique ID for this component instance
+	const filterId = `drop-shadow-${Math.random().toString(36).substr(2, 9)}`;
 </script>
 
 <svg
@@ -12,6 +15,15 @@
 	stroke-width="4"
 	stroke-linejoin="round"
 >
+	<!-- Drop Shadow Filter -->
+	<defs>
+		<filter id={filterId} x="-20%" y="-20%" width="140%" height="140%">
+			<feDropShadow dx="3" dy="3" stdDeviation="2" flood-opacity="0.6" flood-color="black"/>
+		</filter>
+	</defs>
+
+	<!-- Apply drop shadow to the entire trophy -->
+	<g filter={`url(#${filterId})`}>
 	<!-- Cup Bowl - simple semicircle facing UP -->
 	<path d="M 70 40 Q 70 70 100 70 Q 130 70 130 40 Z" fill={color} stroke="none" />
 	
@@ -38,4 +50,5 @@
 			 L 150 119 L 150 209 L 155 209 L 155 234 L 45 234 L 45 209 L 50 209 L 50 119 L 70 119 L 70 104 
 			 L 75 104 L 75 92 L 80 92 L 80 82 L 85 82 L 85 70 L 70 40 Z" 
 		  fill="none" stroke={color} stroke-width="4" />
+	</g>
 </svg>
