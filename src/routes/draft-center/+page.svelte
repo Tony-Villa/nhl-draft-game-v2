@@ -6,6 +6,7 @@
 	import HeadToHead from '$lib/components/HeadToHead.svelte';
 	import Countdown from '$lib/components/Countdown.svelte';
 	import ShareDraft from '$lib/components/ShareDraft.svelte';
+	import Card from '$lib/components/Card.svelte';
 
 	import { getDraftState } from '$lib/global-state/draft-state.svelte';
 	import { getDraftSystem, setDraftSystem } from '$lib/global-state/prospect-state.svelte';
@@ -16,6 +17,7 @@
 	import Header from '$lib/components/Header.svelte';
 	// import { PUBLIC_WEB_SOCKET } from '$env/static/public';
 	import DataVizSidebar from '$lib/components/DataVizSidebar.svelte';
+	import LiveLeaderboard from '$lib/components/LiveLeaderboard.svelte';
 	import { env } from '$env/dynamic/public';
 
 	let { children, data }: {
@@ -35,6 +37,7 @@
 	const userState = getCurrentUser();
 
 	let nhlDraftBoardLength = $state(data.nhlBoard.filter((x: any) => x?.prospect?.name).length)
+	let leaderboardOpen = $state(false);
 	
 	// Calculate next available pick position
 	const nextAvailablePickPosition = $derived(() => {
@@ -98,25 +101,72 @@
 		invalidateAll()
 	}
 
+	// Optimized polling for live draft updates
+	async function checkForUpdates() {
+		try {
+			const response = await fetch(`/api/draft-updates?game=${data.game.id}`);
+			const updates = await response.json();
+			
+			// Only update if there are new picks
+			if (updates.totalPicks !== nhlDraftBoardLength) {
+				// Create updated NHL board by merging picks into existing structure
+				const updatedNhlBoard = [...data.nhlBoard];
+				
+				updates.picks.forEach((pick: any) => {
+					const boardIndex = pick.draftPosition - 1;
+					if (updatedNhlBoard[boardIndex]) {
+						updatedNhlBoard[boardIndex] = {
+							...updatedNhlBoard[boardIndex],
+							prospect: pick.prospect
+						};
+					}
+				});
+				
+				// Update the draft system with new NHL board
+				draftSystem.nhlDraftBoard = updatedNhlBoard;
+				
+				// Update local state
+				nhlDraftBoardLength = updates.totalPicks;
+				draftState.currentNhlDraft = updates.totalPicks;
+				
+				// Compute new points
+				const totalPoints = draftSystem.computePoints();
+				userState.points = totalPoints;
+				
+				draftState.updateNhlDraftPick(nhlDraftBoardLength);
+
+				// Update scores in database for all users (only if user is logged in)
+				if (userState?.user?.id) {
+					try {
+						await fetch('/api/score');
+					} catch (error) {
+						console.error('Failed to update scores:', error);
+					}
+				}
+			}
+			
+			// Update game phase if changed
+			if (updates.gamePhase !== draftState.currentState) {
+				draftState.currentState = updates.gamePhase;
+			}
+		} catch (error) {
+			console.error('Failed to fetch updates:', error);
+			// Fallback to full refresh on error
+			refresh();
+		}
+	}
+
 	$effect(() => {
 		if (draftState.currentState === "started") {
 
 			if(nhlDraftBoardLength <= 31){
 
 				const interval = setInterval(() => {
-					refresh()
+					checkForUpdates() // Use optimized polling instead of full refresh
 
-					draftState.currentNhlDraft = data.nhlBoard.filter((x: any) => x?.prospect?.name).length
-
-					draftSystem.nhlDraftBoard = data.nhlBoard
-
-					const totalPoints = draftSystem.computePoints()
-					userState.points = totalPoints
-
-					draftState.updateNhlDraftPick(nhlDraftBoardLength)
-
-				}, 10000);
-				() => {
+				}, 5000); // Reduced to 5 seconds for better UX
+				
+				return () => {
 					clearInterval(interval)
 				}
 
@@ -128,6 +178,10 @@
 			userState.points = totalPoints
 		}
 	})
+
+	$inspect(draftState.currentState, {
+		name: 'Draft State Game Phase',
+	});
 
 </script>
 
@@ -160,18 +214,43 @@
 	
 	
 	{#if draftState.currentState === "started"}
-	<div class="border-black border-2 rounded-xl shadow-brut-shadow max-w-fit px-4 py-2 bg-orange-100 mx-auto mb-6">
-		<h2 class="mb-4 text-center text-2xl font-bold uppercase">Your Points:</h2>
-
-		<div class="flex gap-2 justify-center font-bold border-black border-2 bg-blue-200 rounded-md p-4">
-			<h2 class=" text-center text-6xl font-bold uppercase">{userState?.points}</h2>
+	<!-- User Points Display -->
+	<Card class="max-w-fit mx-auto mb-6 shadow-brut-shadow bg-white">
+		<div class="text-center">
+			<h2 class="mb-3 text-xl font-bold uppercase tracking-wide">Your Score</h2>
+			<Card class="bg-white inline-block shadow-brut-shadow-sm">
+				<div class="px-6 py-3">
+					<span class="text-5xl font-bold text-primary">{userState?.points || 0}</span>
+					<p class="text-sm font-semibold mt-1 text-gray-700">Points</p>
+				</div>
+			</Card>
 		</div>
-	</div>
+	</Card>
+
+	<!-- Head-to-Head - Right after points -->
+	{#if data.nhlBoard}
+		<HeadToHead currentPick={data.nhlBoard.filter((x: any) => x?.prospect?.name).length} />
 	{/if}
 
-
-	{#if draftState.currentState === "started" && data.nhlBoard}
-		<HeadToHead currentPick={data.nhlBoard.filter((x: any) => x?.prospect?.name).length} />
+	<!-- Collapsible Leaderboard -->
+	<div class="max-w-fit mx-auto mb-6">
+		<Card class="shadow-brut-shadow bg-white">
+			<button 
+				class="w-full flex items-center justify-between p-4 text-left"
+				onclick={() => leaderboardOpen = !leaderboardOpen}
+			>
+				<h3 class="text-lg font-bold uppercase tracking-wide">Live Leaderboard</h3>
+				<span class="text-2xl font-bold transform transition-transform duration-200 {leaderboardOpen ? 'rotate-180' : ''}">
+					▼
+				</span>
+			</button>
+			{#if leaderboardOpen}
+				<div class="border-t-[3px] border-black px-4 pb-4">
+					<LiveLeaderboard gameId={data.game.id?.toString() || '1'} />
+				</div>
+			{/if}
+		</Card>
+	</div>
 	{/if}
 
 	<!-- {#if draftState.currentState === "finalized"}

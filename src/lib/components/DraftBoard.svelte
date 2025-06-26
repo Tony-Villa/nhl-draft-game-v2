@@ -54,7 +54,7 @@
 </script>
 
 <div bind:clientWidth={draftBoardContainerWidth} class={`
-	flex-1 max-h-fit p-6 bg-white border-black border-[5px] relative mb-7 md:shadow-section-shadow z-0 md:-rotate-[0.3deg]
+	flex-1 max-h-fit p-6 bg-white border-black border-[5px] relative mb-7 md:shadow-section-shadow z-0 ${draftState.currentState === 'open' ? 'md:-rotate-[0.3deg]' : ''}
 `}>
 	<h2 class={`
 	text-3xl font-extrabold uppercase tracking-[-1px] relative inline-block mb-7
@@ -109,13 +109,10 @@
 	</div>
 	{/if}
 
-	{#if draftType === 'nhl'}
-		<p class="font-bold md:text-lg">NHL Draft</p>
-	{/if}
 
 	<div class={`draft-card-container mb-16 flex flex-wrap justify-center gap-2 -z-50 `}>
 		{#each draftBoard || [] as position}
-			<Card size="sm" class={`draft-card -z-20 flex py-5 items-center overflow-hidden ${draftBoardContainerWidth > 500 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
+			<Card size="sm" class={`draft-card -z-20 flex py-5 items-center  ${draftType === 'nhl' && 'min-h-[100px]'} overflow-hidden ${draftBoardContainerWidth > 500 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
 				<div class="flex items-center justify-between w-full">
 					<div  class="flex items-center ">
 						<div class="after:content-[''] after:absolute {position?.draftPosition < 10 ? 'after:left-[35px]' : 'after:left-[50px]'} after:bottom-3 after:w-[5px] after:h-3/4 after:bg-primary">
@@ -148,7 +145,7 @@
 						{#if draftState.currentState === 'started' || draftState.currentState === 'finalized'}
 							<div class="flex flex-col justify-center items-center gap-0">
 								<p class="text-sm">Points</p>
-								<h3 class="text-lg font-bold">{position?.points || 10}</h3>
+								<h3 class="text-lg font-bold">{position?.points || 0}</h3>
 							</div>
 						{/if}
 					{/if}
