@@ -15,7 +15,6 @@
 	import { invalidateAll } from '$app/navigation';
 	import { format, isAfter, } from 'date-fns';
 	import Header from '$lib/components/Header.svelte';
-	// import { PUBLIC_WEB_SOCKET } from '$env/static/public';
 	import DataVizSidebar from '$lib/components/DataVizSidebar.svelte';
 	import LiveLeaderboard from '$lib/components/LiveLeaderboard.svelte';
 	import { env } from '$env/dynamic/public';
