@@ -107,7 +107,8 @@ export const GET = async (event : RequestEvent) => {
 			console.log('[Google OAuth] Existing user found', {
 				userId: existingUser.id,
 				emailDomain: existingUser.email?.split('@')[1] || 'unknown',
-				keysCount: Array.isArray(existingUser.keys) ? existingUser.keys.length : 'unknown'
+				keysType: typeof existingUser.keys,
+				keysValue: existingUser.keys
 			});
 
 			console.log('[Google OAuth] Checking for existing Google key...');
@@ -124,28 +125,36 @@ export const GET = async (event : RequestEvent) => {
 
 			if (!existingKey) {
 				console.log('[Google OAuth] No existing Google key found, linking account...');
-				// Add the 'google' auth provider to the user's authMethods list
-				// Create a new array to avoid mutating the original database result
-				const existingKeys = Array.isArray(existingUser.keys) ? existingUser.keys : [];
+				
+				// Defensive validation for the keys array
+				let safeKeys: string[] = [];
+				try {
+					if (Array.isArray(existingUser.keys)) {
+						safeKeys = [...existingUser.keys];
+					} else {
+						console.warn('[Google OAuth] Keys is not an array, using empty array');
+						safeKeys = [];
+					}
+				} catch (e) {
+					console.error('[Google OAuth] Error processing keys, using empty array:', e);
+					safeKeys = [];
+				}
 				
 				// Only add 'google' if it's not already in the keys array
-				const authKeys = existingKeys.includes('google') 
-					? existingKeys 
-					: [...existingKeys, 'google'];
+				if (!safeKeys.includes('google')) {
+					safeKeys.push('google');
+				}
 				
-				console.log('[Google OAuth] Keys debug:', {
-					existingKeysType: typeof existingUser.keys,
-					existingKeysValue: existingUser.keys,
-					existingKeysIsArray: Array.isArray(existingUser.keys),
-					newAuthKeysType: typeof authKeys,
-					newAuthKeysValue: authKeys,
-					newAuthKeysIsArray: Array.isArray(authKeys),
-					googleAlreadyExists: existingKeys.includes('google'),
-					keysChanged: existingKeys.length !== authKeys.length
-				});
-
-				// Only update if keys actually changed
-				if (existingKeys.length !== authKeys.length) {
+				console.log('[Google OAuth] Keys validation:', {
+					originalKeysType: typeof existingUser.keys,
+					originalKeysValue: existingUser.keys,
+					safeKeysType: typeof safeKeys,
+					safeKeysValue: safeKeys,
+					safeKeysIsArray: Array.isArray(safeKeys),
+					allElementsAreStrings: safeKeys.every(k => typeof k === 'string')
+				});				
+				// Only update if keys actually changed (i.e., we're adding 'google')
+				if (!existingUser.keys || !Array.isArray(existingUser.keys) || !existingUser.keys.includes('google')) {
 					await db.transaction(async (trx) => {
 						// link google oauth account to the existing user
 						await trx.insert(keys).values({
@@ -156,13 +165,13 @@ export const GET = async (event : RequestEvent) => {
 
 						// Update the user's keys list
 						await trx.update(users).set({
-							keys: authKeys
+							keys: safeKeys
 						}).where(eq(users.id, existingUser.id));
 					});
 					
 					console.log('[Google OAuth] Successfully linked Google account to existing user', {
 						userId: existingUser.id,
-						totalKeysCount: authKeys.length
+						totalKeysCount: safeKeys.length
 					});
 				} else {
 					console.log('[Google OAuth] Google key already exists in user keys, skipping update');
