@@ -11,14 +11,14 @@
 
 </script>
 
-<nav class="flex justify-between px-3 pt-5">
+<nav class="flex justify-between px-3 pt-5 z-50">
 
     <HowToPlay />
 
 
-      <div class="dropdown ">
+      <div class="dropdown z-50">
          <Hamburger />
-        <div class="dropdown-content bg-white overflow-hidden shadow-button-shadow border-2 border-black right-0">
+        <div class="dropdown-content bg-white overflow-hidden shadow-button-shadow border-2 border-black right-0 z-50">
           {#if isAuthenticated}
           <div>
               <ul class="flex flex-row flex-end">

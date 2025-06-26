@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { ordinalNumbers } from "$lib/helpers/ordinal-numbers";
 	import Crown from "$lib/icons/crown.svelte";
+	import { twMerge } from 'tailwind-merge';
+	import { ladderOptions, ladderTextOptions, type LadderProps } from './Ladder.options';
+	import Card from './Card.svelte';
 
     
   interface Ladder {
@@ -16,45 +19,107 @@
     
 
 
-<div class="border-black border-2 rounded-xl shadow-brut-shadow max-w-fit px-4 py-2 bg-orange-100 mx-auto mb-6 mt-10 relative z-10">
-    
-  <div class="absolute z-0 -right-8 -top-12 rotate-[16deg]">
-    <!-- <h3 class=" text-center text-gray-500 text-5xl font-black uppercase drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.9)] " >Winner</h3> -->
-
-    <Crown size={75} color=#ea580c />
-  </div>
-
-  <div class="absolute z-0 -left-12 top-2 ">
-    <h3 class=" text-center text-gray-500 text-9xl font-black uppercase opacity-60 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.9)]" >{1}</h3>
-  </div>
-
-    <h1 class="mb-4 text-center text-2xl font-bold uppercase" >{ladder[0].playerName}</h1>
-
-    <div class="flex gap-2 justify-center font-bold border-black border-2 bg-blue-200 rounded-md p-4">
-      <h3 class=" text-center text-6xl font-bold uppercase" >{ladder[0].score}</h3>
+<!-- Winner Card - 1st Place -->
+<div class="w-full flex justify-center mb-6 sm:mb-8 mt-10 z-0">
+  <Card class={twMerge(ladderOptions({variant: 'player', position: 'first'}), 'flex flex-col justify-center w-full min-h-52 max-w-xs sm:max-w-md mx-4 sm:mx-auto')}>
+    <!-- Crown Icon -->
+    <div class="absolute z-10 -right-4 sm:-right-8 -top-8 sm:-top-12 rotate-[16deg]">
+      <div class="sm:hidden">
+        <Crown size={60} color="#ffd700" />
+      </div>
+      <div class="hidden sm:block">
+        <Crown size={75} color="#ffd700" />
+      </div>
     </div>
 
-  </div>
+    <!-- Winner Name -->
+    <h1 class={ladderTextOptions({type: 'title', class: 'text-center text-xl sm:text-2xl'})}>{ladder[0].playerName}</h1>
 
-<div class="flex flex-wrap gap-5 sm:justify-center sm:mx-5 mb-10">
-  {#each ladder as player, i}
-    {#if player.score > 0 && i > 0}
-      <div class={`border-black border-2 rounded-xl shadow-brut-shadow max-w-fit px-4 py-2 bg-orange-100 mb-1 relative`}>
-  
-        <!-- <div class={`absolute z-0 ${i+2 <= 9 ? '-left-10' : '-left-20'} top-0`}>
-          <h3 class=" text-center tracking-tighter text-gray-500 text-8xl font-black uppercase opacity-60 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.9)]" >{i+2}</h3>
-        </div> -->
-  
-        <div class="flex gap-2 items-center">
-          <h1 class="mb-1 text-center sm:text-lg text-sm font-extrabold">{ordinalNumbers(i+1)}</h1>
-          <h1 class="mb-1 text-center sm:text-sm text-xs font-bold uppercase">{player.playerName}</h1>
-        </div>
-  
-        <div class="flex gap-2 justify-center font-bold border-black border-2 bg-blue-200 rounded-md p-4">
-          <h3 class=" text-center sm:text-2xl text-md font-bold uppercase">{player.score}</h3>
-        </div>
-  
+    <!-- Winner Score -->
+    <div class={ladderOptions({variant: 'score', size: 'md'})}>
+      <h3 class={ladderTextOptions({type: 'score', class: 'text-center text-4xl sm:text-6xl'})}>{ladder[0].score}</h3>
+    </div>
+  </Card>
+</div>
+
+<!-- Runners-up: 2nd and 3rd Place -->
+<div class="runners-up flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mb-6 sm:mb-8 mx-4">
+  <!-- Second Place Card -->
+  <Card class={twMerge(ladderOptions({variant: 'player', position: 'first'}), 'w-full max-w-[280px] sm:w-auto sm:min-w-[200px] sm:max-w-[220px]')}>
+    <!-- Silver Crown -->
+    <div class="absolute z-10 -right-4 sm:-right-6 -top-8 sm:-top-10 rotate-[16deg]">
+      <div class="sm:hidden">
+        <Crown size={45} color="#c0c0c0" />
       </div>
+      <div class="hidden sm:block">
+        <Crown size={55} color="#c0c0c0" />
+      </div>
+    </div>
+  
+    <!-- Second Place Content -->
+    <div class="flex flex-col gap-2 mb-3">
+      <div class="relative">
+        <div class="absolute left-2 top-6 w-1/4 h-[3px] bg-primary"></div>
+        <h1 class={ladderTextOptions({type: 'rank', class: 'text-base sm:text-lg'})}>{ordinalNumbers(2)}</h1>
+      </div>
+      <h1 class={ladderTextOptions({type: 'title', class: 'text-center text-base sm:text-lg mb-2'})}>{ladder[1].playerName}</h1>
+    </div>
+  
+    <!-- Second Score -->
+    <div class={ladderOptions({variant: 'score', size: 'sm'})}>
+      <h3 class={ladderTextOptions({type: 'score', class: 'text-center text-2xl sm:text-3xl'})}>{ladder[1].score}</h3>
+    </div>
+  </Card>
+  
+  <!-- Third Place Card -->
+  <Card class={twMerge(ladderOptions({variant: 'player', position: 'first'}), 'w-full max-w-[280px] sm:w-auto sm:min-w-[200px] sm:max-w-[220px]')}>
+    <!-- Bronze Crown -->
+    <div class="absolute z-10 -right-4 sm:-right-6 -top-8 sm:-top-10 rotate-[16deg]">
+      <div class="sm:hidden">
+        <Crown size={45} color="#cd7f32" />
+      </div>
+      <div class="hidden sm:block">
+        <Crown size={55} color="#cd7f32" />
+      </div>
+    </div>
+  
+    <!-- Third Place Content -->
+    <div class="flex flex-col gap-2 mb-3">
+      <div class="relative">
+        <div class="absolute left-2 top-6 w-1/4 h-[3px] bg-primary"></div>
+        <h1 class={ladderTextOptions({type: 'rank', class: 'text-base sm:text-lg'})}>{ordinalNumbers(3)}</h1>
+      </div>
+      <h1 class={ladderTextOptions({type: 'title', class: 'text-center text-base sm:text-lg mb-2'})}>{ladder[2].playerName}</h1>
+    </div>
+    
+    <!-- Third Score -->
+    <div class={ladderOptions({variant: 'score', size: 'sm'})}>
+      <h3 class={ladderTextOptions({type: 'score', class: 'text-center text-2xl sm:text-3xl'})}>{ladder[2].score}</h3>
+    </div>
+  </Card>
+</div>
+
+
+
+<!-- Remaining Players -->
+<div class="flex flex-wrap gap-4 justify-center mx-4 sm:mx-6">
+  {#each ladder as player, i}
+    {#if player.score > 0 && i > 2}
+      <Card class={twMerge(ladderOptions({variant: 'player', size: 'sm'}), 'w-full max-w-44 sm:max-w-48')}>
+        <!-- Player Info -->
+        <div class="flex flex-col gap-1 mb-2">
+          <div class="relative">
+            <div class="absolute left-1 top-4 w-1/4 h-[2px] bg-primary"></div>
+            <h1 class={ladderTextOptions({type: 'rank', class: 'text-sm'})}>{ordinalNumbers(i+1)}</h1>
+          </div>
+          <h1 class={ladderTextOptions({type: 'name', class: 'text-xs sm:text-sm'})}>{player.playerName}</h1>
+        </div>
+
+        <!-- Player Score -->
+        <div class={ladderOptions({variant: 'score', size: 'sm'})}>
+          <h3 class={ladderTextOptions({type: 'scoreSmall', class: 'text-lg sm:text-xl'})}>{player.score}</h3>
+        </div>
+      </Card>
     {/if}
   {/each}
 </div>
