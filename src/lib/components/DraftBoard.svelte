@@ -110,10 +110,10 @@
 	{/if}
 
 
-	<div class={`draft-card-container mb-16 flex flex-wrap justify-center gap-2 -z-50 `}>
+	<div class={`draft-card-container mb-16 flex flex-wrap justify-center gap-2`}>
 		{#each draftBoard || [] as position}
-			<Card size="sm" class={`draft-card -z-20 flex py-5 items-center  ${draftType === 'nhl' && 'min-h-[100px]'} overflow-hidden ${draftBoardContainerWidth > 500 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%]`}>
-				<div class="flex items-center justify-between w-full">
+			<Card size="sm" class={`draft-card flex py-5 items-center ${draftType === 'nhl' && 'min-h-[102px]'} overflow-hidden ${draftBoardContainerWidth > 500 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%] relative`}>
+				<div class="flex items-center justify-between w-full relative z-10">
 					<div  class="flex items-center ">
 						<div class="after:content-[''] after:absolute {position?.draftPosition < 10 ? 'after:left-[35px]' : 'after:left-[50px]'} after:bottom-3 after:w-[5px] after:h-3/4 after:bg-primary">
 							<h2 class="text-black mx-auto font-extrabold text-[28px] mr-2">{position.draftPosition}</h2>
@@ -128,7 +128,7 @@
 						</div>
 					</div>
 					{#if position.prospect}
-					<div in:fade class='flex flex-1 justify-between items-center z-10'>
+					<div in:fade class='flex flex-1 justify-between items-center'>
 						<div class="flex flex-col ml-3 ">
 							<p class="ml-2 text-xl font-extrabold">{position?.prospect?.name && position?.prospect?.name.split(' ')[0]}</p>
 							<p class="ml-2 text-xl font-extrabold">{position?.prospect?.name && position?.prospect?.name.split(' ')[1]}</p>
@@ -136,7 +136,7 @@
 						{#if draftState.currentState === 'open'}
 						<button
 							onclick={() => removeProspect(position.prospect as Prospect, position.draftPosition)}
-							class="ml-auto"
+							class="ml-auto relative z-30 p-2 hover:bg-gray-100 rounded-full transition-colors"
 						>
 						<Close size={24} />
 					</button>
