@@ -115,7 +115,7 @@
 			<Card size="sm" class={`draft-card flex py-5 items-center ${draftType === 'nhl' && 'min-h-[102px]'} overflow-hidden ${draftBoardContainerWidth > 500 ? 'basis-[48%]' : 'basis-[100%]'} max-[430px]:basis-[100%] relative`}>
 				<div class="flex items-center justify-between w-full relative z-10">
 					<div  class="flex items-center ">
-						<div class="after:content-[''] after:absolute {position?.draftPosition < 10 ? 'after:left-[35px]' : 'after:left-[50px]'} after:bottom-3 after:w-[5px] after:h-3/4 after:bg-primary">
+						<div class="after:content-[''] after:absolute {position?.draftPosition < 10 ? 'after:left-[25px]' : 'after:left-[40px]'} after:bottom-1 after:w-[5px] after:h-full after:bg-primary">
 							<h2 class="text-black mx-auto font-extrabold text-[28px] mr-2">{position.draftPosition}</h2>
 						</div>
 						<div class="absolute -z-10 {position?.teamLogo && position.teamLogo.toLowerCase().includes('pit') && 'top-[-80px]'} ">
