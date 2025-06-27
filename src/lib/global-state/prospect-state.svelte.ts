@@ -141,42 +141,36 @@ class ProspectDraftSystem {
 
 
 	computePoints(){
-		let startingPoints = 10;
-		let tempProspectCompare: Record<string,Record<string,number>> = {}
-
-		for(let i = 0; i < this.draftBoard.length; i++) {
-			if(!this.draftBoard[i].prospect) {
-				continue
-			} 
-
-			if(this.draftBoard[i]?.prospect?.name) {
-				tempProspectCompare[this.draftBoard[i].prospect?.name as string] = {...tempProspectCompare[this.draftBoard[i].prospect?.name as string], user: this.draftBoard[i].draftPosition }
-			}
-		}
+		const startingPoints = 10;
 		
-		for(let i = 0; i < this.nhlDraftBoard.length; i++) {
-			if(!this.nhlDraftBoard[i].prospect?.name) {
-				continue
-			} 
+		// Create a map of prospect ID to NHL draft position for O(1) lookup
+		const nhlDraftPositions = new Map<string, number>();
+		this.nhlDraftBoard.forEach((pick, index) => {
+			if (pick.prospect?.id) {
+				nhlDraftPositions.set(pick.prospect.id, pick.draftPosition);
+			}
+		});
+
+		// Calculate points for each user draft pick
+		this.draftBoard.forEach(draft => {
+			if (!draft.prospect?.id) {
+				draft.points = 0;
+				return;
+			}
+
+			const nhlPosition = nhlDraftPositions.get(draft.prospect.id);
 			
-			if(this.nhlDraftBoard[i].prospect?.name) {
-				tempProspectCompare[this.nhlDraftBoard[i].prospect?.name as string] = {...tempProspectCompare[this.nhlDraftBoard[i].prospect?.name as string], nhl: this.nhlDraftBoard[i].draftPosition }
+			if (nhlPosition !== undefined) {
+				// Calculate points: 10 - |user_position - nhl_position|, minimum 0
+				const pointDifference = Math.abs(draft.draftPosition - nhlPosition);
+				draft.points = Math.max(0, startingPoints - pointDifference);
+			} else {
+				// Prospect wasn't drafted in NHL first round
+				draft.points = 0;
 			}
-		}
+		});
 
-		for(let i = 0; i < this.draftBoard.length; i++) {
-			if(!this.draftBoard[i].prospect) {
-				this.draftBoard[i].points = 0
-				continue;	
-			} 
-
-			if(this.draftBoard[i].prospect?.name && tempProspectCompare?.[this.draftBoard[i].prospect?.name as string]) {
-				// this is dumb ass code but it works, fix it later
-				this.draftBoard[i].points = startingPoints - Math.abs(tempProspectCompare[this.draftBoard[i].prospect?.name as string]?.user - tempProspectCompare[this.draftBoard[i].prospect?.name as string]?.nhl) < 0 ? 0 : startingPoints - Math.abs(tempProspectCompare[this.draftBoard[i].prospect?.name as string]?.user - tempProspectCompare[this.draftBoard[i].prospect?.name as string]?.nhl)
-			}
-		}
-
-		return this.draftBoard.reduce((acc,d) => acc + (d.points || 0), 0)
+		return this.draftBoard.reduce((acc, d) => acc + (d.points || 0), 0);
 	}
 
 	addNhlPick(prospectName: string, position: number){

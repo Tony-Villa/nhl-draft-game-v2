@@ -4,6 +4,7 @@
 	import { twMerge } from 'tailwind-merge';
 	import { ladderOptions, ladderTextOptions, type LadderProps } from './Ladder.options';
 	import Card from './Card.svelte';
+	import StanleyCup from "$lib/icons/StanleyCup.svelte";
 
     
   interface Ladder {
@@ -23,12 +24,12 @@
 <div class="w-full flex justify-center mb-6 sm:mb-8 mt-10 z-0">
   <Card class={twMerge(ladderOptions({variant: 'player', position: 'first'}), 'flex flex-col justify-center w-full min-h-52 max-w-xs sm:max-w-md mx-4 sm:mx-auto')}>
     <!-- Crown Icon -->
-    <div class="absolute z-10 -right-4 sm:-right-8 -top-8 sm:-top-12 rotate-[16deg]">
+    <div class="absolute z-10 -right-4 sm:-right-6 -top-8 sm:-top-10 rotate-[-16deg]">
       <div class="sm:hidden">
-        <Crown size={60} color="#ffd700" />
+        <StanleyCup size={90} color="#ffd700" />
       </div>
       <div class="hidden sm:block">
-        <Crown size={75} color="#ffd700" />
+        <StanleyCup size={100} color="#ffd700" />
       </div>
     </div>
 
@@ -47,12 +48,12 @@
   <!-- Second Place Card -->
   <Card class={twMerge(ladderOptions({variant: 'player', position: 'first'}), 'w-full max-w-[280px] sm:w-auto sm:min-w-[200px] sm:max-w-[220px]')}>
     <!-- Silver Crown -->
-    <div class="absolute z-10 -right-4 sm:-right-6 -top-8 sm:-top-10 rotate-[16deg]">
+    <div class="absolute z-10 -right-4 sm:-right-6 -top-5 sm:-top-7 rotate-[-16deg]">
       <div class="sm:hidden">
-        <Crown size={45} color="#c0c0c0" />
+        <StanleyCup size={70} color="#c0c0c0" />
       </div>
       <div class="hidden sm:block">
-        <Crown size={55} color="#c0c0c0" />
+        <StanleyCup size={80} color="#c0c0c0" />
       </div>
     </div>
   
@@ -74,12 +75,12 @@
   <!-- Third Place Card -->
   <Card class={twMerge(ladderOptions({variant: 'player', position: 'first'}), 'w-full max-w-[280px] sm:w-auto sm:min-w-[200px] sm:max-w-[220px]')}>
     <!-- Bronze Crown -->
-    <div class="absolute z-10 -right-4 sm:-right-6 -top-8 sm:-top-10 rotate-[16deg]">
+    <div class="absolute z-10 -right-4 sm:-right-6 -top-5 sm:-top-7 rotate-[-16deg]">
       <div class="sm:hidden">
-        <Crown size={45} color="#cd7f32" />
+        <StanleyCup size={70} color="#cd7f32" />
       </div>
       <div class="hidden sm:block">
-        <Crown size={55} color="#cd7f32" />
+        <StanleyCup size={80} color="#cd7f32" />
       </div>
     </div>
   
@@ -102,7 +103,7 @@
 
 
 <!-- Remaining Players -->
-<div class="flex flex-wrap gap-4 justify-center mx-4 sm:mx-6">
+<div class="flex flex-wrap gap-4 justify-center mx-4 sm:mx-6 mb-5">
   {#each ladder as player, i}
     {#if player.score > 0 && i > 2}
       <Card class={twMerge(ladderOptions({variant: 'player', size: 'sm'}), 'w-full max-w-44 sm:max-w-48')}>

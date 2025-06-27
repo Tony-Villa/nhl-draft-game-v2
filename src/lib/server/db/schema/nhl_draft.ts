@@ -1,6 +1,6 @@
 import {sql} from 'drizzle-orm'
 import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core'
-import { games } from '.'
+import { games, prospects } from '.'
 
 export const nhlDraft = sqliteTable(
   'nhl_draft',
@@ -11,9 +11,15 @@ export const nhlDraft = sqliteTable(
     }),
     positionDrafted: integer('position_drafted').notNull(),
     team: text('team').notNull(),
-    prospect: text('prospect').notNull(),
+    prospectId: text('prospect_id').references(() => prospects.id, {
+      onDelete: 'no action'
+    }),
+    // Keep prospect name as backup/cache for quick display
+    prospectName: text('prospect_name'),
     createdAt: integer('created_at')
 			.notNull()
+			.default(sql`(cast (unixepoch() as int))`),
+    updatedAt: integer('updated_at')
 			.default(sql`(cast (unixepoch() as int))`)
   }
 )
