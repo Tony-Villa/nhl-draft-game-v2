@@ -12,7 +12,8 @@ export const nhlDraft = sqliteTable(
     positionDrafted: integer('position_drafted').notNull(),
     team: text('team').notNull(),
     prospectId: text('prospect_id').references(() => prospects.id, {
-      onDelete: 'no action'
+      onDelete: 'no action',
+      onUpdate: 'cascade'
     }),
     // Keep prospect name as backup/cache for quick display
     prospectName: text('prospect_name'),

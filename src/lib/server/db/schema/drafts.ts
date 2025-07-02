@@ -14,7 +14,10 @@ export const drafts = sqliteTable(
 		positionDrafted: integer('position_drafted').notNull(),
 		points: integer('points'),
 		team: text('team').notNull(),
-		prospectId: text('prospect_id').references(() => prospects.id),
+		prospectId: text('prospect_id').references(() => prospects.id, {
+			onUpdate: 'cascade',
+			onDelete: 'no action'
+		}),
 		createdAt: integer('created_at')
 			.notNull()
 			.default(sql`(cast (unixepoch() as int))`)
