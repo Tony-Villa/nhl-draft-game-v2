@@ -135,7 +135,7 @@
 				draftState.updateNhlDraftPick(nhlDraftBoardLength);
 
 				// Update scores in database for all users (only if user is logged in)
-				if (userState?.user?.id) {
+				if (userState?.user && typeof userState.user === 'object' && 'id' in userState.user && userState.user.id) {
 					try {
 						await fetch('/api/score');
 					} catch (error) {
