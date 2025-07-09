@@ -68,7 +68,7 @@
 	</h2>
 	{#if draftType === 'user'}
 	<div class="flex items-end justify-between gap-3 pr-3">
-		{#if !currentUser?.user}
+		{#if !currentUser?.user && draftState.currentState !== 'mock'}
 			<div class="mx-auto text-lg mb-5 p-4 border-dashed border-[3px] border-gray">
 				<p class="text-gray font-semibold md:text-lg">Sign in to submit your draft!</p>
 			</div>

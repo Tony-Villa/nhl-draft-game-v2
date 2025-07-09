@@ -8,7 +8,7 @@
   const draftSystem = getDraftSystem();
   const draftState = getDraftState()
 
-  let { currentPick }: {currentPick: number} = $props()
+  let { currentPick, isMockGame = false }: {currentPick: number, isMockGame?: boolean} = $props()
 
   let currentDraftPosition = $state(currentPick)
   let currentStyle = $state('waiting')
@@ -17,20 +17,23 @@
 
   // Sync with parent's currentPick prop when it changes
   $effect(() => {
-    if (currentPick > currentDraftPosition) {
+    if (isMockGame) {
+      currentDraftPosition = currentPick
+    } else if (currentPick > currentDraftPosition) {
       currentDraftPosition = currentPick
     }
   })
 
   $effect(() => {
     if(draftSystem?.nhlDraftBoard[currentDraftPosition]?.prospect?.name ){
-      // User head-to-head comparison
       let totalPoints = draftSystem.computePoints()
   
       const timeout = setTimeout(() => {
-        // Advance to the next pick position, but don't exceed the draft length
-        const nextPosition = Math.min(currentDraftPosition + 1, 31)
-        currentDraftPosition = nextPosition
+        if (!isMockGame) {
+          // Advance to the next pick position, but don't exceed the draft length
+          const nextPosition = Math.min(currentDraftPosition + 1, 31)
+          currentDraftPosition = nextPosition
+        }
       }, 5000)
   
       return () => {

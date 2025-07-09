@@ -1,6 +1,6 @@
 import { getContext, setContext } from "svelte"
 
-type CurrentDraftState = "open" | "locked" | "started" | "finalized"
+type CurrentDraftState = "open" | "locked" | "started" | "finalized" | "mock"
 export interface DraftStateType {
   isDraftLocked: boolean;
   isDraftDaySet: boolean;

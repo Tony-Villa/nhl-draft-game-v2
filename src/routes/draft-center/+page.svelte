@@ -18,6 +18,7 @@
 	import DataVizSidebar from '$lib/components/DataVizSidebar.svelte';
 	import LiveLeaderboard from '$lib/components/LiveLeaderboard.svelte';
 	import { env } from '$env/dynamic/public';
+	import { buttonOptions } from '$lib/components/Button.options';
 
 	let { children, data }: {
 		children: any;
@@ -178,17 +179,6 @@
 		}
 	})
 
-	// $inspect(draftState.currentState, {
-	// 	name: 'Draft State Game Phase',
-	// });
-
-	// $inspect(data.game.startDate, {
-	// 	name: 'Draft Start Date',
-	// });
-	// $inspect(isAfter(new Date(data.game.startDate), Date.now()), {
-	// 	name: 'Is Draft Day After Now',
-	// });
-
 </script>
 
 <svelte:window bind:innerWidth />
@@ -285,6 +275,21 @@
 					<p class="text-sm font-semibold mt-1 text-gray-700">Points</p>
 				</div>
 			</Card>
+		</div>
+	</Card>
+
+	<Card class="max-w-2xl mx-auto mb-6 shadow-brut-shadow bg-white">
+		<div class="p-6 text-center">
+			<h2 class="mb-3 text-xl font-bold uppercase tracking-wide">Want to Keep Playing?</h2>
+			<p class="text-gray-600 mb-4">
+				While we wait for next season, try the Mock Draft Game! Practice with this year's prospects and see how you would have scored.
+			</p>
+			<a 
+				href="/draft-center/mock-game"
+				class={buttonOptions({variant: 'primary', size: 'lg'})}
+			>
+				Play Mock Draft Game
+			</a>
 		</div>
 	</Card>
 
