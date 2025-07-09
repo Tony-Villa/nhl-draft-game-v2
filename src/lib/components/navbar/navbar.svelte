@@ -19,7 +19,9 @@
 
   {#if page.url.pathname.includes('draft-center')}
     <div class="justify-self-center">
-      <Header title="draft center" />
+      <a  href="/draft-center">
+        <Header title="draft center" />
+      </a>
     </div>
   {/if}
 
