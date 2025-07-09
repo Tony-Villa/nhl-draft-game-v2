@@ -5,7 +5,7 @@ export function parseTeamAndTrade(mainTeam: string, fromTeam?: string) {
   mainTeam = mainTeam.replace('NY ', 'New York ')
   
   // Special case for Utah
-  if (mainTeam.toLowerCase() === 'utah') {
+  if (mainTeam.toLowerCase().includes('utah')) {
     mainTeam = 'Utah Hockey Club'
   }
 
