@@ -35,7 +35,13 @@ export const load = async ({ setHeaders, locals, fetch }: RequestEvent) => {
 
 	let draftBoard: DraftBoard[] = [];
 	if(locals?.user) {
-		const baseDraftBoard = await getCachedDraftBoardOrder();
+		let baseDraftBoard: DraftBoard[];
+		
+		if (game?.gamePhase === 'finalized') {
+			baseDraftBoard = await getCachedDraftBoardOrder(true, game.year);
+		} else {
+			baseDraftBoard = await getCachedDraftBoardOrder();
+		}
 		
 		const userDraftData = await db
 			.select({
@@ -66,11 +72,10 @@ export const load = async ({ setHeaders, locals, fetch }: RequestEvent) => {
 			.orderBy(drafts.positionDrafted);
 		
 		if (userDraftData.length > 0) {
-			// Transform database result to DraftBoard format
 			const userDraftPicks = userDraftData.map(draft => ({
 				draftPosition: draft.draftPosition,
 				teamName: draft.team,
-				teamLogo: undefined, // Will be filled by base draft board
+				teamLogo: undefined,
 				points: draft.points,
 				prospect: draft.prospectId ? {
 					id: draft.prospectId,
@@ -87,16 +92,13 @@ export const load = async ({ setHeaders, locals, fetch }: RequestEvent) => {
 				} as Prospect : null
 			}));
 			
-			// Merge user picks into the base draft board
 			draftBoard = baseDraftBoard.map(basePosition => {
-				// Find if the user has a pick for this position
 				const userPick = userDraftPicks.find(pick => pick.draftPosition === basePosition.draftPosition);
 				if (userPick) {
-					// Merge user pick with base position to preserve teamLogo
 					return {
 						...basePosition,
 						...userPick,
-						teamLogo: basePosition.teamLogo // Preserve teamLogo from base
+						teamLogo: basePosition.teamLogo
 					};
 				}
 				return basePosition;
@@ -105,7 +107,11 @@ export const load = async ({ setHeaders, locals, fetch }: RequestEvent) => {
 			draftBoard = baseDraftBoard;
 		}
 	} else {
-		draftBoard = await getCachedDraftBoardOrder();
+		if (game?.gamePhase === 'finalized') {
+			draftBoard = await getCachedDraftBoardOrder(true, game.year);
+		} else {
+			draftBoard = await getCachedDraftBoardOrder();
+		}
 	}
 
 	return { 
