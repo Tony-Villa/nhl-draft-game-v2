@@ -22,8 +22,6 @@
 	let isAutoSimulating = $state(false);
 	let isProcessingPick = $state(false);
   let mockDraftCardOpen = $state(true);
-
-  console.log('Mock Draft Game Data:', data);
 	
 	setCurrentUser(data?.user?.user);
 	setDraftSystem(data.prospects, data.draftBoard, data.nhlBoard);
@@ -206,7 +204,7 @@
 					{#if !mockDraftStarted}
 						<Button 
 							onclick={startMockDraft}
-							variant="primary"
+							variant={draftSystem.draftBoard.filter((pick: any) => pick.prospect).length === 0 ? "disabled" : "primary"}
 							disabled={draftSystem.draftBoard.filter((pick: any) => pick.prospect).length === 0}
 						>
 							Start Mock NHL Draft
@@ -220,21 +218,6 @@
 						Reset
 					</Button>
 				</div>
-
-				{#if mockDraftStarted}
-					<div class="mt-4 p-3 bg-blue-50 rounded-lg">
-						<p class="text-sm text-blue-800">
-							{#if currentNhlPick <= 32}
-								Mock NHL Draft in progress... Next pick: #{currentNhlPick}
-								{#if userState.points !== undefined}
-									| Your current score: {userState.points} points
-								{/if}
-							{:else}
-								Mock NHL Draft completed! Final score: {userState.points || 0} points
-							{/if}
-						</p>
-					</div>
-				{/if}
 
 				{#if draftSystem.draftBoard.filter((pick: any) => pick.prospect).length === 0}
 					<div class="mt-4 p-3 bg-yellow-50 rounded-lg">
