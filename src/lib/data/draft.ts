@@ -1,19 +1,19 @@
 export const pointsDraft = {
-	'Edmonton Oilers': 'jake',
-	'Carolina Hurricanes': 'jake',
-	'Colorado Avalanche': 'jake',
-	'Pittsburgh Penguins': 'jake',
-	'Utah Hockey Club': 'jake',
+	'Vegas Golden Knights': 'jake',
+	'Dallas Stars': 'jake',
+	'Tampa Bay Lightning': 'jake',
+	'Utah Mammoth': 'jake',
+	'Vancouver Canucks': 'jake',
 	'Buffalo Sabres': 'jake',
-	'Anaheim Ducks': 'jake',
+	'Philadelphia Flyers': 'jake',
 
-	'Dallas Stars': 'felix',
-	'Toronto Maple Leafs': 'felix',
-	'Florida Panthers': 'felix',
-	'New Jersey Devils': 'felix',
-	'Seattle Kraken': 'felix',
-	'Minnesota Wild': 'felix',
-	'Montréal Canadiens': 'felix'
-};
+	'Carolina Hurricanes': 'felix',
+	'Edmonton Oilers': 'felix',
+	'Los Angeles Kings': 'felix',
+	'New York Rangers': 'felix',
+	'Calgary Flames': 'felix',
+	'Detroit Red Wings': 'felix',
+	'Nashville Predators': 'felix'
+}
 
 export const currentPlayers = ['jake', 'felix'];
