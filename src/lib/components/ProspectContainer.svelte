@@ -7,10 +7,7 @@
 	import Searchbar from './Searchbar.svelte';
 	import { fetchProspects, type ProspectsResponse } from '$lib/helpers/fetch-prospects';
 
-	import ChevronLeft from "@lucide/svelte/icons/chevron-left";
-  import ChevronRight from "@lucide/svelte/icons/chevron-right";
-  import ArrowUp from "@lucide/svelte/icons/arrow-up";
-  import ArrowDown from "@lucide/svelte/icons/arrow-down";
+	import IconPlaceholder from '$lib/components/IconPlaceholder.svelte';
   import * as Pagination from "$lib/components/ui/pagination/index.js";
 	import Button from './Button.svelte';
 	import { buttonOptions } from './Button.options';
@@ -267,7 +264,7 @@
 					class="w-full p-4 border-black border-[3px] bg-white text-black font-bold shadow-button-shadow focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] hover:bg-accent hover:text-black uppercase cursor-pointer transition-all duration-100 ease-in-out text-left flex justify-between items-center"
 				>
 					<span>{prospectSortOptions.find(option => option.value === sortBy)?.label === verbeekJoke ? 'Height' : prospectSortOptions.find(option => option.value === sortBy)?.label  || 'Sort by'}</span>
-					<ArrowDown class="size-4 {isDropdownOpen ? 'rotate-180' : ''} transition-transform duration-100" />
+					<IconPlaceholder name="arrow-down" class="size-4 {isDropdownOpen ? 'rotate-180' : ''} transition-transform duration-100" />
 				</button>
 				
 				{#if isDropdownOpen}
@@ -294,10 +291,10 @@
 				class="flex items-center gap-1"
 			>
 				{#if sortOrder === 'asc'}
-					<ArrowUp class="size-4" />
+					<IconPlaceholder name="arrow-up" class="size-4" />
 					<span>Asc</span>
 				{:else}
-					<ArrowDown class="size-4" />
+					<IconPlaceholder name="arrow-down" class="size-4" />
 					<span>Desc</span>
 				{/if}
 			</Button>
@@ -349,7 +346,7 @@
 							onclick={() => handlePageChange(pageCurrent - 1)}
 							disabled={!prospectsResponse.pagination.hasPrevPage || isLoading}
 						>
-							<ChevronLeft class="size-4" />
+							<IconPlaceholder name="chevron-left" class="size-4" />
 							<span class="hidden sm:block">Previous</span>
 						</Pagination.PrevButton>
 					</Pagination.Item>
@@ -378,7 +375,7 @@
 							disabled={!prospectsResponse.pagination.hasNextPage || isLoading}
 						>
 							<span class="hidden sm:block">Next</span>
-							<ChevronRight class="size-4" />
+							<IconPlaceholder name="chevron-right" class="size-4" />
 						</Pagination.NextButton>
 					</Pagination.Item>
 				</Pagination.Content>

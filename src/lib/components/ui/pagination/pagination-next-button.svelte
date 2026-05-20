@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Pagination as PaginationPrimitive } from "bits-ui";
-	import ChevronRight from "@lucide/svelte/icons/chevron-right";
+	import IconPlaceholder from "$lib/components/IconPlaceholder.svelte";
 	import { buttonVariants } from "$lib/components/ui/button/index.js";
 	import { cn } from "$lib/utils.js";
 
@@ -14,7 +14,7 @@
 
 {#snippet Fallback()}
 	<span>Next</span>
-	<ChevronRight class="size-4" />
+	<IconPlaceholder name="chevron-right" class="size-4" />
 {/snippet}
 
 <PaginationPrimitive.NextButton
