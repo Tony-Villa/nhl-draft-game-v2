@@ -1,8 +1,5 @@
 <script lang="ts">
-	// @ts-ignore
-	import FaRegMoon from 'svelte-icons/fa/FaRegMoon.svelte';
-	// @ts-ignore
-	import WiDaySunny from 'svelte-icons/wi/WiDaySunny.svelte';
+	import IconPlaceholder from '$lib/components/IconPlaceholder.svelte';
 
 	const LIGHT = {
 		bg: ' #e05a36',
@@ -12,11 +9,6 @@
 	const DARK = {
 		bg: ' #47243b',
 		accent: '#c0c0c0'
-	};
-
-	const cmp: any = {
-		light: WiDaySunny,
-		dark: FaRegMoon
 	};
 
 	let isCurrentThemeLight = true;
@@ -43,7 +35,7 @@
 
 <button class="theme-toggle {!isCurrentThemeLight ? 'light' : 'dark'}" on:click={toggleTheme}>
 	<div class="icon">
-		<svelte:component this={cmp[selected]} />
+		<IconPlaceholder name={selected === 'light' ? 'sun' : 'moon'} class="size-full" />
 	</div>
 </button>
 

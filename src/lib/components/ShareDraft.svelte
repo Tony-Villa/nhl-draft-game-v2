@@ -3,8 +3,6 @@
 	import { getCurrentUser } from '$lib/global-state/user-state.svelte';
 	import Button from './Button.svelte';
 	import * as Dialog from "$lib/components/ui/dialog/index.js";
-	// @ts-ignore - dom-to-image-more doesn't have types
-	import * as domtoimage from 'dom-to-image-more';
 	import { toast } from 'svelte-french-toast';
 	import { buttonOptions } from './Button.options';
 
@@ -40,6 +38,8 @@
 	async function generateShareImage() {
 		isGeneratingImage = true;
 		try {
+			const domtoimage = await import('dom-to-image-more');
+
 			// First try: VPS service (highest priority)
 			try {
 				console.log('Attempting VPS service generation...');

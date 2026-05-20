@@ -14,10 +14,18 @@
     avarar: string;
   }
 
-  let {ladder}: {ladder: Ladder[]} = $props()
+  let {ladder = []}: {ladder: Ladder[]} = $props()
 
 </script>
     
+{#if ladder.length < 3}
+  <div class="w-full flex justify-center my-10">
+    <Card class="w-full max-w-md mx-4 bg-white text-center">
+      <h1 class={ladderTextOptions({type: 'title', class: 'text-xl sm:text-2xl'})}>Leaderboard loading</h1>
+      <p class="mt-3 text-sm font-bold uppercase">Scores will appear here once they are available.</p>
+    </Card>
+  </div>
+{:else}
 
 
 <!-- Winner Card - 1st Place -->
@@ -124,3 +132,4 @@
     {/if}
   {/each}
 </div>
+{/if}

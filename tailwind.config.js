@@ -1,9 +1,8 @@
 import { fontFamily } from "tailwindcss/defaultTheme";
 import tailwindcssAnimate from "tailwindcss-animate";
-import { withTV } from "tailwind-variants/dist/transformer.js";
 
 /** @type {import('tailwindcss').Config} */
-const config = withTV({
+const config = {
 	darkMode: ["class"],
 	content: ["./src/**/*.{html,js,svelte,ts}"],
 	safelist: ["dark"],
@@ -100,6 +99,6 @@ const config = withTV({
 		},
 	},
 	plugins: [tailwindcssAnimate],
-});
+};
 
 export default config;
