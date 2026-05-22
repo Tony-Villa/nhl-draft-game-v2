@@ -70,7 +70,7 @@
       </div>
       
       <!-- Fixed height container to match NHL card -->
-      <div class="flex items-center justify-between gap-4 mb-3 min-h-[48px]">
+      <div class="flex items-center justify-between gap-4 mb-3 min-h-12">
         <!-- Left side - Number and Logo -->
         <div class="flex items-center gap-3">
           <span class="text-2xl font-bold">#{currentDraftPosition + 1}</span>
@@ -78,7 +78,7 @@
         </div>
         
         <!-- Right side - Empty space to match NHL card structure -->
-        <div class="w-[60px] h-[32px]"></div>
+        <div class="w-15 h-8"></div>
       </div>
       
       <Card class="bg-white shadow-brut-shadow-sm">
@@ -118,7 +118,7 @@
           <img class="h-12 w-12" src={draftSystem?.draftBoard[currentDraftPosition]?.teamLogo} alt="" />
         </div>
          <!-- Right side - Status Badge (fixed position) -->
-        <div class="w-[60px] h-[32px] flex items-center justify-center">
+        <div class="w-15 h-8 flex items-center justify-center">
           {#if currentStyle === 'win'}
             <div class="bg-green-700 text-white rounded-md px-2 py-1 border-2 border-black">
               <span class="font-bold text-xs">MATCH</span>
