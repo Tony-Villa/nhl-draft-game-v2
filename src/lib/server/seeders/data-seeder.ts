@@ -1,6 +1,6 @@
 import { db } from '../db/index.js';
 import { users, drafts, prospects, games } from '../db/schema/index.js';
-import { generateId } from 'lucia';
+import { generateId } from 'better-auth';
 import { eq, and, like, or } from 'drizzle-orm';
 import type { DraftBoard, Prospect } from '$lib/types.js';
 

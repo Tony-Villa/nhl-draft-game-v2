@@ -5,7 +5,7 @@
 
 	let { data }: { data: PageData } = $props();
 
-	const { form } = superForm(data?.form);
+	const { form } = superForm<{ email: string; password: string }>(data?.form as never);
 </script>
 
 <SuperDebug data={$form} />

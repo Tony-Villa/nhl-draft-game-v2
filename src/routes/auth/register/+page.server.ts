@@ -4,12 +4,11 @@ import { zod } from 'sveltekit-superforms/adapters';
 
 import { message,  superValidate } from 'sveltekit-superforms/server';
 
-import { lucia } from '$lib/server/auth';
-import { generateId } from 'lucia';
+import { generateId } from 'better-auth';
 import { Argon2id } from 'oslo/password';
 
-import { createAndSetSession } from '$lib/server/authUtils';
-import { checkIfEmailExists, insertNewUser } from '$lib/server/dbAuthUtils';
+import { createAndSetSession, linkAuthAccount } from '$lib/server/authUtils';
+import { checkIfEmailExists } from '$lib/server/dbAuthUtils';
 import { RegisterUserZodSchema } from '$lib/validations/AuthZodSchemas';
 import { eq } from 'drizzle-orm';
 import { users } from '$lib/server/db/schema';
@@ -17,13 +16,13 @@ import { db } from '$lib/server/db';
 
 export const load = (async () => {
 	return {
-		registerUserFormData: await superValidate(zod(RegisterUserZodSchema))
+		registerUserFormData: await superValidate(zod(RegisterUserZodSchema as never))
 	};
 });
 
 export const actions: Actions = {
 	registerUser: async ({ request, cookies }) => {
-		const registerUserFormData = await superValidate(request, zod(RegisterUserZodSchema));
+		const registerUserFormData = await superValidate(request, zod(RegisterUserZodSchema as never));
 
 		if (registerUserFormData.valid === false) {
 			return message(registerUserFormData, {
@@ -33,7 +32,11 @@ export const actions: Actions = {
 		}
 
 		try {
-			const userEmail = registerUserFormData.data.email;
+			const { email: userEmail, name, password } = registerUserFormData.data as {
+				email: string;
+				name: string;
+				password: string;
+			};
 			const existingUser = await checkIfEmailExists(userEmail);
 
 			if(existingUser && existingUser.keys.includes('email')){
@@ -44,27 +47,47 @@ export const actions: Actions = {
 			}
 
 			const userId = existingUser?.id ?? generateId(15);
-			const hashedPassword = await new Argon2id().hash(registerUserFormData.data.password);
+			const hashedPassword = await new Argon2id().hash(password);
 
 			if(!existingUser){
-				await insertNewUser({
-					id: userId,
-					name: registerUserFormData.data.name,
-					email: registerUserFormData.data.email,
-					password: hashedPassword,
-					keys: ['email']
+				await db.transaction(async (trx) => {
+					await trx.insert(users).values({
+						id: userId,
+						name,
+						email: userEmail,
+						password: hashedPassword,
+						keys: ['email']
+					});
+
+					await linkAuthAccount(trx, {
+						userId,
+						providerId: 'credential',
+						providerUserId: userId,
+						password: hashedPassword
+					});
 				});
 			} else {
 				const authKeys = existingUser.keys || [];
-				authKeys.push('email');
+				if (!authKeys.includes('email')) {
+					authKeys.push('email');
+				}
 
-				await db.update(users).set({
-					password: hashedPassword,
-					keys: authKeys,
-				}).where(eq(users.email, userEmail));
+				await db.transaction(async (trx) => {
+					await trx.update(users).set({
+						password: hashedPassword,
+						keys: authKeys,
+					}).where(eq(users.email, userEmail));
+
+					await linkAuthAccount(trx, {
+						userId,
+						providerId: 'credential',
+						providerUserId: userId,
+						password: hashedPassword
+					});
+				});
 			}
 
-			await createAndSetSession(lucia, userId, cookies);
+			await createAndSetSession(userId, cookies);
 		} catch (error) {
 			console.error('Registration error:', error);
 

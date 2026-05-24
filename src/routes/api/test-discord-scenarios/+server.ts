@@ -1,6 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { generateId } from 'lucia';
-import { lucia } from '$lib/server/auth';
+import { generateId } from 'better-auth';
 import type { RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { and, eq, desc, count } from 'drizzle-orm';

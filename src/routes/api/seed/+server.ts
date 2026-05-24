@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 // import { db } from '$lib/server/db';
 // import { drafts } from '$lib/server/db/schema/drafts';
 import type { DraftBoard, Prospect } from '$lib/types.js';
-// import { generateId } from 'lucia';
+// import { generateId } from 'better-auth';
 import { PointsSystem } from '$lib/global-state/scoring-system.svelte.js';
 import { queryGame } from '$lib/server/db/queries/query-game.js';
 // import { getPointsSystem } from '$lib/global-state/scoring-system.svelte.js';

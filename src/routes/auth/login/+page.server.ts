@@ -8,14 +8,14 @@ const loginSchema = z.object({
 });
 
 export const load = async () => {
-	const form = await superValidate(zod(loginSchema));
+	const form = await superValidate(zod(loginSchema as never));
 
 	return { form };
 };
 
 export const actions = {
 	default: async ({ request }) => {
-		const form = await superValidate(request, zod(loginSchema));
+		const form = await superValidate(request, zod(loginSchema as never));
 
 		return { form };
 	}

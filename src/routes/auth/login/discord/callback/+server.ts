@@ -1,12 +1,16 @@
 import { OAuth2RequestError } from 'arctic';
-import { generateId } from 'lucia';
-import { discord, lucia } from '$lib/server/auth';
+import { generateId } from 'better-auth';
+import { discord } from '$lib/server/auth';
 
 import type { RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { and, eq, desc, count } from 'drizzle-orm';
-import { games, users, keys, scores, drafts } from '$lib/server/db/schema';
-import { createAndSetSession } from '$lib/server/authUtils';
+import { accounts, games, users, keys, scores, drafts } from '$lib/server/db/schema';
+import {
+	DISCORD_OAUTH_STATE_COOKIE_NAME,
+	createAndSetSession,
+	linkAuthAccount
+} from '$lib/server/authUtils';
 
 // Constants for Discord temp email handling
 const DISCORD_TEMP_EMAIL_PREFIX = 'discord-temp-';
@@ -120,6 +124,25 @@ async function mergeUserAccounts(keepUserId: string, mergeUserId: string, gameId
 			}
 		}
 
+		const mergeUserAccounts = await trx.select().from(accounts).where(eq(accounts.userId, mergeUserId));
+
+		for (const account of mergeUserAccounts) {
+			const [existingAccount] = await trx
+				.select()
+				.from(accounts)
+				.where(and(
+					eq(accounts.userId, keepUserId),
+					eq(accounts.providerId, account.providerId),
+					eq(accounts.accountId, account.accountId)
+				));
+
+			if (!existingAccount) {
+				await trx.update(accounts)
+					.set({ userId: keepUserId })
+					.where(eq(accounts.id, account.id));
+			}
+		}
+
 		// Transfer drafts from merge user to keep user (if keep user doesn't have better drafts)
 		if (finalUserId === keepUserId) {
 			await trx.update(drafts)
@@ -148,7 +171,7 @@ async function mergeUserAccounts(keepUserId: string, mergeUserId: string, gameId
 export async function GET(event: RequestEvent): Promise<Response> {
 	const code = event.url.searchParams.get('code');
 	const state = event.url.searchParams.get('state');
-	const storedState = event.cookies.get('discord_oauth_state') ?? null;
+	const storedState = event.cookies.get(DISCORD_OAUTH_STATE_COOKIE_NAME) ?? null;
 
 	console.log('[Discord OAuth] Starting callback process', {
 		hasCode: !!code,
@@ -173,15 +196,15 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 	try {
 		console.log('[Discord OAuth] Validating authorization code...');
-		const tokens = await discord.validateAuthorizationCode(code);
+		const tokens = await discord.validateAuthorizationCode(code, null);
 		console.log('[Discord OAuth] Authorization code validated successfully');
 
-		console.log('[Discord OAuth] Fetching user data from Discord API...');
-		const discordUserResponse = await fetch("https://discord.com/api/users/@me", {
-			headers: {
-				Authorization: `Bearer ${tokens.accessToken}`
-			}
-		});
+			console.log('[Discord OAuth] Fetching user data from Discord API...');
+			const discordUserResponse = await fetch("https://discord.com/api/users/@me", {
+				headers: {
+					Authorization: `Bearer ${tokens.accessToken()}`
+				}
+			});
 		
 		if (!discordUserResponse.ok) {
 			console.error('[Discord OAuth] Failed to fetch user data from Discord API', {
@@ -281,8 +304,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 				});
 
 				await db.transaction(async (trx) => {
-					// link discord oauth account to the existing user
-					await trx.insert(keys).values({
+					await linkAuthAccount(trx, {
 						providerId: 'discord',
 						providerUserId: discordUser.id.toString(),
 						userId: existingUser.id
@@ -294,7 +316,6 @@ export async function GET(event: RequestEvent): Promise<Response> {
 						isArray: Array.isArray(safeKeys)
 					});
 
-					// Update the user's keys list - THIS IS THE LINE THAT FAILS
 					await trx.update(users).set({
 						keys: safeKeys
 					}).where(eq(users.id, existingUser.id));
@@ -309,7 +330,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			}
 
 			console.log('[Discord OAuth] Creating session for existing user...');
-			await createAndSetSession(lucia, existingUser.id, event.cookies);
+			await createAndSetSession(existingUser.id, event.cookies);
 			console.log('[Discord OAuth] Session created successfully for existing user');
 
 		} else {
@@ -355,7 +376,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 					});
 
 					console.log('[Discord OAuth] Creating session for updated user...');
-					await createAndSetSession(lucia, tempUser.id, event.cookies);
+					await createAndSetSession(tempUser.id, event.cookies);
 					console.log('[Discord OAuth] Session created successfully for updated user');
 					
 					console.log('[Discord OAuth] Login process completed successfully, redirecting to /draft-center');
@@ -397,7 +418,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 					keys: ['discord']
 				});
 
-				await trx.insert(keys).values({
+				await linkAuthAccount(trx, {
 					providerId: 'discord',
 					providerUserId: discordUser.id.toString(),
 					userId
@@ -417,7 +438,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			});
 
 			console.log('[Discord OAuth] Creating session for new user...');
-			await createAndSetSession(lucia, userId, event.cookies);
+			await createAndSetSession(userId, event.cookies);
 			console.log('[Discord OAuth] Session created successfully for new user');
 		}
 

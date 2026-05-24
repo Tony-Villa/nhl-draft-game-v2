@@ -4,7 +4,11 @@
 
 	let { data } = $props();
 
-	const { enhance, errors, form, message, constraints } = superForm(data.registerUserFormData, {
+	const { enhance, errors, form, message, constraints } = superForm<{
+		name: string;
+		email: string;
+		password: string;
+	}>(data.registerUserFormData as never, {
 		resetForm: true,
 		taintedMessage: null,
 

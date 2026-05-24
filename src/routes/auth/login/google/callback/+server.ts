@@ -1,14 +1,15 @@
 import { OAuth2RequestError } from 'arctic';
 import { and, eq } from 'drizzle-orm';
-import { generateId } from 'lucia';
+import { generateId } from 'better-auth';
 
 import {
 	GOOGLE_OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	GOOGLE_OAUTH_STATE_COOKIE_NAME,
-	createAndSetSession
+	createAndSetSession,
+	linkAuthAccount
 } from '$lib/server/authUtils';
 import { db } from '$lib/server/db';
-import { googleOauth, lucia } from '$lib/server/auth';
+import { googleOauth } from '$lib/server/auth';
 import { users, keys, games, scores } from '$lib/server/db/schema';
 import type { RequestEvent } from '../../$types';
 
@@ -59,12 +60,12 @@ export const GET = async (event : RequestEvent) => {
 		const tokens = await googleOauth.validateAuthorizationCode(code, storedCodeVerifier);
 		console.log('[Google OAuth] Authorization code validated successfully');
 
-		console.log('[Google OAuth] Fetching user data from Google API...');
-		const googleUserResponse = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
-			headers: {
-				Authorization: `Bearer ${tokens.accessToken}`
-			}
-		});
+			console.log('[Google OAuth] Fetching user data from Google API...');
+			const googleUserResponse = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
+				headers: {
+					Authorization: `Bearer ${tokens.accessToken()}`
+				}
+			});
 
 		if (!googleUserResponse.ok) {
 			console.error('[Google OAuth] Failed to fetch user data from Google API', {
@@ -153,22 +154,30 @@ export const GET = async (event : RequestEvent) => {
 					safeKeysIsArray: Array.isArray(safeKeys),
 					allElementsAreStrings: safeKeys.every(k => typeof k === 'string')
 				});				
-				// Only update if keys actually changed (i.e., we're adding 'google')
-				if (!existingUser.keys || !Array.isArray(existingUser.keys) || !existingUser.keys.includes('google')) {
-					await db.transaction(async (trx) => {
+				await db.transaction(async (trx) => {
+					await linkAuthAccount(trx, {
+						providerId: 'google',
+						providerUserId: googleUser.sub,
+						userId: existingUser.id
+					});
+
+					// Only update if keys actually changed (i.e., we're adding 'google')
+					if (!existingUser.keys || !Array.isArray(existingUser.keys) || !existingUser.keys.includes('google')) {
 						// link google oauth account to the existing user
 						await trx.insert(keys).values({
 							providerId: 'google',
 							providerUserId: googleUser.sub,
 							userId: existingUser.id
-						});
+						}).onConflictDoNothing();
 
 						// Update the user's keys list
 						await trx.update(users).set({
 							keys: safeKeys
 						}).where(eq(users.id, existingUser.id));
-					});
+					}
+				});
 					
+				if (!existingUser.keys || !Array.isArray(existingUser.keys) || !existingUser.keys.includes('google')) {
 					console.log('[Google OAuth] Successfully linked Google account to existing user', {
 						userId: existingUser.id,
 						totalKeysCount: safeKeys.length
@@ -181,7 +190,7 @@ export const GET = async (event : RequestEvent) => {
 			}
 
 			console.log('[Google OAuth] Creating session for existing user...');
-			await createAndSetSession(lucia, existingUser.id, event.cookies);
+			await createAndSetSession(existingUser.id, event.cookies);
 			console.log('[Google OAuth] Session created successfully for existing user');
 		} else {
 			console.log('[Google OAuth] No existing user found, creating new user...');
@@ -211,7 +220,7 @@ export const GET = async (event : RequestEvent) => {
 					keys: ['google']
 				});
 
-				await trx.insert(keys).values({
+				await linkAuthAccount(trx, {
 					userId,
 					providerId: 'google',
 					providerUserId: googleUser.sub
@@ -230,7 +239,7 @@ export const GET = async (event : RequestEvent) => {
 			});
 
 			console.log('[Google OAuth] Creating session for new user...');
-			await createAndSetSession(lucia, userId, event.cookies);
+			await createAndSetSession(userId, event.cookies);
 			console.log('[Google OAuth] Session created successfully for new user');
 		}
 

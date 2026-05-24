@@ -15,9 +15,7 @@ export async function GET({ cookies }: RequestEvent): Promise<Response> {
 	const codeVerifier = generateCodeVerifier();
 
 	// Create the Google OAuth authorization URL
-	const url = await googleOauth.createAuthorizationURL(state, codeVerifier, {
-		scopes: ['profile', 'email']
-	});
+	const url = await googleOauth.createAuthorizationURL(state, codeVerifier, ['profile', 'email']);
 
 	// Set a cookie with the state value, to be used for CSRF protection
 	cookies.set(GOOGLE_OAUTH_STATE_COOKIE_NAME, state, {
