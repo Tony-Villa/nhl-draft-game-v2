@@ -13,7 +13,6 @@ import {
 	GOOGLE_CLIENT_ID,
 	GOOGLE_CLIENT_SECRET
 } from '$env/static/private';
-import { Argon2id } from 'oslo/password';
 
 const baseURL = dev ? 'http://localhost:5173' : 'https://hockeydraftshowdown.com';
 const discordCallback = `${baseURL}/auth/login/discord/callback`;
@@ -35,15 +34,6 @@ export const auth = betterAuth({
 		provider: 'sqlite',
 		schema: betterAuthSchema
 	}),
-	emailAndPassword: {
-		enabled: true,
-		minPasswordLength: 2,
-		maxPasswordLength: 128,
-		password: {
-			hash: (password) => new Argon2id().hash(password),
-			verify: ({ hash, password }) => new Argon2id().verify(hash, password)
-		}
-	},
 	socialProviders: {
 		google: {
 			clientId: GOOGLE_CLIENT_ID,

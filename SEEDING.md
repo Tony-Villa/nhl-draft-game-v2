@@ -109,7 +109,7 @@ The cleanup feature safely removes:
 
 ### Dependencies:
 - Uses existing Drizzle ORM setup
-- Leverages Lucia for ID generation
+- Leverages Better Auth for ID generation
 - Integrates with your type definitions
 
 ## 🎯 Use Cases
