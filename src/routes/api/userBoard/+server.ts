@@ -1,7 +1,5 @@
 import { CURRENT_GAME } from '$env/static/private';
-import { db } from '$lib/server/db/index.js'
-import { drafts } from '$lib/server/db/schema';
-import { and, eq } from 'drizzle-orm'
+import { getUserDraftBoardCells } from '$lib/server/services/draft-board-service.js';
 
 export async function GET(event) {
 	const id = event.url.searchParams.get('board')
@@ -11,15 +9,7 @@ export async function GET(event) {
 
 		if(!id || id !== event.locals.user?.id) return new Response(JSON.stringify({savedDraftBoard: []})) 
 
-		const savedDraftBoard = await db
-				.select()
-				.from(drafts)
-				.where(
-					and(
-						eq(drafts.userId, id), 
-						eq(drafts.gameId, game_id)
-					)
-				);
+		const { picks: savedDraftBoard } = await getUserDraftBoardCells(id, game_id);
 		
 
 		return new Response(JSON.stringify(savedDraftBoard), {

@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db/index.js';
-import { drafts } from '$lib/server/db/schema';
+import { draftBoardPicks, draftBoards } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 export async function GET({ url }: { url: URL }) {
@@ -12,18 +12,18 @@ export async function GET({ url }: { url: URL }) {
 			return json({ error: 'userId is required' }, { status: 400 });
 		}
 
-		// Query to get drafted prospect IDs for this user/game
-		let whereConditions = [eq(drafts.userId, userId)];
+		let whereConditions = [eq(draftBoards.userId, userId)];
 		
 		if (gameId) {
-			whereConditions.push(eq(drafts.gameId, gameId));
+			whereConditions.push(eq(draftBoards.gameId, gameId));
 		}
 
 		const draftedProspects = await db
 			.select({
-				prospectId: drafts.prospectId
+				prospectId: draftBoardPicks.prospectId
 			})
-			.from(drafts)
+			.from(draftBoardPicks)
+			.innerJoin(draftBoards, eq(draftBoardPicks.draftBoardId, draftBoards.id))
 			.where(and(...whereConditions));
 
 		const prospectIds = draftedProspects
