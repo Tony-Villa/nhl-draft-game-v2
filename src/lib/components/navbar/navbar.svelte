@@ -37,7 +37,7 @@
         </div>
         <p> | </p>
         <form method="post" action="/draft-center?/logout">
-          <button onclick={clearLocalDraft}>Sign out</button>
+          <button type="submit" onclick={clearLocalDraft}>Sign out</button>
         </form>
       </ul>
   {:else}

@@ -5,7 +5,6 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
 import { db } from './db';
 import * as schema from './db/schema';
-import { Discord, Google } from 'arctic';
 import {
 	BETTER_AUTH_SECRET,
 	DISCORD_APP_ID,
@@ -13,6 +12,7 @@ import {
 	GOOGLE_CLIENT_ID,
 	GOOGLE_CLIENT_SECRET
 } from '$env/static/private';
+import { ensureDefaultScore } from './authSideEffects';
 
 const baseURL = dev ? 'http://localhost:5173' : 'https://hockeydraftshowdown.com';
 const discordCallback = `${baseURL}/auth/login/discord/callback`;
@@ -34,14 +34,31 @@ export const auth = betterAuth({
 		provider: 'sqlite',
 		schema: betterAuthSchema
 	}),
+	databaseHooks: {
+		user: {
+			create: {
+				before: async (user) => ({
+					data: {
+						...user,
+						keys: []
+					}
+				}),
+				after: async (user) => {
+					await ensureDefaultScore(user.id);
+				}
+			}
+		}
+	},
 	socialProviders: {
 		google: {
 			clientId: GOOGLE_CLIENT_ID,
-			clientSecret: GOOGLE_CLIENT_SECRET
+			clientSecret: GOOGLE_CLIENT_SECRET,
+			redirectURI: googleCallback
 		},
 		discord: {
 			clientId: DISCORD_APP_ID,
 			clientSecret: DISCORD_SECRET,
+			redirectURI: discordCallback,
 			mapProfileToUser: (profile) => ({
 				email:
 					profile.email ??
@@ -70,6 +87,3 @@ export const auth = betterAuth({
 	},
 	plugins: [sveltekitCookies(getRequestEvent)]
 });
-
-export const discord = new Discord(DISCORD_APP_ID, DISCORD_SECRET, discordCallback);
-export const googleOauth = new Google(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, googleCallback);
