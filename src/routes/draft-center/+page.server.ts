@@ -1,5 +1,4 @@
-import { lucia } from "$lib/server/auth";
-import { deleteSessionCookie } from "$lib/server/authUtils";
+import { auth } from "$lib/server/auth";
 import { redirect, type Actions } from "@sveltejs/kit";
 import type { RequestEvent } from "../$types";
 
@@ -126,14 +125,11 @@ export const load = async ({ setHeaders, locals, fetch }: RequestEvent) => {
 }
 
 export const actions: Actions = {
-	logout: async ({ cookies, locals }) => {
-		if (!locals.session?.id) return;
-
-		await lucia.invalidateSession(locals.session.id);
-
-		await deleteSessionCookie(lucia, cookies);
+	logout: async ({ request }) => {
+		await auth.api.signOut({
+			headers: request.headers
+		});
 
 		throw redirect(303, '/draft-center');
 	},
 };
-

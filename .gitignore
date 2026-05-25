@@ -15,7 +15,7 @@ local.*
 db-backup
 db-backup/*
 
-/drizzle/migrations
-
 *.sql
 *.sqlite
+
+/tmp-db-data/*

@@ -1,46 +1,69 @@
-import { lucia } from '$lib/server/auth';
+import { building } from '$app/environment';
+import { auth } from '$lib/server/auth';
+import { createAndSetSession } from '$lib/server/authUtils';
+import { db } from '$lib/server/db';
+import { sessions, users } from '$lib/server/db/schema';
+import { eq, or } from 'drizzle-orm';
+import { svelteKitHandler } from 'better-auth/svelte-kit';
 import type { Handle } from '@sveltejs/kit';
 
+const SESSION_COOKIE_NAME = 'auth_session';
+
 export const handle: Handle = async ({ event, resolve }) => {
-	// Get the session ID from the cookies
-	const sessionId = event.cookies.get(lucia.sessionCookieName);
+	const session = await auth.api.getSession({
+		headers: event.request.headers
+	});
 
-	// If there's no session ID, set user and session to null and resolve theer quest
+	if (session) {
+		event.locals.session = session.session;
+		event.locals.user = {
+			...session.user,
+			avatarUrl: session.user.image ?? null
+		};
 
-	if (!sessionId) {
-		event.locals.user = null;
-		event.locals.session = null;
-		return resolve(event);
+		return svelteKitHandler({ event, resolve, auth, building });
 	}
 
-	// If there's a session ID, validate it
-	const { session, user } = await lucia.validateSession(sessionId);
+	const legacySessionId = event.cookies.get(SESSION_COOKIE_NAME);
 
-	// If the session is fresh (just created due to session expiration extendint), create a new session cookie
+	if (legacySessionId) {
+		const [legacySession] = await db
+			.select({
+				session: sessions,
+				user: users
+			})
+			.from(sessions)
+			.innerJoin(users, eq(sessions.userId, users.id))
+			.where(or(eq(sessions.id, legacySessionId), eq(sessions.token, legacySessionId)))
+			.limit(1);
 
-	if (session?.fresh) {
-		const sessionCookie = lucia.createSessionCookie(session.id);
+		const expiresAt =
+			legacySession?.session.expiresAt instanceof Date
+				? legacySession.session.expiresAt.getTime()
+				: Number(legacySession?.session.expiresAt);
 
-		event.cookies.set(sessionCookie.name, sessionCookie.value, {
-			path: '.',
-			...sessionCookie.attributes
-		});
+		if (legacySession && expiresAt > Date.now()) {
+			const newSession = await createAndSetSession(legacySession.user.id, event.cookies);
+
+			event.locals.session = newSession;
+			event.locals.user = {
+				id: legacySession.user.id,
+				email: legacySession.user.email,
+				emailVerified: legacySession.user.emailVerified,
+				name: legacySession.user.name ?? '',
+				image: legacySession.user.avatarUrl,
+				avatarUrl: legacySession.user.avatarUrl,
+				createdAt: new Date(legacySession.user.createdAt),
+				updatedAt: legacySession.user.updatedAt,
+				keys: legacySession.user.keys
+			};
+
+			return svelteKitHandler({ event, resolve, auth, building });
+		}
 	}
 
-	// If session is not valid, create a blank session cookie to delete a session cookie form the browser
-	if (!session) {
-		const sessionCookie = lucia.createBlankSessionCookie();
-		event.cookies.set(sessionCookie.name, sessionCookie.value, {
-			path: '.',
-			...sessionCookie.attributes
-		});
-	}
+	event.locals.session = null;
+	event.locals.user = null;
 
-	// maybe redirect based on authorization (draft center, etc.)
-
-	// Store the user and session in the event.locals, so they can be accessed in endpoints and pages
-	event.locals.user = user;
-	event.locals.session = session;
-
-	return resolve(event);
+	return svelteKitHandler({ event, resolve, auth, building });
 };

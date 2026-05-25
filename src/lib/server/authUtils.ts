@@ -1,25 +1,51 @@
 import type { Cookies } from '@sveltejs/kit';
-import type { Lucia } from 'lucia';
+import { auth } from './auth';
 
-export const GITHUB_OAUTH_STATE_COOKIE_NAME = 'githubOauthState';
-export const GOOGLE_OAUTH_STATE_COOKIE_NAME = 'googleOauthState';
-export const GOOGLE_OAUTH_CODE_VERIFIER_COOKIE_NAME = 'googleOauthCodeVerifier';
+type BetterAuthCookieAttributes =
+	Awaited<typeof auth.$context>['authCookies']['sessionToken']['attributes'];
 
-export const createAndSetSession = async (lucia: Lucia, userId: string, cookies: Cookies) => {
-	const session = await lucia.createSession(userId, {});
-	const sessionCookie = lucia.createSessionCookie(session.id);
+const signCookieValue = async (value: string, secret: string) => {
+	const key = await crypto.subtle.importKey(
+		'raw',
+		new TextEncoder().encode(secret),
+		{ name: 'HMAC', hash: 'SHA-256' },
+		false,
+		['sign']
+	);
+	const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(value));
 
-	cookies.set(sessionCookie.name, sessionCookie.value, {
-		path: '.',
-		...sessionCookie.attributes
-	});
+	return `${value}.${Buffer.from(signature).toString('base64')}`;
 };
 
-export const deleteSessionCookie = async (lucia: Lucia, cookies: Cookies) => {
-	const sessionCookie = lucia.createBlankSessionCookie();
+const toSvelteKitCookieOptions = (attributes: BetterAuthCookieAttributes) => {
+	const { prefix: _prefix, sameSite, ...cookieOptions } = attributes;
 
-	cookies.set(sessionCookie.name, sessionCookie.value, {
-		path: '.',
-		...sessionCookie.attributes
-	});
+	return {
+		...cookieOptions,
+		path: attributes.path || '/',
+		sameSite:
+			typeof sameSite === 'string'
+				? (sameSite.toLowerCase() as 'strict' | 'lax' | 'none')
+				: sameSite
+	};
+};
+
+export const createAndSetSession = async (userId: string, cookies: Cookies) => {
+	const context = await auth.$context;
+	const session = await context.internalAdapter.createSession(userId);
+
+	if (!session) {
+		throw new Error('Failed to create auth session');
+	}
+
+	cookies.set(
+		context.authCookies.sessionToken.name,
+		await signCookieValue(session.token, context.secret),
+		{
+			...toSvelteKitCookieOptions(context.authCookies.sessionToken.attributes),
+			maxAge: context.sessionConfig.expiresIn
+		}
+	);
+
+	return session;
 };

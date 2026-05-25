@@ -1,56 +1,89 @@
-import { Lucia } from 'lucia';
 import { dev } from '$app/environment';
-import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
+import { getRequestEvent } from '$app/server';
+import { betterAuth, generateId } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { sveltekitCookies } from 'better-auth/svelte-kit';
 import { db } from './db';
-import { users } from './db/schema/users';
-import { sessions } from './db/schema/sessions';
-import { Discord, Google } from 'arctic';
-import { DISCORD_APP_ID, DISCORD_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '$env/static/private';
-
-// @ts-ignore
-const adapter = new DrizzleSQLiteAdapter(db, sessions, users); // your adapter
-
-const discordCallback = dev ? 'http://localhost:5173/auth/login/discord/callback' : 'https://hockeydraftshowdown.com/auth/login/discord/callback';
-const googleCallback = dev ? 'http://localhost:5173/auth/login/google/callback' : 
-'https://hockeydraftshowdown.com/auth/login/google/callback';
-
-
-export const discord = new Discord(
+import * as schema from './db/schema';
+import {
+	BETTER_AUTH_SECRET,
 	DISCORD_APP_ID,
 	DISCORD_SECRET,
-	discordCallback
-);
+	GOOGLE_CLIENT_ID,
+	GOOGLE_CLIENT_SECRET
+} from '$env/static/private';
+import { ensureDefaultScore } from './authSideEffects';
 
-export const googleOauth = new Google(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, googleCallback);
+const baseURL = dev ? 'http://localhost:5173' : 'https://hockeydraftshowdown.com';
+const discordCallback = `${baseURL}/auth/login/discord/callback`;
+const googleCallback = `${baseURL}/auth/login/google/callback`;
 
-export const lucia = new Lucia(adapter, {
-	sessionCookie: {
-		attributes: {
-			// set to `true` when using HTTPS
-			secure: !dev
+const betterAuthSchema = {
+	...schema,
+	user: schema.users,
+	session: schema.sessions,
+	account: schema.accounts,
+	verification: schema.verifications
+};
+
+export const auth = betterAuth({
+	appName: 'Hockey Draft Showdown',
+	baseURL,
+	secret: BETTER_AUTH_SECRET,
+	database: drizzleAdapter(db, {
+		provider: 'sqlite',
+		schema: betterAuthSchema
+	}),
+	databaseHooks: {
+		user: {
+			create: {
+				before: async (user) => ({
+					data: {
+						...user,
+						keys: []
+					}
+				}),
+				after: async (user) => {
+					await ensureDefaultScore(user.id);
+				}
+			}
 		}
 	},
-
-	getUserAttributes: (attributes) => {
-		return {
-			name: attributes?.name,
-			email: attributes?.email,
-			keys: attributes?.keys,
-			avatarUrl: attributes?.avatarUrl,
-		};
-	}
+	socialProviders: {
+		google: {
+			clientId: GOOGLE_CLIENT_ID,
+			clientSecret: GOOGLE_CLIENT_SECRET,
+			redirectURI: googleCallback
+		},
+		discord: {
+			clientId: DISCORD_APP_ID,
+			clientSecret: DISCORD_SECRET,
+			redirectURI: discordCallback,
+			mapProfileToUser: (profile) => ({
+				email:
+					profile.email ??
+					`discord-temp-${profile.id}@temp.nhl-draft-game.local`,
+				emailVerified: Boolean(profile.email && profile.verified),
+				image: profile.image_url
+			})
+		}
+	},
+	user: {
+		fields: {
+			image: 'avatarUrl'
+		}
+	},
+	account: {
+		accountLinking: {
+			trustedProviders: ['google', 'discord'],
+			requireLocalEmailVerified: false
+		}
+	},
+	advanced: {
+		useSecureCookies: !dev,
+		database: {
+			generateId: ({ model, size }) => generateId(model === 'user' ? 15 : size)
+		}
+	},
+	plugins: [sveltekitCookies(getRequestEvent)]
 });
-
-declare module 'lucia' {
-	interface Register {
-		Lucia: typeof lucia;
-		DatabaseUserAttributes: DatabaseUserAttributes;
-	}
-}
-
-export type DatabaseUserAttributes = {
-	name: string;
-	email: string;
-	keys: string[];
-	avatarUrl: string;
-};

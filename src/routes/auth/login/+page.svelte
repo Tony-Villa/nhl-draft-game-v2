@@ -1,25 +1,13 @@
 <script lang="ts">
-	import SuperDebug from 'sveltekit-superforms';
-	import type { PageData } from './$types';
-	import { superForm } from 'sveltekit-superforms/client';
-
-	let { data }: { data: PageData } = $props();
-
-	const { form } = superForm(data?.form);
 </script>
 
-<SuperDebug data={$form} />
-
 <section class="login">
-	<!-- {#if $form} -->
-	<form method="POST">
-		<label for="email">Email</label>
-		<input type="email" id="email" name="email" bind:value={$form.email} />
-		<label for="password">Password</label>
-		<input type="password" id="password" name="password" bind:value={$form.password} />
-		<button class="submit">Login</button>
-	</form>
-	<!-- {/if} -->
+	<div class="o-auth">
+		<a href="/auth/login/discord"> discord </a>
+	</div>
+	<div class="o-auth">
+		<a href="/auth/login/google"> google </a>
+	</div>
 </section>
 
 <style lang="postcss">
@@ -30,9 +18,8 @@
 		justify-content: center;
 		height: 100dvh;
 	}
-	form {
+	.o-auth {
 		display: flex;
-		flex-direction: column;
-		align-items: center;
+		margin-block: 0.5rem;
 	}
 </style>

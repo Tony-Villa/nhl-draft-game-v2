@@ -3,20 +3,13 @@
 declare global {
 	namespace App {
 		interface Locals {
-			user: import('lucia').User | null;
-			session: import('lucia').Session | null;
-
-			//
-			validate: import('@lucia-auth/sveltekit').Validate;
-			validateUser: import('@lucia-auth/sveltekit').ValidateUser;
-			setSession: import('@lucia-auth/sveltekit').SetSession;
+			user: (import('better-auth').User & {
+				avatarUrl?: string | null;
+				keys?: string[];
+			}) | null;
+			session: import('better-auth').Session | null;
 		}
 
-		//
-		declare namespace Lucia {
-			type Auth = import('$lib/server/auth').Lucia;
-			type UserAttributes = import('$lib/server/auth').DatabaseUserAttributes;
-		}
 		interface PageData {
 			// pageMetaTags?: MetaTagsProps;
 			isLoggedIn: boolean;
