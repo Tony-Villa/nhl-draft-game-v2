@@ -22,8 +22,19 @@
           {#if isAuthenticated}
           <div>
               <ul class="flex flex-row flex-end">
-                  <form method="post" action="/draft-center?/logout">
-                    <button type="submit" onclick={clearLocalDraft}>Sign out</button>
+                  <form method="post" action="/draft-center?/logout" class="w-full">
+                    <button
+                      type="submit"
+                      class={buttonOptions({
+                        variant: 'danger',
+                        shadow: 'sm',
+                        skew: 'left',
+                        class: 'w-full whitespace-nowrap px-3 py-2'
+                      })}
+                      onclick={clearLocalDraft}
+                    >
+                      Sign out
+                    </button>
                   </form>
               </ul>
           </div>

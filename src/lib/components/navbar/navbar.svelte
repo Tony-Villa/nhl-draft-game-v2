@@ -35,9 +35,20 @@
           {/if}
           <p class="font-bold md:text-lg">Welcome, {user?.name}</p>
         </div>
-        <p> | </p>
         <form method="post" action="/draft-center?/logout">
-          <button type="submit" onclick={clearLocalDraft}>Sign out</button>
+          <button
+            type="submit"
+            class={buttonOptions({
+              variant: 'danger',
+              size: 'sm',
+              shadow: 'sm',
+              skew: 'left',
+              class: 'whitespace-nowrap px-3 py-2'
+            })}
+            onclick={clearLocalDraft}
+          >
+            Sign out
+          </button>
         </form>
       </ul>
   {:else}
