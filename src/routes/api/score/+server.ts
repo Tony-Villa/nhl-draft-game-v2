@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db/index.js'
-import { drafts, nhlDraft, users, scores, prospects } from '$lib/server/db/schema'
+import { draftBoardPicks, gameEntries, nhlDraft, users, scores } from '$lib/server/db/schema'
 import { eq, and } from 'drizzle-orm'
 import { CURRENT_GAME } from '$env/static/private'
 
@@ -11,25 +11,26 @@ export async function GET() {
       positionDrafted: nhlDraft.positionDrafted
     }).from(nhlDraft).where(eq(nhlDraft.gameId, +CURRENT_GAME))
 
-    // Get all users who have submitted drafts
-    const userList = await db.select({
+    // Get every user's selected global board for this game
+    const gameEntryList = await db.select({
       id: users.id,
       name: users.name,
-      avatar: users.avatarUrl
-    }).from(users)
+      avatar: users.avatarUrl,
+      selectedDraftBoardId: gameEntries.selectedDraftBoardId
+    })
+    .from(gameEntries)
+    .innerJoin(users, eq(gameEntries.userId, users.id))
+    .where(eq(gameEntries.gameId, CURRENT_GAME))
 
     const scoreResults = []
 
-    // Calculate scores for each user
-    for (const user of userList) {
+    // Calculate scores for each selected board
+    for (const user of gameEntryList) {
       const userDrafts = await db.select({
-        prospectId: drafts.prospectId,
-        positionDrafted: drafts.positionDrafted
-      }).from(drafts)
-      .where(and(
-        eq(drafts.userId, user.id),
-        eq(drafts.gameId, CURRENT_GAME)
-      ))
+        prospectId: draftBoardPicks.prospectId,
+        positionDrafted: draftBoardPicks.positionDrafted
+      }).from(draftBoardPicks)
+      .where(eq(draftBoardPicks.draftBoardId, user.selectedDraftBoardId))
 
       if (userDrafts.length === 0) continue
 
@@ -37,9 +38,11 @@ export async function GET() {
       let totalPoints = 0
       const startingPoints = 10
 
-      userDrafts.forEach(userDraft => {
+      for (const userDraft of userDrafts) {
+        let pickPoints = 0
+
         if (!userDraft.prospectId) {
-          return // No points for empty picks
+          continue // No points for empty picks
         }
 
         const nhlPick = nhlDraftPicks.find(pick => pick.prospectId === userDraft.prospectId)
@@ -47,11 +50,18 @@ export async function GET() {
         if (nhlPick) {
           // Calculate points: 10 - |user_position - nhl_position|, minimum 0
           const pointDifference = Math.abs(userDraft.positionDrafted - nhlPick.positionDrafted)
-          const points = Math.max(0, startingPoints - pointDifference)
-          totalPoints += points
+          pickPoints = Math.max(0, startingPoints - pointDifference)
+          totalPoints += pickPoints
         }
+
+        await db.update(draftBoardPicks)
+          .set({ points: pickPoints })
+          .where(and(
+            eq(draftBoardPicks.draftBoardId, user.selectedDraftBoardId),
+            eq(draftBoardPicks.positionDrafted, userDraft.positionDrafted)
+          ))
         // If prospect wasn't drafted in NHL first round, they get 0 points (already initialized)
-      })
+      }
 
       // Update or insert score in database
       await db.insert(scores)

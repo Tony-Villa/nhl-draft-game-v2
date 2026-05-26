@@ -2,6 +2,9 @@ export * from './users';
 export * from './sessions';
 export * from './accounts';
 export * from './drafts';
+export * from './draft_boards';
+export * from './draft_board_picks';
+export * from './game_entries';
 export * from './keys';
 export * from './verifications';
 export * from './games'

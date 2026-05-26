@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db/index.js';
-import { drafts } from '$lib/server/db/schema/drafts';
+import { draftBoardPicks, draftBoards } from '$lib/server/db/schema';
 import { prospects } from '$lib/server/db/schema/prospects';
 import { eq, and, sql, count, avg, min, max, desc } from 'drizzle-orm';
 import type { RequestHandler } from './$types';
@@ -56,26 +56,31 @@ export const GET: RequestHandler = async ({ url, locals }) => {
       // Get top 3 prospects drafted most at this position
       const topProspectsAtPosition = await db
         .select({
-          prospectId: drafts.prospectId,
+          prospectId: draftBoardPicks.prospectId,
           name: prospects.name,
           position: prospects.position,
           team: prospects.team,
           league: prospects.league,
           rank: prospects.rank,
-          targetPositionCount: count(drafts.id).as('target_position_count'),
-          percentage: sql<number>`ROUND(COUNT(${drafts.id}) * 100.0 / (
-            SELECT COUNT(*) FROM ${drafts} 
-            WHERE ${drafts.gameId} = ${gameId} AND ${drafts.positionDrafted} = ${position}
+          targetPositionCount: count(draftBoardPicks.id).as('target_position_count'),
+          percentage: sql<number>`ROUND(COUNT(${draftBoardPicks.id}) * 100.0 / (
+            SELECT COUNT(*) FROM ${draftBoardPicks}
+            INNER JOIN ${draftBoards} ON ${draftBoardPicks.draftBoardId} = ${draftBoards.id}
+            WHERE ${draftBoards.gameId} = ${gameId}
+              AND ${draftBoards.status} = 'submitted'
+              AND ${draftBoardPicks.positionDrafted} = ${position}
           ), 1)`.as('percentage')
         })
-        .from(drafts)
-        .innerJoin(prospects, eq(drafts.prospectId, prospects.id))
+        .from(draftBoardPicks)
+        .innerJoin(draftBoards, eq(draftBoardPicks.draftBoardId, draftBoards.id))
+        .innerJoin(prospects, eq(draftBoardPicks.prospectId, prospects.id))
         .where(and(
-          eq(drafts.gameId, gameId),
-          eq(drafts.positionDrafted, position)
+          eq(draftBoards.gameId, gameId),
+          eq(draftBoards.status, 'submitted'),
+          eq(draftBoardPicks.positionDrafted, position)
         ))
-        .groupBy(drafts.prospectId, prospects.name, prospects.position, prospects.team, prospects.league, prospects.rank)
-        .orderBy(desc(count(drafts.id)))
+        .groupBy(draftBoardPicks.prospectId, prospects.name, prospects.position, prospects.team, prospects.league, prospects.rank)
+        .orderBy(desc(count(draftBoardPicks.id)))
         .limit(3);
 
       if (topProspectsAtPosition.length === 0) {
@@ -99,49 +104,55 @@ export const GET: RequestHandler = async ({ url, locals }) => {
       // Get position distribution for these prospects (only within the window for heatmap)
       const windowPositionDistribution = await db
         .select({
-          prospectId: drafts.prospectId,
-          positionDrafted: drafts.positionDrafted,
-          countAtPosition: count(drafts.id).as('count_at_position')
+          prospectId: draftBoardPicks.prospectId,
+          positionDrafted: draftBoardPicks.positionDrafted,
+          countAtPosition: count(draftBoardPicks.id).as('count_at_position')
         })
-        .from(drafts)
+        .from(draftBoardPicks)
+        .innerJoin(draftBoards, eq(draftBoardPicks.draftBoardId, draftBoards.id))
         .where(and(
-          eq(drafts.gameId, gameId),
-          sql`${drafts.prospectId} IN (${sql.join(topProspectIds.map(id => sql`${id}`), sql`, `)})`,
-          sql`${drafts.positionDrafted} >= ${windowMinPosition}`,
-          sql`${drafts.positionDrafted} <= ${windowMaxPosition}`
+          eq(draftBoards.gameId, gameId),
+          eq(draftBoards.status, 'submitted'),
+          sql`${draftBoardPicks.prospectId} IN (${sql.join(topProspectIds.map(id => sql`${id}`), sql`, `)})`,
+          sql`${draftBoardPicks.positionDrafted} >= ${windowMinPosition}`,
+          sql`${draftBoardPicks.positionDrafted} <= ${windowMaxPosition}`
         ))
-        .groupBy(drafts.prospectId, drafts.positionDrafted)
-        .orderBy(drafts.prospectId, drafts.positionDrafted);
+        .groupBy(draftBoardPicks.prospectId, draftBoardPicks.positionDrafted)
+        .orderBy(draftBoardPicks.prospectId, draftBoardPicks.positionDrafted);
 
       // Get all position distribution for these prospects (for most common position calculation)
       const allPositionDistribution = await db
         .select({
-          prospectId: drafts.prospectId,
-          positionDrafted: drafts.positionDrafted,
-          countAtPosition: count(drafts.id).as('count_at_position')
+          prospectId: draftBoardPicks.prospectId,
+          positionDrafted: draftBoardPicks.positionDrafted,
+          countAtPosition: count(draftBoardPicks.id).as('count_at_position')
         })
-        .from(drafts)
+        .from(draftBoardPicks)
+        .innerJoin(draftBoards, eq(draftBoardPicks.draftBoardId, draftBoards.id))
         .where(and(
-          eq(drafts.gameId, gameId),
-          sql`${drafts.prospectId} IN (${sql.join(topProspectIds.map(id => sql`${id}`), sql`, `)})`
+          eq(draftBoards.gameId, gameId),
+          eq(draftBoards.status, 'submitted'),
+          sql`${draftBoardPicks.prospectId} IN (${sql.join(topProspectIds.map(id => sql`${id}`), sql`, `)})`
         ))
-        .groupBy(drafts.prospectId, drafts.positionDrafted)
-        .orderBy(drafts.prospectId, drafts.positionDrafted);
+        .groupBy(draftBoardPicks.prospectId, draftBoardPicks.positionDrafted)
+        .orderBy(draftBoardPicks.prospectId, draftBoardPicks.positionDrafted);
 
       // Get prospect stats (avg, min, max positions)
       const prospectStats = await db
         .select({
-          prospectId: drafts.prospectId,
-          avgPosition: sql<number>`ROUND(AVG(CAST(${drafts.positionDrafted} AS FLOAT)), 1)`.as('avg_position'),
-          minPosition: min(drafts.positionDrafted).as('min_position'),
-          maxPosition: max(drafts.positionDrafted).as('max_position')
+          prospectId: draftBoardPicks.prospectId,
+          avgPosition: sql<number>`ROUND(AVG(CAST(${draftBoardPicks.positionDrafted} AS FLOAT)), 1)`.as('avg_position'),
+          minPosition: min(draftBoardPicks.positionDrafted).as('min_position'),
+          maxPosition: max(draftBoardPicks.positionDrafted).as('max_position')
         })
-        .from(drafts)
+        .from(draftBoardPicks)
+        .innerJoin(draftBoards, eq(draftBoardPicks.draftBoardId, draftBoards.id))
         .where(and(
-          eq(drafts.gameId, gameId),
-          sql`${drafts.prospectId} IN (${sql.join(topProspectIds.map(id => sql`${id}`), sql`, `)})`
+          eq(draftBoards.gameId, gameId),
+          eq(draftBoards.status, 'submitted'),
+          sql`${draftBoardPicks.prospectId} IN (${sql.join(topProspectIds.map(id => sql`${id}`), sql`, `)})`
         ))
-        .groupBy(drafts.prospectId);
+        .groupBy(draftBoardPicks.prospectId);
 
       // Process the data to create the core response (without user-specific data)
       const processedData = topProspectsAtPosition.map(prospect => {
@@ -215,14 +226,15 @@ export const GET: RequestHandler = async ({ url, locals }) => {
       // Check user's drafts
       const userDrafts = await db
         .select({
-          prospectId: drafts.prospectId,
-          positionDrafted: drafts.positionDrafted
+          prospectId: draftBoardPicks.prospectId,
+          positionDrafted: draftBoardPicks.positionDrafted
         })
-        .from(drafts)
+        .from(draftBoardPicks)
+        .innerJoin(draftBoards, eq(draftBoardPicks.draftBoardId, draftBoards.id))
         .where(and(
-          eq(drafts.gameId, gameId),
-          eq(drafts.userId, userId),
-          sql`${drafts.prospectId} IN (${sql.join(topProspectIds.map((id: string) => sql`${id}`), sql`, `)})`
+          eq(draftBoards.gameId, gameId),
+          eq(draftBoards.userId, userId),
+          sql`${draftBoardPicks.prospectId} IN (${sql.join(topProspectIds.map((id: string) => sql`${id}`), sql`, `)})`
         ));
 
       // Add user draft status to each prospect

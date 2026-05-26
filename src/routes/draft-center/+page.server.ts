@@ -6,9 +6,7 @@ import { CURRENT_GAME } from '$env/static/private';
 import type { DraftBoard, Prospect } from '$lib/types';
 import { getCachedDraftBoardOrder } from "$lib/server/cache/draft-board-cache.js";
 import { getInitialProspects } from "$lib/server/services/prospects-service.js";
-import { db } from '$lib/server/db/index.js';
-import { drafts, prospects } from '$lib/server/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { getUserDraftBoardCells, mergePicksIntoDraftBoard } from "$lib/server/services/draft-board-service.js";
 
 export const load = async ({ setHeaders, locals, fetch }: RequestEvent) => {
 	const response = await fetch('/api/game')
@@ -42,66 +40,10 @@ export const load = async ({ setHeaders, locals, fetch }: RequestEvent) => {
 			baseDraftBoard = await getCachedDraftBoardOrder();
 		}
 		
-		const userDraftData = await db
-			.select({
-				draftPosition: drafts.positionDrafted,
-				team: drafts.team,
-				points: drafts.points,
-				prospectId: drafts.prospectId,
-				prospectRank: prospects.rank,
-				prospectName: prospects.name,
-				prospectPosition: prospects.position,
-				prospectNation: prospects.nation,
-				prospectTeam: prospects.team,
-				prospectLeague: prospects.league,
-				prospectBirthDay: prospects.birthDay,
-				prospectHeight: prospects.height,
-				prospectWeight: prospects. weight,
-				prospectShoots: prospects.shoots,
-				prospectDraftYear: prospects.draftYear
-			})
-			.from(drafts)
-			.leftJoin(prospects, eq(drafts.prospectId, prospects.id))
-			.where(
-				and(
-					eq(drafts.userId, locals.user.id),
-					eq(drafts.gameId, CURRENT_GAME)
-				)
-			)
-			.orderBy(drafts.positionDrafted);
+		const { picks: userDraftData } = await getUserDraftBoardCells(locals.user.id, CURRENT_GAME);
 		
 		if (userDraftData.length > 0) {
-			const userDraftPicks = userDraftData.map(draft => ({
-				draftPosition: draft.draftPosition,
-				teamName: draft.team,
-				teamLogo: undefined,
-				points: draft.points,
-				prospect: draft.prospectId ? {
-					id: draft.prospectId,
-					rank: draft.prospectRank,
-					name: draft.prospectName,
-					position: draft.prospectPosition,
-					nation: draft.prospectNation,
-					team: draft.prospectTeam,
-					league: draft.prospectLeague,
-					birthDay: draft.prospectBirthDay,
-					height: draft.prospectHeight?.toString() || '',
-					weight: draft.prospectWeight?.toString() || '',
-					shoots: draft.prospectShoots
-				} as Prospect : null
-			}));
-			
-			draftBoard = baseDraftBoard.map(basePosition => {
-				const userPick = userDraftPicks.find(pick => pick.draftPosition === basePosition.draftPosition);
-				if (userPick) {
-					return {
-						...basePosition,
-						...userPick,
-						teamLogo: basePosition.teamLogo
-					};
-				}
-				return basePosition;
-			});
+			draftBoard = mergePicksIntoDraftBoard(baseDraftBoard, userDraftData);
 		} else {
 			draftBoard = baseDraftBoard;
 		}

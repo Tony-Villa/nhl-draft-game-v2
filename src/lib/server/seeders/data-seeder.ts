@@ -1,8 +1,9 @@
 import { db } from '../db/index.js';
-import { users, drafts, prospects, games } from '../db/schema/index.js';
+import { draftBoardPicks, draftBoards, gameEntries, users, prospects, games } from '../db/schema/index.js';
 import { generateId } from 'better-auth';
 import { eq, and, like, or } from 'drizzle-orm';
 import type { DraftBoard, Prospect } from '$lib/types.js';
+import { ensureGlobalGameEntry, getOrCreateDefaultDraftBoard } from '../services/draft-board-service.js';
 
 // NHL teams for realistic draft assignments
 const NHL_TEAMS = [
@@ -190,19 +191,20 @@ export class DataSeeder {
   }
 
   private async saveDraftboard(userId: string, gameId: string, draftboard: DraftBoard[]): Promise<void> {
+    const board = await getOrCreateDefaultDraftBoard(userId, gameId);
+
     for (const pick of draftboard) {
       if (!pick.prospect) continue;
 
       try {
-        await db.insert(drafts).values({
-          userId,
-          gameId,
+        await db.insert(draftBoardPicks).values({
+          draftBoardId: board.id,
           positionDrafted: pick.draftPosition,
           team: pick.teamName || `Team ${pick.draftPosition}`,
           prospectId: pick.prospect.id,
           points: null
         }).onConflictDoUpdate({
-          target: [drafts.userId, drafts.positionDrafted, drafts.gameId],
+          target: [draftBoardPicks.draftBoardId, draftBoardPicks.positionDrafted],
           set: { 
             prospectId: pick.prospect.id,
             team: pick.teamName || `Team ${pick.draftPosition}`
@@ -212,6 +214,9 @@ export class DataSeeder {
         console.error(`Failed to save draft pick ${pick.draftPosition} for user ${userId}:`, error);
       }
     }
+
+    await db.update(draftBoards).set({ status: 'submitted', isDefault: true }).where(eq(draftBoards.id, board.id));
+    await ensureGlobalGameEntry(userId, gameId, board.id);
   }
 
   async seedData(options: SeedOptions): Promise<{ success: boolean; message: string; userIds?: string[] }> {
@@ -285,14 +290,26 @@ export class DataSeeder {
           )
         );
 
-      // Delete drafts for these users in the specified game
+      // Delete board entries for these users in the specified game
       for (const user of testUsers) {
-        await db.delete(drafts).where(
+        const boards = await db.select({ id: draftBoards.id }).from(draftBoards).where(
           and(
-            eq(drafts.userId, user.id),
-            eq(drafts.gameId, gameId)
+            eq(draftBoards.userId, user.id),
+            eq(draftBoards.gameId, gameId)
           )
         );
+
+        await db.delete(gameEntries).where(
+          and(
+            eq(gameEntries.userId, user.id),
+            eq(gameEntries.gameId, gameId)
+          )
+        );
+
+        for (const board of boards) {
+          await db.delete(draftBoardPicks).where(eq(draftBoardPicks.draftBoardId, board.id));
+          await db.delete(draftBoards).where(eq(draftBoards.id, board.id));
+        }
       }
 
       // Delete the test users themselves
