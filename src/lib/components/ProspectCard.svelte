@@ -6,7 +6,7 @@
 
 	import type { DraftBoard, Prospect } from '$lib/types';
 	import Card from './Card.svelte';
-	import * as Dialog from "$lib/components/ui/dialog/index.js";
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { getDraftState } from '$lib/global-state/draft-state.svelte';
 	import { buttonOptions } from './Button.options';
 
@@ -15,7 +15,7 @@
 	const draftState = getDraftState();
 
 	let {
-		prospect,
+		prospect
 	}: {
 		prospect: Prospect & { isDrafted?: boolean; isTemporary?: boolean; isPermanent?: boolean };
 	} = $props();
@@ -25,23 +25,24 @@
 		// Access the reactive sets to trigger reactivity
 		draftSystem.temporaryDraftedIds.size;
 		draftSystem.permanentDraftedIds.size;
-		
+
 		// Always check the draft system directly for most up-to-date status
 		const drafted = prospect.id ? draftSystem.isDrafted(prospect.id) : false;
-		
+
 		return drafted;
 	});
 	const isTemporary = $derived.by(() => {
 		// Access the reactive sets to trigger reactivity
 		draftSystem.temporaryDraftedIds.size;
-		
+
 		// Always check the draft system directly for most up-to-date status
 		return prospect.id ? draftSystem.isTemporarilyDrafted(prospect.id) : false;
 	});
 
 	// Format height for display
-	const formattedHeight = isHeightInCm(prospect.height) ? cmToFeetInches(prospect.height) : prospect.height;
-
+	const formattedHeight = $derived(
+		isHeightInCm(prospect.height) ? cmToFeetInches(prospect.height) : prospect.height
+	);
 
 	let dialogOpen = $state(false);
 
@@ -50,7 +51,7 @@
 
 		draftState.updateDraftStatus(false);
 
-		if(!currentUser.user){
+		if (!currentUser.user) {
 			localStorage.setItem('draftBoard', JSON.stringify(draftboardToMap(draftSystem.draftBoard)));
 		}
 
@@ -60,37 +61,48 @@
 
 	function undraft(prospect: Prospect) {
 		// Find which position this prospect is drafted to
-		const draftedPosition = draftSystem.draftBoard.find(cell => cell.prospect?.id === prospect.id);
+		const draftedPosition = draftSystem.draftBoard.find(
+			(cell) => cell.prospect?.id === prospect.id
+		);
 		if (draftedPosition) {
 			draftSystem.removeProspectFromBoard(prospect, draftedPosition.draftPosition);
-			
+
 			draftState.updateDraftStatus(false);
 
-			if(!currentUser.user){
+			if (!currentUser.user) {
 				localStorage.setItem('draftBoard', JSON.stringify(draftboardToMap(draftSystem.draftBoard)));
 			}
 		}
 	}
 </script>
 
-<Dialog.Root bind:open={dialogOpen}>	
-	<Card size='md' class={`min-w-[265px] max-w-[360px] ${isDrafted ? 'border-dashed border-gray-500 bg-gray-50 opacity-50' : ''}`}>
-		<div class="prospect-card relative flex flex-col h-full content-between gap-2 pb4 px-4">
+<Dialog.Root bind:open={dialogOpen}>
+	<Card
+		size="md"
+		class={`max-w-[360px] min-w-[265px] ${isDrafted ? 'border-dashed border-gray-500 bg-gray-50 opacity-50' : ''}`}
+	>
+		<div class="prospect-card pb4 relative flex h-full flex-col content-between gap-2 px-4">
 			<!-- Header -->
-			<div class="prospect-header flex justify-between mb-[15px] border-black border-b-[3px] pb-[10px]">
+			<div
+				class="prospect-header mb-[15px] flex justify-between border-b-[3px] border-black pb-[10px]"
+			>
 				<p class="text-lg font-extrabold uppercase">
 					{prospect?.rank !== '-' ? 'Rank: ' + prospect?.rank : 'NR'}
 				</p>
 
 				<div class="flex gap-2">
 					{#if isDrafted}
-						<div class="flex items-center  px-[8px] py-[3px] font-extrabold text-sm border-dashed border-[2px] border-gray-500 text-gray-600 bg-red-400 ">
+						<div
+							class="flex items-center border-[2px] border-dashed border-gray-500 bg-red-400 px-[8px] py-[3px] text-sm font-extrabold text-gray-600"
+						>
 							<p>DRAFTED</p>
 						</div>
 					{/if}
-					<div class="inline-block px-[10px] py-[5px] font-extrabold text-lg border-black border-[3px]">
+					<div
+						class="inline-block border-[3px] border-black px-[10px] py-[5px] text-lg font-extrabold"
+					>
 						<p>
-							{#if prospect?.position === "D" || prospect?.position === "F"}
+							{#if prospect?.position === 'D' || prospect?.position === 'F'}
 								{prospect?.shoots}{prospect?.position}
 							{:else}
 								{prospect?.position}
@@ -101,26 +113,28 @@
 			</div>
 
 			<!-- Content -->
-			<div class="flex-1 flex flex-col">
-				<div class="prospect-name text-2xl font-extrabold mb-[5px] uppercase">
+			<div class="flex flex-1 flex-col">
+				<div class="prospect-name mb-[5px] text-2xl font-extrabold uppercase">
 					<p>
 						{prospect?.name}
-					</p>	
+					</p>
 				</div>
 
-				<div class="prospect-team font-bold mb-[15px] bg-black text-white px-2 py-[3px] -skew-x-3">
+				<div class="prospect-team mb-[15px] -skew-x-3 bg-black px-2 py-[3px] font-bold text-white">
 					<p>{prospect?.team} - {prospect?.league}</p>
 				</div>
-				
-				<div class="prospect-details flex flex-wrap gap-[15px] mt-[15px] border-t-2 border-black border-dashed pt-[15px]">
+
+				<div
+					class="prospect-details mt-[15px] flex flex-wrap gap-[15px] border-t-2 border-dashed border-black pt-[15px]"
+				>
 					{@render prospectStat(formattedHeight, 'Height')}
 					{@render prospectStat(prospect?.weight, 'Weight')}
 					{@render prospectStat(prospect?.birthDay, 'DOB')}
 				</div>
 			</div>
-			
+
 			<!-- Button at bottom -->
-			<div class="flex justify-center mt-4">
+			<div class="mt-4 flex justify-center">
 				{#if isDrafted}
 					<!-- Show "Undraft" button for drafted players -->
 					<button
@@ -134,7 +148,7 @@
 					</button>
 				{:else}
 					<!-- Show normal "Draft" button -->
-					<Dialog.Trigger 
+					<Dialog.Trigger
 						class={buttonOptions({
 							class: 'w-[60%]',
 							variant: 'primary'
@@ -146,17 +160,21 @@
 			</div>
 		</div>
 	</Card>
-	
-	<Dialog.Content class="max-w-[90%] md:max-w-[50%] rounded-none md:rounded-none shadow-button-shadow md:shadow-button-shadow">
-		<Dialog.Header class='md:mx-auto'>
-      <Dialog.Title>
-				<h2 class="text-center self-center text-black font-extrabold text-[20px] md:text-[28px] h-6 md:h-8 mb-2 pb-0">
+
+	<Dialog.Content
+		class="shadow-button-shadow md:shadow-button-shadow max-w-[90%] rounded-none md:max-w-[50%] md:rounded-none"
+	>
+		<Dialog.Header class="md:mx-auto">
+			<Dialog.Title>
+				<h2
+					class="mb-2 h-6 self-center pb-0 text-center text-[20px] font-extrabold text-black md:h-8 md:text-[28px]"
+				>
 					Who will be drafting {prospect.name}?
 				</h2>
 			</Dialog.Title>
-    </Dialog.Header>
+		</Dialog.Header>
 
-		<div class="flex flex-wrap justify-center gap-1 md:gap-2 pb-10 max-h-[75dvh] overflow-y-scroll ">
+		<div class="flex max-h-[75dvh] flex-wrap justify-center gap-1 overflow-y-scroll pb-10 md:gap-2">
 			{#each draftSystem.draftBoard as cell}
 				{@render teamPicker(cell)}
 			{/each}
@@ -164,26 +182,26 @@
 	</Dialog.Content>
 </Dialog.Root>
 
-
 {#snippet teamPicker(cell: DraftBoard)}
 	<button
-		class={`flex flex-col content-center justify-center gap-1 md:gap-2 border-[3px] border-black p-2 w-20 h-20 md:w-28 md:h-28
+		class={`flex h-20 w-20 flex-col content-center justify-center gap-1 border-[3px] border-black p-2 md:h-28 md:w-28 md:gap-2
 		 ${!!cell?.prospect ? '' : 'hover:bg-primary'} ${!!cell?.prospect ? 'bg-neutral-400' : 'bg-white'}`}
 		onclick={() => draft(prospect as Prospect, cell?.draftPosition)}
 		disabled={!!cell?.prospect}
 	>
-		<h3 class="text-center self-center text-black font-extrabold text-[20px] md:text-[28px] h-6 md:h-8 mb-0 pb-0 ">
+		<h3
+			class="mb-0 h-6 self-center pb-0 text-center text-[20px] font-extrabold text-black md:h-8 md:text-[28px]"
+		>
 			{cell?.draftPosition}
 		</h3>
-		<img class="w-16 md:w-20 self-center" src={cell?.teamLogo} alt="team logo" />
+		<img class="w-16 self-center md:w-20" src={cell?.teamLogo} alt="team logo" />
 	</button>
 {/snippet}
-
 
 <!-- PROSPECT DETAILS -->
 
 {#snippet prospectStat(stat: string, label: string)}
-	<div class="prospect-stat flex flex-col flex-1 min-w-17">
+	<div class="prospect-stat flex min-w-17 flex-1 flex-col">
 		{@render statValue(stat, label)}
 		{@render statLabel(label)}
 	</div>
@@ -191,7 +209,7 @@
 
 {#snippet statValue(stat: string, label?: string)}
 	<span class="stat-value font-extrabold">
-		{#if label && label ==='Weight'}
+		{#if label && label === 'Weight'}
 			{stat} lbs
 		{:else}
 			{stat}
@@ -200,7 +218,7 @@
 {/snippet}
 
 {#snippet statLabel(label: string)}
-	<span class="stat-label text-xs uppercase tracking-[1px]">
+	<span class="stat-label text-xs tracking-[1px] uppercase">
 		{label}
 	</span>
 {/snippet}

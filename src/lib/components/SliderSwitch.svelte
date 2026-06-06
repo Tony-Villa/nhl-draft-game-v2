@@ -1,22 +1,27 @@
 <script lang="ts">
-	import { capitalizeFirstLetter } from "$lib/helpers/capitalize-first-letter";
+	import { capitalizeFirstLetter } from '$lib/helpers/capitalize-first-letter';
+	import { untrack } from 'svelte';
 
-	let {  left, right, switchVariable }: { left: string; right: string;switchVariable: (tab: string) => void } = $props();
+	let {
+		left,
+		right,
+		switchVariable
+	}: { left: string; right: string; switchVariable: (tab: string) => void } = $props();
 
-	let currentTab = $state(left)
+	let currentTab = $state(untrack(() => left));
 	let rotation = $derived.by(() => {
-		if(currentTab === left){
-			return '-rotate-[1deg]'
+		if (currentTab === left) {
+			return '-rotate-[1deg]';
 		}
-		return 'rotate-[1deg]'
-	})
+		return 'rotate-[1deg]';
+	});
 
 	function switchLeft() {
 		const btn = document.getElementById('btn');
 		if (btn?.style) {
 			btn.style.left = '-2px';
 		}
-		currentTab = left
+		currentTab = left;
 	}
 
 	function switchRight() {
@@ -24,11 +29,11 @@
 		if (btn?.style) {
 			btn.style.left = 'calc(50% + 1px)';
 		}
-		currentTab = right
+		currentTab = right;
 	}
 </script>
 
-<div class="button-box h-full my-5 relative border-[3px] border-black bg-white flex justify-center">
+<div class="button-box relative my-5 flex h-full justify-center border-[3px] border-black bg-white">
 	<div id="btn" class={`${rotation}`}></div>
 	<button
 		onclick={() => {
