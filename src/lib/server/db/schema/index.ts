@@ -4,8 +4,11 @@ export * from './accounts';
 export * from './drafts';
 export * from './draft_boards';
 export * from './draft_board_picks';
+export * from './draft_board_scores';
 export * from './game_entries';
 export * from './keys';
+export * from './leagues';
+export * from './league_members';
 export * from './verifications';
 export * from './games'
 export * from './scores'

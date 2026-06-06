@@ -3,7 +3,13 @@
 	import { buttonOptions } from "../Button.options";
 	import HowToPlay from "../HowToPlay.svelte";
     
-  let { isAuthenticated } : {isAuthenticated : boolean} = $props() 
+  let {
+    isAuthenticated,
+    leaguesAndBoardsEnabled = false
+  } : {
+    isAuthenticated: boolean;
+    leaguesAndBoardsEnabled?: boolean;
+  } = $props() 
 
     function clearLocalDraft() {
 		localStorage.removeItem('draftBoard');
@@ -21,7 +27,19 @@
         <div class="dropdown-content bg-white overflow-hidden shadow-button-shadow border-2 border-black right-0 z-50">
           {#if isAuthenticated}
           <div>
-              <ul class="flex flex-row flex-end">
+              <ul class="flex flex-col gap-3">
+                  {#if leaguesAndBoardsEnabled}
+                    <li>
+                      <a class={buttonOptions({ variant: 'outline', class: 'block w-full text-center' })} href="/draft-center/leagues">
+                        Leagues
+                      </a>
+                    </li>
+                    <li>
+                      <a class={buttonOptions({ variant: 'secondary', class: 'block w-full text-center' })} href="/draft-center/boards">
+                        Boards
+                      </a>
+                    </li>
+                  {/if}
                   <form method="post" action="/draft-center?/logout" class="w-full">
                     <button
                       type="submit"

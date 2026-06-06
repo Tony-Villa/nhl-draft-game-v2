@@ -7,13 +7,15 @@ import { draftBoardPicks, draftBoards } from '$lib/server/db/schema';
 import {
 	assertGameIsEditable,
 	ensureGlobalGameEntry,
-	getOrCreateDefaultDraftBoard
+	getOrCreateDefaultDraftBoard,
+	getUserDraftBoardById
 } from '$lib/server/services/draft-board-service.js';
+import { leaguesAndBoardsEnabled } from '$lib/server/feature-flags.js';
 
 export async function POST({ request, locals }) {
   const { data } = await request.json();
 
-  const { draftboard, user } = data;
+  const { draftboard, user, draftBoardId } = data;
   const userId = locals.user?.id || user?.id;
 
   if (!userId) {
@@ -23,7 +25,14 @@ export async function POST({ request, locals }) {
   try {
     await assertGameIsEditable(CURRENT_GAME);
 
-    const board = await getOrCreateDefaultDraftBoard(userId, CURRENT_GAME);
+    const requestedBoardId = leaguesAndBoardsEnabled() ? Number(draftBoardId) : 0;
+    const board = requestedBoardId
+      ? await getUserDraftBoardById(userId, CURRENT_GAME, requestedBoardId)
+      : await getOrCreateDefaultDraftBoard(userId, CURRENT_GAME);
+
+    if (!board) {
+      return json({ message: 'failed', error: 'Draft board not found' }, { status: 404 });
+    }
     const filledProspectIds = draftboard
       .map((draft: DraftBoard) => draft.prospect?.id)
       .filter(Boolean);
@@ -76,7 +85,9 @@ export async function POST({ request, locals }) {
       })
       .where(eq(draftBoards.id, board.id));
 
-    await ensureGlobalGameEntry(userId, CURRENT_GAME, board.id);
+    if (!requestedBoardId || board.isDefault) {
+      await ensureGlobalGameEntry(userId, CURRENT_GAME, board.id);
+    }
 
   } catch (err) {
     console.error('Draft submission error:', err);

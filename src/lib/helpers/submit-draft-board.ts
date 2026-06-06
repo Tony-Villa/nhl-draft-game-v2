@@ -13,9 +13,12 @@ export async function submitDraftBoard({draftboard, user, draftState, draftSyste
   // Include undrafted prospect IDs in the payload so API can remove them from DB
   const undraftedProspectIds = draftSystem ? Array.from(draftSystem.undraftedProspectIds) : [];
   
+  const draftBoardId = new URLSearchParams(window.location.search).get('board');
+
   const payload = {
     draftboard,
     user,
+    draftBoardId: draftBoardId ? Number(draftBoardId) : undefined,
     undraftedProspectIds // Add this to let the API know which prospects to remove
   };
 

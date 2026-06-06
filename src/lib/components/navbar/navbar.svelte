@@ -5,7 +5,15 @@
 	import { page } from '$app/state';
 	import { buttonOptions } from '../Button.options';
 
-  let { isAuthenticated, user } : {isAuthenticated : boolean; user: User} = $props() 
+  let {
+    isAuthenticated,
+    user,
+    leaguesAndBoardsEnabled = false
+  } : {
+    isAuthenticated: boolean;
+    user: User;
+    leaguesAndBoardsEnabled?: boolean;
+  } = $props() 
 
   function clearLocalDraft() {
 		localStorage.removeItem('draftBoard');
@@ -35,6 +43,30 @@
           {/if}
           <p class="font-bold md:text-lg">Welcome, {user?.name}</p>
         </div>
+        {#if leaguesAndBoardsEnabled}
+          <a
+            class={buttonOptions({
+              variant: 'outline',
+              size: 'sm',
+              shadow: 'sm',
+              class: 'whitespace-nowrap px-3 py-2'
+            })}
+            href="/draft-center/leagues"
+          >
+            Leagues
+          </a>
+          <a
+            class={buttonOptions({
+              variant: 'secondary',
+              size: 'sm',
+              shadow: 'sm',
+              class: 'whitespace-nowrap px-3 py-2'
+            })}
+            href="/draft-center/boards"
+          >
+            Boards
+          </a>
+        {/if}
         <form method="post" action="/draft-center?/logout">
           <button
             type="submit"
