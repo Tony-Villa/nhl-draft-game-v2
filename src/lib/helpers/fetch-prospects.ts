@@ -1,16 +1,4 @@
-import type { Prospect } from '$lib/types';
-
-export interface ProspectsResponse {
-	prospects: Prospect[];
-	pagination: {
-		currentPage: number;
-		totalPages: number;
-		totalCount: number;
-		limit: number;
-		hasNextPage: boolean;
-		hasPrevPage: boolean;
-	};
-}
+import type { ProspectsPage } from '$lib/prospects/types';
 
 export interface ProspectsParams {
 	page?: number;
@@ -22,41 +10,41 @@ export interface ProspectsParams {
 	year?: number;
 }
 
-export async function fetchProspects(params: ProspectsParams = {}): Promise<ProspectsResponse> {
+export async function fetchProspects(params: ProspectsParams = {}): Promise<ProspectsPage> {
 	const searchParams = new URLSearchParams();
 
 	// Set default values and add to search params
 	searchParams.set('page', params.page?.toString() || '1');
 	searchParams.set('limit', params.limit?.toString() || '12');
-	
+
 	if (params.search) {
 		searchParams.set('search', params.search);
 	}
-	
+
 	if (params.position) {
 		searchParams.set('position', params.position);
 	}
-	
+
 	if (params.sortBy) {
 		searchParams.set('sortBy', params.sortBy);
 	}
-	
+
 	if (params.sortOrder) {
 		searchParams.set('sortOrder', params.sortOrder);
 	}
-	
+
 	if (params.year) {
 		searchParams.set('year', params.year.toString());
 	}
 
 	try {
 		const response = await fetch(`/api/get-prospects?${searchParams.toString()}`);
-		
+
 		if (!response.ok) {
 			throw new Error(`Failed to fetch prospects: ${response.statusText}`);
 		}
 
-		const data: ProspectsResponse = await response.json();
+		const data: ProspectsPage = await response.json();
 		return data;
 	} catch (error) {
 		// Error fetching prospects - logged on server side

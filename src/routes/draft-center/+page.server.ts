@@ -29,7 +29,7 @@ export const load = async ({ setHeaders, locals, fetch, url }: RequestEvent) => 
 	let topProspects: Prospect[] = [];
 	if(game?.gamePhase !== 'finalized') {
 		topProspects = await getInitialProspects(
-			new Date().getFullYear(), 
+			Number(game.year),
 			12,
 			setHeaders
 		);

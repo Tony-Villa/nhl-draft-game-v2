@@ -286,7 +286,7 @@
 								<h2 class="mb-4 text-lg font-semibold">
 									Available Prospects ({data.finalizedGameYear})
 								</h2>
-								<ProspectContainer />
+								<ProspectContainer year={Number(data.finalizedGameYear)} />
 							</div>
 						</Card>
 					</div>
@@ -317,7 +317,7 @@
 						<h2 class="mb-4 text-lg font-semibold">
 							Available Prospects ({data.finalizedGameYear})
 						</h2>
-						<ProspectContainer />
+						<ProspectContainer year={Number(data.finalizedGameYear)} />
 					</div>
 				</Card>
 			{:else}

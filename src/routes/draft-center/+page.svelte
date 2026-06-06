@@ -331,12 +331,12 @@
 					{#if selectedTab === tabs[1]}
 						<DraftBoard draftType="user" />
 					{:else if selectedTab === tabs[0]}
-						<ProspectContainer />
+						<ProspectContainer year={Number(data.game.year)} />
 					{/if}
 				</div>
 			{:else}
 				<DraftBoard draftType="user" />
-				<ProspectContainer />
+				<ProspectContainer year={Number(data.game.year)} />
 			{/if}
 		</div>
 		<!-- <div

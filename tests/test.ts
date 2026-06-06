@@ -16,6 +16,136 @@ test('the draft center does not render component CSS as page content', async ({ 
 	expect(leadingText).toBeNull();
 });
 
+test.describe('draft-center prospect browser', () => {
+	test('keeps the legacy prospect endpoint available as a rollback path', async ({ request }) => {
+		const response = await request.get('/api/get-prospects?page=1&limit=1');
+		const body = await response.json();
+
+		expect(response.ok()).toBe(true);
+		expect(body.prospects).toHaveLength(1);
+		expect(body.pagination).toMatchObject({
+			currentPage: 1,
+			limit: 1
+		});
+
+		const invalidResponse = await request.get('/api/get-prospects?page=0');
+		expect(invalidResponse.status()).toBe(400);
+	});
+
+	test('loads prospects through the remote query', async ({ page }) => {
+		const pageErrors: string[] = [];
+		page.on('pageerror', (error) => pageErrors.push(error.message));
+
+		await page.goto('/draft-center');
+
+		await expect(page.locator('[data-prospect-source="remote"]')).toBeVisible();
+		await page.getByPlaceholder('Search Prospect', { exact: true }).fill('McKenna');
+		await expect(page.getByText('Gavin McKenna', { exact: true })).toBeVisible();
+		expect(pageErrors).not.toContain(expect.stringContaining('experimental_async_required'));
+	});
+
+	test('debounces search and renders an empty remote result without reloading', async ({
+		page
+	}) => {
+		await page.goto('/draft-center');
+		await expect(page.locator('[data-prospect-source="remote"]')).toBeVisible();
+
+		await page.getByPlaceholder('Search Prospect', { exact: true }).fill('no-such-prospect-987654');
+
+		await expect(page.getByText('No prospects found', { exact: true })).toBeVisible();
+		await expect(page).toHaveURL(/\/draft-center$/);
+		await expect(page.locator('[data-prospect-source="remote"]')).toBeVisible();
+	});
+
+	test('keeps a position filter visually selected while its remote query is pending', async ({
+		page
+	}) => {
+		await page.goto('/draft-center');
+		await expect(page.locator('[data-prospect-source="remote"]')).toBeVisible();
+
+		await page.route('**/_app/remote/**', async (route) => {
+			await new Promise((resolve) => setTimeout(resolve, 750));
+			await route.continue();
+		});
+
+		const centerFilter = page.getByRole('button', { name: 'C', exact: true });
+		await centerFilter.click();
+
+		await expect(centerFilter).toHaveAttribute('aria-pressed', 'true');
+		await expect(centerFilter).toHaveClass(/translate-x-\[5px\]/);
+	});
+
+	test('moves one page at a time with next and previous controls', async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: 'reduce' });
+		await page.goto('/draft-center');
+		await expect(page.getByText('Gavin McKenna', { exact: true })).toBeVisible();
+
+		await page.getByRole('button', { name: 'Next', exact: true }).click();
+		await expect(page.getByText('Rank: 13', { exact: true })).toBeVisible();
+		await expect(page.getByRole('button', { name: 'Page 2', exact: true })).toHaveAttribute(
+			'data-selected',
+			''
+		);
+
+		await page.getByRole('button', { name: 'Previous', exact: true }).click();
+		await expect(page.getByText('Gavin McKenna', { exact: true })).toBeVisible();
+		await expect(page.getByRole('button', { name: 'Page 1', exact: true })).toHaveAttribute(
+			'data-selected',
+			''
+		);
+	});
+
+	test('scrolls to the prospect container with a buffer when changing pages', async ({ page }) => {
+		await page.goto('/draft-center');
+		await expect(page.getByText('Gavin McKenna', { exact: true })).toBeVisible();
+
+		await page.getByRole('button', { name: 'Next', exact: true }).scrollIntoViewIfNeeded();
+		await page.evaluate(() => {
+			(window as typeof window & { prospectScroll?: ScrollToOptions }).prospectScroll = undefined;
+			const scrollWindow = window as unknown as {
+				scrollTo: (options: ScrollToOptions | number, y?: number) => void;
+			};
+			scrollWindow.scrollTo = (options, y) => {
+				(window as typeof window & { prospectScroll?: ScrollToOptions }).prospectScroll =
+					typeof options === 'number' ? { left: options, top: y } : options;
+			};
+		});
+
+		const expectedTop = await page.locator('[data-prospect-container]').evaluate((container) => {
+			let containerTop = 0;
+			let element: HTMLElement | null = container as HTMLElement;
+
+			while (element) {
+				containerTop += element.offsetTop;
+				element = element.offsetParent as HTMLElement | null;
+			}
+
+			return Math.max(0, containerTop - 240);
+		});
+
+		await page.getByRole('button', { name: 'Next', exact: true }).click();
+
+		await expect
+			.poll(() =>
+				page.evaluate(
+					() => (window as typeof window & { prospectScroll?: ScrollToOptions }).prospectScroll
+				)
+			)
+			.toMatchObject({
+				top: expectedTop,
+				behavior: 'smooth'
+			});
+	});
+
+	test('uses the finalized game year on the mock draft prospect browser', async ({ page }) => {
+		await page.goto('/draft-center/mock-game');
+
+		await expect(page.getByText('Available Prospects (2025)', { exact: true })).toBeVisible();
+		await expect(page.getByText('Matthew Schaefer', { exact: true })).toBeVisible();
+		await expect(page.getByText('Gavin McKenna', { exact: true })).not.toBeVisible();
+	});
+});
+
 test.describe('authentication pages', () => {
 	test('login page exposes both OAuth providers', async ({ page }) => {
 		await page.goto('/auth/login');
