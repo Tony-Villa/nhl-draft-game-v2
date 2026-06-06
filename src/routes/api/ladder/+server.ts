@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db/index.js'
-import { users, scores, games } from '$lib/server/db/schema'
-import { desc, eq } from 'drizzle-orm'
+import { draftBoardScores, gameEntries, games, users } from '$lib/server/db/schema'
+import { and, desc, eq } from 'drizzle-orm'
 import {getYear} from 'date-fns'
 
 export async function GET({url}) {
@@ -11,12 +11,22 @@ export async function GET({url}) {
 
   try {
     const ladder = await db.select({
-      id: scores.userId,
-      score: scores.score,
+      id: gameEntries.userId,
+      score: draftBoardScores.score,
       playerName: users.name,
       avatar: users.avatarUrl,
       year: games.year
-    }).from(scores).leftJoin(users, eq(users.id, scores.userId)).leftJoin(games, eq(games.id, scores.gameId)).where(eq(games.year, year)).orderBy(desc(scores.score)).limit(10)
+    })
+    .from(gameEntries)
+    .leftJoin(users, eq(users.id, gameEntries.userId))
+    .leftJoin(games, eq(games.id, gameEntries.gameId))
+    .leftJoin(draftBoardScores, and(
+      eq(draftBoardScores.draftBoardId, gameEntries.selectedDraftBoardId),
+      eq(draftBoardScores.gameId, gameEntries.gameId)
+    ))
+    .where(eq(games.year, year))
+    .orderBy(desc(draftBoardScores.score))
+    .limit(10)
 
 		return new Response(JSON.stringify(ladder), {
       "headers": {

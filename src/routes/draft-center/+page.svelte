@@ -6,6 +6,7 @@
 	import HeadToHead from '$lib/components/HeadToHead.svelte';
 	import Countdown from '$lib/components/Countdown.svelte';
 	import ShareDraft from '$lib/components/ShareDraft.svelte';
+	import BoardSwitcher from '$lib/components/BoardSwitcher.svelte';
 	import Card from '$lib/components/Card.svelte';
 
 	import { getDraftState } from '$lib/global-state/draft-state.svelte';
@@ -306,8 +307,15 @@
 	{#if draftState.currentState !== "started" && draftState.currentState !== 'locked' && draftState.currentState !== 'finalized'}
 	
 	<!-- Share Draft Button - Show when user has picks -->
-	<div class="flex mb-3">
+	<div class="mb-3 flex flex-col items-start justify-between gap-3 px-1 sm:flex-row sm:items-center">
 		<ShareDraft />
+		{#if data.leaguesAndBoardsEnabled}
+			<BoardSwitcher
+				selectedBoard={data.selectedDraftBoard}
+				boards={data.userDraftBoards}
+				canSwitch={data.canSwitchDraftBoards}
+			/>
+		{/if}
 	</div>
 	
 	<div class=" flex gap-8 px-1">
@@ -333,8 +341,15 @@
 	{:else}
 	
 	<!-- Share Draft Button - Also show during/after draft -->
-	<div class="flex mb-3">
+	<div class="mb-3 flex flex-col items-start justify-between gap-3 px-2 sm:flex-row sm:items-center">
 		<ShareDraft />
+		{#if data.leaguesAndBoardsEnabled}
+			<BoardSwitcher
+				selectedBoard={data.selectedDraftBoard}
+				boards={data.userDraftBoards}
+				canSwitch={data.canSwitchDraftBoards}
+			/>
+		{/if}
 	</div>
 	
 	<div class=" flex gap-5 px-2">

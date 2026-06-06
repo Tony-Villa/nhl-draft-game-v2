@@ -6,9 +6,14 @@ import { CURRENT_GAME } from '$env/static/private';
 import type { DraftBoard, Prospect } from '$lib/types';
 import { getCachedDraftBoardOrder } from "$lib/server/cache/draft-board-cache.js";
 import { getInitialProspects } from "$lib/server/services/prospects-service.js";
-import { getUserDraftBoardCells, mergePicksIntoDraftBoard } from "$lib/server/services/draft-board-service.js";
+import {
+	getUserDraftBoardCells,
+	getUserDraftBoards,
+	mergePicksIntoDraftBoard
+} from "$lib/server/services/draft-board-service.js";
+import { leaguesAndBoardsEnabled } from '$lib/server/feature-flags.js';
 
-export const load = async ({ setHeaders, locals, fetch }: RequestEvent) => {
+export const load = async ({ setHeaders, locals, fetch, url }: RequestEvent) => {
 	const response = await fetch('/api/game')
 	const game = await response.json()
 	
@@ -31,6 +36,15 @@ export const load = async ({ setHeaders, locals, fetch }: RequestEvent) => {
 	}
 
 	let draftBoard: DraftBoard[] = [];
+	const featureEnabled = leaguesAndBoardsEnabled();
+	const gameIsEditable =
+		game?.gamePhase === 'open' && Date.now() < new Date(game.lockDate).getTime();
+	const selectedDraftBoardId = featureEnabled && gameIsEditable
+		? Number(url.searchParams.get('board')) || undefined
+		: undefined;
+	let selectedDraftBoard = null;
+	let userDraftBoards: Awaited<ReturnType<typeof getUserDraftBoards>> = [];
+
 	if(locals?.user) {
 		let baseDraftBoard: DraftBoard[];
 		
@@ -40,7 +54,16 @@ export const load = async ({ setHeaders, locals, fetch }: RequestEvent) => {
 			baseDraftBoard = await getCachedDraftBoardOrder();
 		}
 		
-		const { picks: userDraftData } = await getUserDraftBoardCells(locals.user.id, CURRENT_GAME);
+		const { board, picks: userDraftData } = await getUserDraftBoardCells(
+			locals.user.id,
+			CURRENT_GAME,
+			selectedDraftBoardId
+		);
+
+		selectedDraftBoard = board;
+		if (featureEnabled) {
+			userDraftBoards = await getUserDraftBoards(locals.user.id, CURRENT_GAME);
+		}
 		
 		if (userDraftData.length > 0) {
 			draftBoard = mergePicksIntoDraftBoard(baseDraftBoard, userDraftData);
@@ -58,6 +81,10 @@ export const load = async ({ setHeaders, locals, fetch }: RequestEvent) => {
 	return { 
 		prospects: topProspects, 
 		draftBoard, 
+		selectedDraftBoard,
+		userDraftBoards,
+		leaguesAndBoardsEnabled: featureEnabled,
+		canSwitchDraftBoards: featureEnabled && gameIsEditable,
 		user: locals, 
 		isAuthenticated: locals.session !== null, 
 		nhlBoard, 

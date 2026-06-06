@@ -32,9 +32,16 @@
 	<div >
 
 		{#if innerWidth < 768}
-			<Navbar.Small isAuthenticated={data?.isAuthenticated} />
+			<Navbar.Small
+				isAuthenticated={data?.isAuthenticated}
+				leaguesAndBoardsEnabled={data?.leaguesAndBoardsEnabled}
+			/>
 		{:else}
-			<Navbar.Root user={data?.user?.user} isAuthenticated={data?.isAuthenticated} />
+			<Navbar.Root
+				user={data?.user?.user}
+				isAuthenticated={data?.isAuthenticated}
+				leaguesAndBoardsEnabled={data?.leaguesAndBoardsEnabled}
+			/>
 		{/if}
 	</div>
 	<!-- {#if draftBoard} -->

@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db/index.js'
-import { scores, users } from '$lib/server/db/schema'
+import { draftBoardScores, gameEntries, users } from '$lib/server/db/schema'
 import { eq, desc } from 'drizzle-orm'
 import { CURRENT_GAME } from '$env/static/private'
 
@@ -9,15 +9,16 @@ export async function GET({ url }) {
   try {
     // Get top scores with user information
     const topScores = await db.select({
-      userId: scores.userId,
+      userId: users.id,
       userName: users.name,
       userAvatar: users.avatarUrl,
-      score: scores.score
+      score: draftBoardScores.score
     })
-    .from(scores)
-    .innerJoin(users, eq(scores.userId, users.id))
-    .where(eq(scores.gameId, CURRENT_GAME))
-    .orderBy(desc(scores.score))
+    .from(gameEntries)
+    .innerJoin(users, eq(gameEntries.userId, users.id))
+    .innerJoin(draftBoardScores, eq(gameEntries.selectedDraftBoardId, draftBoardScores.draftBoardId))
+    .where(eq(gameEntries.gameId, CURRENT_GAME))
+    .orderBy(desc(draftBoardScores.score))
     .limit(parseInt(limit))
 
     return new Response(JSON.stringify({
