@@ -20,12 +20,6 @@ export const load = async ({ setHeaders, locals, fetch, url }: RequestEvent) => 
 	const nhlBoardRes = await fetch('api/nhl-board?game=' + CURRENT_GAME)
 	const nhlBoard = await nhlBoardRes.json()
 
-	let ladder;
-	if(game?.gamePhase && game?.gamePhase === 'finalized' ){
-		const ladderRes = await fetch('api/ladder')
-		ladder = await ladderRes.json()
-	}
-
 	let topProspects: Prospect[] = [];
 	if(game?.gamePhase !== 'finalized') {
 		topProspects = await getInitialProspects(
@@ -88,8 +82,7 @@ export const load = async ({ setHeaders, locals, fetch, url }: RequestEvent) => 
 		user: locals, 
 		isAuthenticated: locals.session !== null, 
 		nhlBoard, 
-		game, 
-		ladder 
+		game
 	};
 }
 

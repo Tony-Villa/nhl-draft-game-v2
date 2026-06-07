@@ -301,14 +301,8 @@
 		</Card>
 
 		<!-- Final Ladder/Results -->
-		{#if data?.ladder}
-			<Ladder ladder={data.ladder} />
-		{/if}
+		<Ladder year={Number(data.game.year)} />
 	{/if}
-
-	<!-- {#if draftState.currentState === "finalized"}
-		<Ladder ladder={data?.ladder} />
-	{/if} -->
 
 	{#if draftState.currentState !== 'started' && draftState.currentState !== 'locked' && draftState.currentState !== 'finalized'}
 		<!-- Share Draft Button - Show when user has picks -->

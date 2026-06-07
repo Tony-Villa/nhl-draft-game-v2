@@ -1,39 +1,21 @@
-import { db } from '$lib/server/db/index.js'
-import { draftBoardScores, gameEntries, games, users } from '$lib/server/db/schema'
-import { and, desc, eq } from 'drizzle-orm'
-import {getYear} from 'date-fns'
+import { ladderQuerySchema } from '$lib/remote/leaderboard.schemas';
+import { getLadder } from '$lib/server/services/leaderboard-service';
+import { json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
 
-export async function GET({url}) {
+export const GET: RequestHandler = async ({ url }) => {
+	const parsedQuery = ladderQuerySchema.safeParse({
+		year: url.searchParams.get('year') || undefined
+	});
 
-  const currentYear = getYear(new Date())
-
-  const year = url.searchParams.get('year') || currentYear.toString()
-
-  try {
-    const ladder = await db.select({
-      id: gameEntries.userId,
-      score: draftBoardScores.score,
-      playerName: users.name,
-      avatar: users.avatarUrl,
-      year: games.year
-    })
-    .from(gameEntries)
-    .leftJoin(users, eq(users.id, gameEntries.userId))
-    .leftJoin(games, eq(games.id, gameEntries.gameId))
-    .leftJoin(draftBoardScores, and(
-      eq(draftBoardScores.draftBoardId, gameEntries.selectedDraftBoardId),
-      eq(draftBoardScores.gameId, gameEntries.gameId)
-    ))
-    .where(eq(games.year, year))
-    .orderBy(desc(draftBoardScores.score))
-    .limit(10)
-
-		return new Response(JSON.stringify(ladder), {
-      "headers": {
-        "Content-Type" : "application/json"
-      }
-    })
-	} catch (error) {
-		console.error("Error getting game info:" ,error);	
+	if (!parsedQuery.success) {
+		return json({ error: 'Invalid ladder query' }, { status: 400 });
 	}
-}
+
+	try {
+		return json(await getLadder(parsedQuery.data));
+	} catch (error) {
+		console.error('Error fetching ladder:', error);
+		return json({ error: 'Failed to fetch ladder' }, { status: 500 });
+	}
+};

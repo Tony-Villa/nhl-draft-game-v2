@@ -1,41 +1,35 @@
-import { db } from '$lib/server/db/index.js'
-import { draftBoardScores, gameEntries, users } from '$lib/server/db/schema'
-import { eq, desc } from 'drizzle-orm'
-import { CURRENT_GAME } from '$env/static/private'
+import { CURRENT_GAME } from '$env/static/private';
+import { liveLeaderboardQuerySchema } from '$lib/remote/leaderboard.schemas';
+import { getLiveLeaderboard } from '$lib/server/services/leaderboard-service';
+import { json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
 
-export async function GET({ url }) {
-  const limit = url.searchParams.get('limit') || '10'
-  
-  try {
-    // Get top scores with user information
-    const topScores = await db.select({
-      userId: users.id,
-      userName: users.name,
-      userAvatar: users.avatarUrl,
-      score: draftBoardScores.score
-    })
-    .from(gameEntries)
-    .innerJoin(users, eq(gameEntries.userId, users.id))
-    .innerJoin(draftBoardScores, eq(gameEntries.selectedDraftBoardId, draftBoardScores.draftBoardId))
-    .where(eq(gameEntries.gameId, CURRENT_GAME))
-    .orderBy(desc(draftBoardScores.score))
-    .limit(parseInt(limit))
+export const GET: RequestHandler = async ({ url }) => {
+	const parsedQuery = liveLeaderboardQuerySchema.safeParse({
+		gameId: url.searchParams.get('gameId') || CURRENT_GAME,
+		limit: url.searchParams.get('limit') || '10'
+	});
 
-    return new Response(JSON.stringify({
-      success: true,
-      leaderboard: topScores,
-      lastUpdated: new Date().toISOString()
-    }), {
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-cache, must-revalidate"
-      }
-    })
-  } catch (error) {
-    console.error("Error fetching leaderboard:", error)
-    return new Response(JSON.stringify({ error: "Failed to fetch leaderboard" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    })
-  }
-}
+	if (!parsedQuery.success) {
+		return json({ error: 'Invalid leaderboard query' }, { status: 400 });
+	}
+
+	try {
+		const data = await getLiveLeaderboard(parsedQuery.data);
+
+		return json(
+			{
+				success: true,
+				...data
+			},
+			{
+				headers: {
+					'Cache-Control': 'no-cache, must-revalidate'
+				}
+			}
+		);
+	} catch (error) {
+		console.error('Error fetching leaderboard:', error);
+		return json({ error: 'Failed to fetch leaderboard' }, { status: 500 });
+	}
+};
