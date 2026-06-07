@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { LiveLeaderboardData } from '$lib/leaderboard/types';
 	import { getLiveLeaderboardRows } from '$lib/remote/leaderboard.remote';
+	import { untrack } from 'svelte';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
 
@@ -12,12 +13,17 @@
 		enabled?: boolean;
 	} = $props();
 
+	let hasBeenEnabled = $state(untrack(() => enabled));
 	const leaderboardQuery = $derived(
 		getLiveLeaderboardRows({
 			gameId,
 			limit: 3
 		})
 	);
+
+	$effect(() => {
+		if (enabled) hasBeenEnabled = true;
+	});
 
 	$effect(() => {
 		if (!enabled) return;
@@ -62,8 +68,8 @@
 	}
 </script>
 
-{#if enabled}
-	<div class="pt-4 text-center">
+{#if hasBeenEnabled}
+	<div hidden={!enabled} class="pt-4 text-center">
 		<h2 class="mb-4 text-lg font-bold tracking-wide uppercase">Top Players</h2>
 
 		<svelte:boundary>

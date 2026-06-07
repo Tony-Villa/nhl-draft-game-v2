@@ -313,7 +313,7 @@
 			{#if data.leaguesAndBoardsEnabled}
 				<BoardSwitcher
 					selectedBoard={data.selectedDraftBoard}
-					boards={data.userDraftBoards}
+					gameId={data.game.id}
 					canSwitch={data.canSwitchDraftBoards}
 				/>
 			{/if}
@@ -348,7 +348,7 @@
 			{#if data.leaguesAndBoardsEnabled}
 				<BoardSwitcher
 					selectedBoard={data.selectedDraftBoard}
-					boards={data.userDraftBoards}
+					gameId={data.game.id}
 					canSwitch={data.canSwitchDraftBoards}
 				/>
 			{/if}

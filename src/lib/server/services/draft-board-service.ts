@@ -8,6 +8,7 @@ import {
 	leagueMembers,
 	prospects
 } from '$lib/server/db/schema';
+import type { BoardSummary } from '$lib/boards/types';
 import type { DraftBoard, Prospect } from '$lib/types';
 
 export const DEFAULT_DRAFT_BOARD_NAME = 'My Draft Board';
@@ -142,6 +143,21 @@ export async function getUserDraftBoards(userId: string, gameId: string) {
 		.orderBy(asc(draftBoards.createdAt));
 
 	return boards;
+}
+
+export async function getUserDraftBoardSummaries(
+	userId: string,
+	gameId: string
+): Promise<BoardSummary[]> {
+	return await db
+		.select({
+			id: draftBoards.id,
+			name: draftBoards.name,
+			status: draftBoards.status
+		})
+		.from(draftBoards)
+		.where(and(eq(draftBoards.userId, userId), eq(draftBoards.gameId, gameId)))
+		.orderBy(asc(draftBoards.createdAt));
 }
 
 export async function renameDraftBoard({

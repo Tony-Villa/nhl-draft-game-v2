@@ -2,6 +2,7 @@
 	import { ordinalNumbers } from '$lib/helpers/ordinal-numbers';
 	import type { LadderEntry } from '$lib/leaderboard/types';
 	import { getLadderRows } from '$lib/remote/leaderboard.remote';
+	import { untrack } from 'svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { ladderOptions, ladderTextOptions } from './Ladder.options';
 	import Button from './Button.svelte';
@@ -16,7 +17,12 @@
 		enabled?: boolean;
 	} = $props();
 
+	let hasBeenEnabled = $state(untrack(() => enabled));
 	const ladderQuery = $derived(getLadderRows({ year }));
+
+	$effect(() => {
+		if (enabled) hasBeenEnabled = true;
+	});
 
 	function refreshLadder() {
 		void ladderQuery.refresh();
@@ -32,35 +38,37 @@
 	}
 </script>
 
-{#if enabled}
-	<svelte:boundary>
-		{@render ladderResults(await ladderQuery)}
+{#if hasBeenEnabled}
+	<div hidden={!enabled}>
+		<svelte:boundary>
+			{@render ladderResults(await ladderQuery)}
 
-		{#snippet pending()}
-			<div class="my-10 flex w-full justify-center" data-ladder-state="loading">
-				<Card class="mx-4 w-full max-w-md bg-white text-center">
-					<div class="animate-pulse space-y-3">
-						<div class="mx-auto h-7 w-52 rounded bg-gray-300"></div>
-						<div class="mx-auto h-4 w-64 rounded bg-gray-200"></div>
-					</div>
-				</Card>
-			</div>
-		{/snippet}
+			{#snippet pending()}
+				<div class="my-10 flex w-full justify-center" data-ladder-state="loading">
+					<Card class="mx-4 w-full max-w-md bg-white text-center">
+						<div class="animate-pulse space-y-3">
+							<div class="mx-auto h-7 w-52 rounded bg-gray-300"></div>
+							<div class="mx-auto h-4 w-64 rounded bg-gray-200"></div>
+						</div>
+					</Card>
+				</div>
+			{/snippet}
 
-		{#snippet failed(error, reset)}
-			<div class="my-10 flex w-full justify-center" data-ladder-state="error">
-				<Card class="mx-4 w-full max-w-md bg-white text-center">
-					<h1 class={ladderTextOptions({ type: 'title', class: 'text-xl sm:text-2xl' })}>
-						Unable to load final standings
-					</h1>
-					<p class="mt-3 text-sm font-bold uppercase">
-						Your draft selections have not been changed.
-					</p>
-					<Button class="mt-4" onclick={() => retryLadder(reset)}>Try again</Button>
-				</Card>
-			</div>
-		{/snippet}
-	</svelte:boundary>
+			{#snippet failed(error, reset)}
+				<div class="my-10 flex w-full justify-center" data-ladder-state="error">
+					<Card class="mx-4 w-full max-w-md bg-white text-center">
+						<h1 class={ladderTextOptions({ type: 'title', class: 'text-xl sm:text-2xl' })}>
+							Unable to load final standings
+						</h1>
+						<p class="mt-3 text-sm font-bold uppercase">
+							Your draft selections have not been changed.
+						</p>
+						<Button class="mt-4" onclick={() => retryLadder(reset)}>Try again</Button>
+					</Card>
+				</div>
+			{/snippet}
+		</svelte:boundary>
+	</div>
 {/if}
 
 {#snippet ladderResults(ladder: LadderEntry[])}

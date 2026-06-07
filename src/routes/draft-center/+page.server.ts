@@ -8,7 +8,6 @@ import { getCachedDraftBoardOrder } from "$lib/server/cache/draft-board-cache.js
 import { getInitialProspects } from "$lib/server/services/prospects-service.js";
 import {
 	getUserDraftBoardCells,
-	getUserDraftBoards,
 	mergePicksIntoDraftBoard
 } from "$lib/server/services/draft-board-service.js";
 import { leaguesAndBoardsEnabled } from '$lib/server/feature-flags.js';
@@ -37,7 +36,6 @@ export const load = async ({ setHeaders, locals, fetch, url }: RequestEvent) => 
 		? Number(url.searchParams.get('board')) || undefined
 		: undefined;
 	let selectedDraftBoard = null;
-	let userDraftBoards: Awaited<ReturnType<typeof getUserDraftBoards>> = [];
 
 	if(locals?.user) {
 		let baseDraftBoard: DraftBoard[];
@@ -55,9 +53,6 @@ export const load = async ({ setHeaders, locals, fetch, url }: RequestEvent) => 
 		);
 
 		selectedDraftBoard = board;
-		if (featureEnabled) {
-			userDraftBoards = await getUserDraftBoards(locals.user.id, CURRENT_GAME);
-		}
 		
 		if (userDraftData.length > 0) {
 			draftBoard = mergePicksIntoDraftBoard(baseDraftBoard, userDraftData);
@@ -76,7 +71,6 @@ export const load = async ({ setHeaders, locals, fetch, url }: RequestEvent) => 
 		prospects: topProspects, 
 		draftBoard, 
 		selectedDraftBoard,
-		userDraftBoards,
 		leaguesAndBoardsEnabled: featureEnabled,
 		canSwitchDraftBoards: featureEnabled && gameIsEditable,
 		user: locals, 
