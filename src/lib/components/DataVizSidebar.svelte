@@ -2,22 +2,25 @@
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import { buttonVariants } from '$lib/components/ui/button/index.js';
 	import { buttonOptions } from './Button.options';
-	import type { DraftInsightsResponse, DraftInsightProspect, Prospect } from '$lib/types.js';
-	import { onMount, untrack } from 'svelte';
+	import type { DraftInsightsData, DraftInsightProspect, Prospect } from '$lib/types.js';
+	import { untrack } from 'svelte';
 	import { getDraftSystem } from '$lib/global-state/prospect-state.svelte';
 	import { getCurrentUser } from '$lib/global-state/user-state.svelte';
 	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
 	import { getDraftState } from '$lib/global-state/draft-state.svelte';
+	import { getDraftInsightsForPick } from '$lib/remote/draft-insights.remote';
 	import Button from './Button.svelte';
 
 	// Props
 	let { position = 7, gameId = '2' }: { position?: number; gameId?: string } = $props();
 
-	// State
-	let insightsData: DraftInsightsResponse | null = $state(null);
-	let loading = $state(true);
-	let error: string | null = $state(null);
 	let sheetOpen = $state(false);
+	let insightsData: DraftInsightsData | null = $state(null);
+	let loading = $state(false);
+	let error: string | null = $state(null);
+	let activeRequest = 0;
+	let loadingKey: string | null = null;
+	const insightsCache = new Map<string, DraftInsightsData>();
 
 	// Frozen position - locks the position when sidebar opens to prevent jumping
 	let frozenPosition = $state(untrack(() => position));
@@ -32,14 +35,57 @@
 
 	// Function to handle opening the sheet and freezing position
 	function openSheet() {
-		// frozenPosition is already set to current position from the effect above
 		sheetOpen = true;
+		void loadDraftInsights();
+	}
+
+	async function loadDraftInsights(force = false) {
+		const key = `${gameId}:${frozenPosition}`;
+		const cached = insightsCache.get(key);
+
+		if (!force && cached) {
+			insightsData = cached;
+			loading = false;
+			error = null;
+			return;
+		}
+
+		if (!force && loading && loadingKey === key) {
+			return;
+		}
+
+		const request = ++activeRequest;
+		loadingKey = key;
+		loading = true;
+		error = null;
+		insightsData = null;
+
+		try {
+			const data = await getDraftInsightsForPick({
+				gameId,
+				position: frozenPosition
+			}).run();
+
+			insightsCache.set(key, data);
+			if (request === activeRequest) {
+				insightsData = data;
+			}
+		} catch (cause) {
+			if (request === activeRequest) {
+				error = cause instanceof Error ? cause.message : 'Failed to load draft insights';
+			}
+		} finally {
+			if (request === activeRequest) {
+				loading = false;
+				loadingKey = null;
+			}
+		}
 	}
 
 	let maxCount = $derived.by(() => {
-		if (insightsData?.data?.prospects.length) {
+		if (insightsData?.prospects.length) {
 			return Math.max(
-				...insightsData.data.prospects.map((p) => Math.max(...Object.values(p.heatmapData)))
+				...insightsData.prospects.map((p) => Math.max(...Object.values(p.heatmapData)))
 			);
 		}
 		return 0;
@@ -50,32 +96,8 @@
 	const currentUser = getCurrentUser();
 	const draftState = getDraftState();
 
-	// Fetch draft insights data
-	async function fetchDraftInsights() {
-		try {
-			loading = true;
-			error = null;
-
-			// Use frozen position to prevent sidebar from jumping when drafts change
-			const params = new URLSearchParams({
-				gameId,
-				position: frozenPosition.toString()
-			});
-
-			const response = await fetch(`/api/draft-insights?${params}`);
-			const data = await response.json();
-
-			if (data.success) {
-				insightsData = data;
-			} else {
-				error = data.error || 'Failed to load draft insights';
-			}
-		} catch (err) {
-			error = 'Failed to load draft insights';
-			console.error('Draft insights error:', err);
-		} finally {
-			loading = false;
-		}
+	function retryDraftInsights() {
+		void loadDraftInsights(true);
 	}
 
 	// Get heat map cell color based on value and max - single blue color with intensity
@@ -184,17 +206,6 @@
 		return draftedCell ? draftedCell.draftPosition : null;
 	}
 
-	// Reactive statement to fetch data when frozen position or gameId changes
-	$effect(() => {
-		if (frozenPosition || gameId) {
-			fetchDraftInsights();
-		}
-	});
-
-	onMount(() => {
-		fetchDraftInsights();
-	});
-
 	let innerWidth = $state(0);
 </script>
 
@@ -234,14 +245,17 @@
 			{:else if error}
 				<div class="border border-red-200 bg-red-50 p-4">
 					<p class="text-center text-red-600">{error}</p>
+					<div class="mt-4 flex justify-center">
+						<Button onclick={retryDraftInsights}>Try again</Button>
+					</div>
 				</div>
-			{:else if insightsData?.data?.prospects.length === 0}
+			{:else if insightsData?.prospects.length === 0}
 				<div class="border border-gray-200 bg-gray-50 p-4">
 					<p class="text-center text-gray-600">
 						No draft data available for position {frozenPosition}
 					</p>
 				</div>
-			{:else if insightsData?.data}
+			{:else if insightsData}
 				<div class="space-y-6">
 					<!-- Header Section -->
 					<div class="border-2 border-black bg-white p-4">
@@ -251,7 +265,7 @@
 
 					<!-- Prospects List -->
 					<div class="space-y-6">
-						{#each insightsData.data.prospects as prospect, index}
+						{#each insightsData.prospects as prospect}
 							<div
 								class="border-2 border-black {isProspectDrafted(prospect.prospectId)
 									? 'border-[3px] border-dashed border-stone-500'

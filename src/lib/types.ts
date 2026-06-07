@@ -54,12 +54,14 @@ export interface DraftInsightProspect {
 	userDraftedAt?: number; // Position where user drafted this prospect, if any
 }
 
+export interface DraftInsightsData {
+	targetPosition: number;
+	gameId: string;
+	prospects: DraftInsightProspect[];
+}
+
 export interface DraftInsightsResponse {
 	success: boolean;
-	data?: {
-		targetPosition: number;
-		gameId: string;
-		prospects: DraftInsightProspect[];
-	};
+	data?: DraftInsightsData;
 	error?: string;
 }
