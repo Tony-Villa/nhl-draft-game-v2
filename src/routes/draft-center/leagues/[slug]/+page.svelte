@@ -4,16 +4,59 @@
 	import { buttonOptions } from '$lib/components/Button.options';
 	import type { LeagueStanding } from '$lib/leagues/types';
 	import { getBoardSummaries } from '$lib/remote/boards.remote';
-	import { getLeagueStandings } from '$lib/remote/leagues.remote';
+	import { editLeagueForm, getLeagueStandings, leaveLeagueForm } from '$lib/remote/leagues.remote';
 	import { page } from '$app/state';
 
 	let { data, form } = $props();
+	let league = $derived(data.league);
 
-	const inviteUrl = $derived(
-		`${page.url.origin}/draft-center/leagues?invite=${data.league.inviteCode}`
-	);
-	const boardsQuery = $derived(getBoardSummaries({ gameId: data.league.gameId }));
-	const standingsQuery = $derived(getLeagueStandings({ slug: data.league.slug }));
+	const inviteUrl = $derived(`${page.url.origin}/draft-center/leagues?invite=${league.inviteCode}`);
+	const boardsQuery = $derived(getBoardSummaries({ gameId: league.gameId }));
+	const standingsQuery = $derived(getLeagueStandings({ slug: league.slug }));
+	let editUnexpectedError = $state('');
+	let leaveUnexpectedError = $state('');
+
+	const enhancedEditLeagueForm = editLeagueForm.enhance(async ({ submit }) => {
+		editUnexpectedError = '';
+
+		if (editLeagueForm.pending > 1) {
+			return;
+		}
+
+		try {
+			const succeeded = await submit();
+			const result = editLeagueForm.result;
+
+			if (succeeded && result) {
+				league = {
+					...league,
+					name: result.name,
+					description: result.description
+				};
+			}
+		} catch {
+			editUnexpectedError =
+				'Unable to update league details right now. The previous details are still saved.';
+		}
+	});
+
+	const enhancedLeaveLeagueForm = leaveLeagueForm.enhance(async ({ submit }) => {
+		leaveUnexpectedError = '';
+
+		if (leaveLeagueForm.pending > 1) {
+			return;
+		}
+
+		if (!confirm('Leave this league? Your draft board will not be deleted.')) {
+			return;
+		}
+
+		try {
+			await submit();
+		} catch {
+			leaveUnexpectedError = 'Unable to leave this league right now. Your membership is unchanged.';
+		}
+	});
 
 	function retryBoards(reset: () => void) {
 		void boardsQuery.refresh();
@@ -27,7 +70,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.league.name} | Hockey Draft Showdown</title>
+	<title>{league.name} | Hockey Draft Showdown</title>
 </svelte:head>
 
 <div class="mx-auto flex h-svh max-w-screen-xl flex-col gap-8 px-4 pb-16">
@@ -45,10 +88,10 @@
 				>
 					Private League
 				</p>
-				<h1 class="text-4xl leading-none font-black uppercase md:text-6xl">{data.league.name}</h1>
-				{#if data.league.description}
+				<h1 class="text-4xl leading-none font-black uppercase md:text-6xl">{league.name}</h1>
+				{#if league.description}
 					<p class="mt-4 max-w-2xl text-lg font-semibold text-gray-700">
-						{data.league.description}
+						{league.description}
 					</p>
 				{/if}
 			</div>
@@ -65,10 +108,57 @@
 						Open Invite
 					</a>
 				</div>
-				<p class="mt-2 text-sm font-bold text-gray-600">Code: {data.league.inviteCode}</p>
+				<p class="mt-2 text-sm font-bold text-gray-600">Code: {league.inviteCode}</p>
 			</div>
 		</div>
 	</section>
+
+	{#if league.role === 'owner'}
+		<section class="shadow-section-shadow border-[5px] border-black bg-white p-5">
+			<h2 class="text-2xl font-black uppercase">Edit League</h2>
+			<form {...enhancedEditLeagueForm} class="mt-4 grid gap-4">
+				<input {...editLeagueForm.fields.slug.as('hidden', league.slug)} />
+				<label class="flex flex-col gap-2 font-bold">
+					<span class="uppercase">League name</span>
+					<input
+						{...editLeagueForm.fields.name.as('text')}
+						value={league.name}
+						maxlength="80"
+						class="border-[3px] border-black px-3 py-2"
+					/>
+				</label>
+				<label class="flex flex-col gap-2 font-bold">
+					<span class="uppercase">Description</span>
+					<textarea
+						{...editLeagueForm.fields.description.as('text')}
+						maxlength="500"
+						class="min-h-28 border-[3px] border-black px-3 py-2"
+						>{league.description || ''}</textarea
+					>
+				</label>
+				<button
+					class={buttonOptions({ variant: 'primary' })}
+					type="submit"
+					disabled={editLeagueForm.pending > 0}
+				>
+					{editLeagueForm.pending > 0 ? 'Saving...' : 'Save League Details'}
+				</button>
+			</form>
+			<div aria-live="polite">
+				{#each editLeagueForm.fields.allIssues() as issue}
+					<p class="mt-3 font-bold text-red-700">{issue.message}</p>
+				{/each}
+				{#if editUnexpectedError}
+					<p class="mt-3 font-bold text-red-700">{editUnexpectedError}</p>
+				{:else if editLeagueForm.result}
+					<p class="mt-3 font-bold text-green-700">League details updated.</p>
+				{/if}
+				{#if form?.editError}
+					<p class="mt-3 font-bold text-red-700">{form.editError}</p>
+				{/if}
+			</div>
+		</section>
+	{/if}
 
 	<section class="shadow-section-shadow border-[5px] border-black bg-white p-5">
 		<div>
@@ -145,6 +235,40 @@
 				</div>
 			{/snippet}
 		</svelte:boundary>
+	</section>
+
+	<section class="border-[4px] border-black bg-white p-5">
+		<h2 class="text-2xl font-black uppercase">League Membership</h2>
+		{#if league.role === 'owner'}
+			<p class="mt-2 font-semibold text-gray-700">
+				League owners cannot leave until ownership transfer is supported.
+			</p>
+		{:else}
+			<p class="mt-2 font-semibold text-gray-700">
+				Leaving removes you from this league but does not delete your draft board.
+			</p>
+			<form {...enhancedLeaveLeagueForm} class="mt-4">
+				<input {...leaveLeagueForm.fields.slug.as('hidden', league.slug)} />
+				<button
+					class={buttonOptions({ variant: 'danger' })}
+					type="submit"
+					disabled={leaveLeagueForm.pending > 0}
+				>
+					{leaveLeagueForm.pending > 0 ? 'Leaving...' : 'Leave League'}
+				</button>
+			</form>
+			<div aria-live="polite">
+				{#each leaveLeagueForm.fields.allIssues() as issue}
+					<p class="mt-3 font-bold text-red-700">{issue.message}</p>
+				{/each}
+				{#if leaveUnexpectedError}
+					<p class="mt-3 font-bold text-red-700">{leaveUnexpectedError}</p>
+				{/if}
+				{#if form?.leaveError}
+					<p class="mt-3 font-bold text-red-700">{form.leaveError}</p>
+				{/if}
+			</div>
+		{/if}
 	</section>
 </div>
 

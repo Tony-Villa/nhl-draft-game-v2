@@ -1,8 +1,24 @@
 <script lang="ts">
 	import Card from '$lib/components/Card.svelte';
 	import { buttonOptions } from '$lib/components/Button.options';
+	import { joinLeagueForm } from '$lib/remote/leagues.remote';
 
 	let { data, form } = $props();
+	let joinUnexpectedError = $state('');
+
+	const enhancedJoinLeagueForm = joinLeagueForm.enhance(async ({ submit }) => {
+		joinUnexpectedError = '';
+
+		if (joinLeagueForm.pending > 1) {
+			return;
+		}
+
+		try {
+			await submit();
+		} catch {
+			joinUnexpectedError = 'Unable to join this league right now. No membership was changed.';
+		}
+	});
 </script>
 
 <svelte:head>
@@ -24,19 +40,31 @@
 		</div>
 
 		<div class="grid content-start gap-4">
-			<form method="post" action="?/join" class="border-[4px] border-black bg-accent p-4">
+			<form {...enhancedJoinLeagueForm} class="border-[4px] border-black bg-accent p-4">
 				<label for="inviteCode" class="mb-2 block text-sm font-black uppercase">Join with invite code</label>
 				<div class="flex flex-col gap-3 sm:flex-row">
 					<input
+						{...joinLeagueForm.fields.inviteCode.as('text')}
 						id="inviteCode"
-						name="inviteCode"
 						value={form?.inviteCode || data.inviteCode}
 						class="min-w-0 flex-1 border-[3px] border-black px-3 py-2 font-bold uppercase"
 						placeholder="ABC123XY"
 					/>
-					<button class={buttonOptions({ variant: 'primary', class: 'whitespace-nowrap' })} type="submit">
-						Join League
+					<button
+						class={buttonOptions({ variant: 'primary', class: 'whitespace-nowrap' })}
+						type="submit"
+						disabled={joinLeagueForm.pending > 0}
+					>
+						{joinLeagueForm.pending > 0 ? 'Joining...' : 'Join League'}
 					</button>
+				</div>
+				<div aria-live="polite">
+					{#each joinLeagueForm.fields.allIssues() as issue}
+						<p class="mt-3 font-bold text-red-700">{issue.message}</p>
+					{/each}
+					{#if joinUnexpectedError}
+						<p class="mt-3 font-bold text-red-700">{joinUnexpectedError}</p>
+					{/if}
 				</div>
 				{#if form?.joinError}
 					<p class="mt-3 font-bold text-red-700">{form.joinError}</p>

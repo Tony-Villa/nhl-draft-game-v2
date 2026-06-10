@@ -11,6 +11,7 @@
 	import { fade } from 'svelte/transition';
 	import { seedDb } from '$lib/helpers/seed-db';
 	import { submitDraftBoard } from '$lib/helpers/submit-draft-board';
+	import { submitDraftBoardCommand } from '$lib/remote/drafts.remote';
 	import { draftboardToMap } from '$lib/helpers/draftboard-to-map';
 
 	let {
@@ -26,6 +27,9 @@
 	const draftState = getDraftState();
 	// const pointSystem = getPointsSystem()
 	let draftBoardContainerWidth = $state(0);
+	let submissionMessage = $state('');
+	let submissionError = $state('');
+	let submitting = $state(false);
 
 	function removeProspect(prospect: Prospect, position: number) {
 		draftSystem.removeProspectFromBoard(prospect, position);
@@ -45,6 +49,32 @@
 			prospects: draftSystem.prospects,
 			draftboard: draftSystem.draftBoard
 		});
+	}
+
+	async function handleDraftSubmission() {
+		if (submitting) {
+			return;
+		}
+
+		submitting = true;
+		submissionMessage = '';
+		submissionError = '';
+
+		try {
+			const result = await submitDraftBoard({
+				draftboard: draftSystem.draftBoard,
+				draftState,
+				draftSystem
+			});
+
+			if (result.success) {
+				submissionMessage = 'Draft submitted successfully.';
+			} else {
+				submissionError = result.error;
+			}
+		} finally {
+			submitting = false;
+		}
 	}
 
 	let draftBoard = $derived(
@@ -83,19 +113,23 @@
 			{#if draftState.currentState === 'open' && currentUser?.user}
 				<div class="mx-auto mb-7 flex w-[60%] flex-col gap-2">
 					<Button
-						onclick={() =>
-							submitDraftBoard({
-								draftboard: draftSystem.draftBoard,
-								user: currentUser.user,
-								draftState,
-								draftSystem
-							})}
+						onclick={handleDraftSubmission}
 						id="submit-draft"
 						class="rotate-[1.5deg] text-lg"
-						disabled={!currentUser?.user || draftState?.isDraftLocked}
+						disabled={!currentUser?.user ||
+							draftState?.isDraftLocked ||
+							submitting ||
+							submitDraftBoardCommand.pending > 0}
 					>
-						Submit Draft
+						{submitting || submitDraftBoardCommand.pending > 0 ? 'Submitting...' : 'Submit Draft'}
 					</Button>
+					<div aria-live="polite">
+						{#if submissionError}
+							<p class="font-bold text-red-700">{submissionError}</p>
+						{:else if submissionMessage}
+							<p class="font-bold text-green-700">{submissionMessage}</p>
+						{/if}
+					</div>
 				</div>
 				<!-- TODO: figure out seed maybe a script instead of this button -->
 				<!-- {#if dev}

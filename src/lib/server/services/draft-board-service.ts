@@ -13,6 +13,37 @@ import type { DraftBoard, Prospect } from '$lib/types';
 
 export const DEFAULT_DRAFT_BOARD_NAME = 'My Draft Board';
 
+export class DraftBoardMutationError extends Error {
+	constructor(
+		public readonly code: 'locked' | 'not_found' | 'invalid_name' | 'duplicate_name',
+		message: string
+	) {
+		super(message);
+		this.name = 'DraftBoardMutationError';
+	}
+}
+
+export class DraftSubmissionError extends Error {
+	constructor(
+		public readonly code:
+			| 'game_not_found'
+			| 'locked'
+			| 'board_not_found'
+			| 'duplicate_position'
+			| 'duplicate_prospect',
+		message: string
+	) {
+		super(message);
+		this.name = 'DraftSubmissionError';
+	}
+}
+
+export interface DraftSubmissionPickInput {
+	draftPosition: number;
+	team: string;
+	prospectId: string | null;
+}
+
 export async function getDefaultDraftBoard(userId: string, gameId: string) {
 	const [board] = await db
 		.select()
@@ -58,7 +89,11 @@ export async function getOrCreateDefaultDraftBoard(userId: string, gameId: strin
 	return createdBoard;
 }
 
-export async function ensureGlobalGameEntry(userId: string, gameId: string, selectedDraftBoardId: number) {
+export async function ensureGlobalGameEntry(
+	userId: string,
+	gameId: string,
+	selectedDraftBoardId: number
+) {
 	await db
 		.insert(gameEntries)
 		.values({
@@ -171,18 +206,29 @@ export async function renameDraftBoard({
 	draftBoardId: number;
 	name: string;
 }) {
-	await assertGameIsEditable(gameId);
+	try {
+		await assertGameIsEditable(gameId);
+	} catch (cause) {
+		if (cause instanceof Error && cause.message === 'Draft board is locked') {
+			throw new DraftBoardMutationError('locked', cause.message);
+		}
+
+		throw cause;
+	}
 
 	const board = await getUserDraftBoardById(userId, gameId, draftBoardId);
 
 	if (!board) {
-		throw new Error('Draft board not found');
+		throw new DraftBoardMutationError('not_found', 'Draft board not found');
 	}
 
 	const trimmedName = name.trim();
 
 	if (trimmedName.length < 2 || trimmedName.length > 60) {
-		throw new Error('Board name must be between 2 and 60 characters.');
+		throw new DraftBoardMutationError(
+			'invalid_name',
+			'Board name must be between 2 and 60 characters.'
+		);
 	}
 
 	const duplicateName = (await getUserDraftBoards(userId, gameId)).some(
@@ -192,7 +238,7 @@ export async function renameDraftBoard({
 	);
 
 	if (duplicateName) {
-		throw new Error('You already have a board with that name.');
+		throw new DraftBoardMutationError('duplicate_name', 'You already have a board with that name.');
 	}
 
 	await db
@@ -202,6 +248,164 @@ export async function renameDraftBoard({
 			updatedAt: sql`(cast (unixepoch() as int))`
 		})
 		.where(eq(draftBoards.id, board.id));
+}
+
+export async function submitDraftBoard({
+	userId,
+	gameId,
+	draftBoardId,
+	picks
+}: {
+	userId: string;
+	gameId: string;
+	draftBoardId?: number;
+	picks: DraftSubmissionPickInput[];
+}) {
+	const positions = new Set<number>();
+	const prospectIds = new Set<string>();
+
+	for (const pick of picks) {
+		if (positions.has(pick.draftPosition)) {
+			throw new DraftSubmissionError('duplicate_position', 'Draft positions must be unique.');
+		}
+		positions.add(pick.draftPosition);
+
+		if (!pick.prospectId) {
+			continue;
+		}
+
+		if (prospectIds.has(pick.prospectId)) {
+			throw new DraftSubmissionError('duplicate_prospect', 'Duplicate prospects are not allowed.');
+		}
+		prospectIds.add(pick.prospectId);
+	}
+
+	return await db.transaction(async (transaction) => {
+		const [game] = await transaction
+			.select({
+				lockDate: games.lockDate,
+				gamePhase: games.gamePhase
+			})
+			.from(games)
+			.where(eq(games.id, gameId))
+			.limit(1);
+
+		if (!game) {
+			throw new DraftSubmissionError('game_not_found', 'Game not found.');
+		}
+
+		if (Date.now() >= new Date(game.lockDate).getTime() || game.gamePhase !== 'open') {
+			throw new DraftSubmissionError('locked', 'Draft board is locked.');
+		}
+
+		let board;
+
+		if (draftBoardId) {
+			[board] = await transaction
+				.select()
+				.from(draftBoards)
+				.where(
+					and(
+						eq(draftBoards.id, draftBoardId),
+						eq(draftBoards.userId, userId),
+						eq(draftBoards.gameId, gameId)
+					)
+				)
+				.limit(1);
+		} else {
+			[board] = await transaction
+				.select()
+				.from(draftBoards)
+				.where(
+					and(
+						eq(draftBoards.userId, userId),
+						eq(draftBoards.gameId, gameId),
+						eq(draftBoards.isDefault, true)
+					)
+				)
+				.limit(1);
+
+			if (!board) {
+				await transaction
+					.insert(draftBoards)
+					.values({
+						userId,
+						gameId,
+						name: DEFAULT_DRAFT_BOARD_NAME,
+						status: 'draft',
+						isDefault: true
+					})
+					.onConflictDoNothing({
+						target: [draftBoards.userId, draftBoards.gameId, draftBoards.name]
+					});
+
+				[board] = await transaction
+					.select()
+					.from(draftBoards)
+					.where(
+						and(
+							eq(draftBoards.userId, userId),
+							eq(draftBoards.gameId, gameId),
+							eq(draftBoards.isDefault, true)
+						)
+					)
+					.limit(1);
+			}
+		}
+
+		if (!board) {
+			throw new DraftSubmissionError('board_not_found', 'Draft board not found.');
+		}
+
+		await transaction.delete(draftBoardPicks).where(eq(draftBoardPicks.draftBoardId, board.id));
+
+		const submittedPicks = picks.filter(
+			(pick): pick is DraftSubmissionPickInput & { prospectId: string } => Boolean(pick.prospectId)
+		);
+
+		if (submittedPicks.length > 0) {
+			await transaction.insert(draftBoardPicks).values(
+				submittedPicks.map((pick) => ({
+					draftBoardId: board.id,
+					positionDrafted: pick.draftPosition,
+					team: pick.team,
+					prospectId: pick.prospectId,
+					points: null
+				}))
+			);
+		}
+
+		await transaction
+			.update(draftBoards)
+			.set({
+				status: 'submitted',
+				submittedAt: sql`(cast (unixepoch() as int))`,
+				updatedAt: sql`(cast (unixepoch() as int))`
+			})
+			.where(eq(draftBoards.id, board.id));
+
+		if (!draftBoardId || board.isDefault) {
+			await transaction
+				.insert(gameEntries)
+				.values({
+					userId,
+					gameId,
+					selectedDraftBoardId: board.id
+				})
+				.onConflictDoUpdate({
+					target: [gameEntries.userId, gameEntries.gameId],
+					set: {
+						selectedDraftBoardId: board.id,
+						updatedAt: sql`(cast (unixepoch() as int))`
+					}
+				});
+		}
+
+		return {
+			draftBoardId: board.id,
+			submittedProspectIds: submittedPicks.map((pick) => pick.prospectId)
+		};
+	});
 }
 
 export async function deleteDraftBoard({
@@ -362,7 +566,11 @@ export function transformDraftPickToBoardCell(
 	};
 }
 
-export async function getUserDraftBoardCells(userId: string, gameId: string, draftBoardId?: number) {
+export async function getUserDraftBoardCells(
+	userId: string,
+	gameId: string,
+	draftBoardId?: number
+) {
 	const board = draftBoardId
 		? await getUserDraftBoardById(userId, gameId, draftBoardId)
 		: await getSelectedGlobalDraftBoard(userId, gameId);

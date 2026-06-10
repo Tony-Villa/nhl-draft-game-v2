@@ -1,101 +1,57 @@
 import { json } from '@sveltejs/kit';
-import type { DraftBoard } from '$lib/types.js';
-import { db } from '$lib/server/db/index.js';
 import { CURRENT_GAME } from '$env/static/private';
-import { and, eq, sql } from 'drizzle-orm';
-import { draftBoardPicks, draftBoards } from '$lib/server/db/schema';
-import {
-	assertGameIsEditable,
-	ensureGlobalGameEntry,
-	getOrCreateDefaultDraftBoard,
-	getUserDraftBoardById
-} from '$lib/server/services/draft-board-service.js';
-import { leaguesAndBoardsEnabled } from '$lib/server/feature-flags.js';
+import { draftSubmissionCommandSchema } from '$lib/remote/drafts.schemas';
+import { leaguesAndBoardsEnabled } from '$lib/server/feature-flags';
+import { DraftSubmissionError, submitDraftBoard } from '$lib/server/services/draft-board-service';
 
 export async function POST({ request, locals }) {
-  const { data } = await request.json();
+	if (!locals.user) {
+		return json({ message: 'failed', error: 'Authentication required' }, { status: 401 });
+	}
 
-  const { draftboard, user, draftBoardId } = data;
-  const userId = locals.user?.id || user?.id;
+	try {
+		const body = await request.json();
+		const legacyDraftBoard: Array<Record<string, any>> = Array.isArray(body?.data?.draftboard)
+			? body.data.draftboard
+			: [];
+		const requestedDraftBoardId = Number(body?.data?.draftBoardId) || undefined;
+		const input = draftSubmissionCommandSchema.parse({
+			draftBoardId: leaguesAndBoardsEnabled() ? requestedDraftBoardId : undefined,
+			picks: legacyDraftBoard
+				.filter((pick) => pick?.teamName)
+				.map((pick) => ({
+					draftPosition: pick.draftPosition,
+					team: pick.teamName,
+					prospectId: pick.prospect?.id || null
+				}))
+		});
 
-  if (!userId) {
-    return json({ message: 'failed', error: 'Authentication required' }, { status: 401 });
-  }
+		await submitDraftBoard({
+			userId: locals.user.id,
+			gameId: CURRENT_GAME,
+			...input
+		});
 
-  try {
-    await assertGameIsEditable(CURRENT_GAME);
+		return json({ message: 'success' });
+	} catch (cause) {
+		console.error('Draft submission error:', cause);
 
-    const requestedBoardId = leaguesAndBoardsEnabled() ? Number(draftBoardId) : 0;
-    const board = requestedBoardId
-      ? await getUserDraftBoardById(userId, CURRENT_GAME, requestedBoardId)
-      : await getOrCreateDefaultDraftBoard(userId, CURRENT_GAME);
+		if (cause instanceof DraftSubmissionError) {
+			return json(
+				{ message: 'failed', error: cause.message },
+				{
+					status:
+						cause.code === 'board_not_found' || cause.code === 'game_not_found' ? 404 : 400
+				}
+			);
+		}
 
-    if (!board) {
-      return json({ message: 'failed', error: 'Draft board not found' }, { status: 404 });
-    }
-    const filledProspectIds = draftboard
-      .map((draft: DraftBoard) => draft.prospect?.id)
-      .filter(Boolean);
-    const uniqueProspectIds = new Set(filledProspectIds);
-
-    if (filledProspectIds.length !== uniqueProspectIds.size) {
-      return json({ message: 'failed', error: 'Duplicate prospects are not allowed' }, { status: 400 });
-    }
-
-    await Promise.all(draftboard.map(async (draft: DraftBoard) => {
-      if (!draft.teamName) return;
-
-      if (draft.prospect && draft.prospect.id) {
-        await db
-          .insert(draftBoardPicks)
-          .values({
-            draftBoardId: board.id,
-            positionDrafted: draft.draftPosition,
-            team: draft.teamName,
-            prospectId: draft.prospect.id,
-            points: draft.points
-          })
-          .onConflictDoUpdate({
-            target: [draftBoardPicks.draftBoardId, draftBoardPicks.positionDrafted],
-            set: {
-              team: draft.teamName,
-              prospectId: draft.prospect.id,
-              points: draft.points,
-              updatedAt: sql`(cast (unixepoch() as int))`
-            },
-          });
-      } else {
-        await db
-          .delete(draftBoardPicks)
-          .where(
-            and(
-              eq(draftBoardPicks.draftBoardId, board.id),
-              eq(draftBoardPicks.positionDrafted, draft.draftPosition)
-            )
-          );
-      }
-    }));
-
-    await db
-      .update(draftBoards)
-      .set({
-        status: 'submitted',
-        submittedAt: sql`(cast (unixepoch() as int))`,
-        updatedAt: sql`(cast (unixepoch() as int))`
-      })
-      .where(eq(draftBoards.id, board.id));
-
-    if (!requestedBoardId || board.isDefault) {
-      await ensureGlobalGameEntry(userId, CURRENT_GAME, board.id);
-    }
-
-  } catch (err) {
-    console.error('Draft submission error:', err);
-    return json({ 
-      message: 'failed', 
-      error: err instanceof Error ? err.message : 'Unknown error occurred'
-    });
-  }
-
-  return json({ message: 'success' });
+		return json(
+			{
+				message: 'failed',
+				error: cause instanceof Error ? cause.message : 'Unknown error occurred'
+			},
+			{ status: 400 }
+		);
+	}
 }

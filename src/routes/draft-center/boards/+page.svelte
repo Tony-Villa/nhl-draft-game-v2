@@ -2,13 +2,42 @@
 	import { ArrowLeft, Pencil, Trash2 } from '@lucide/svelte';
 	import Card from '$lib/components/Card.svelte';
 	import { buttonOptions } from '$lib/components/Button.options';
+	import { renameDraftBoardForm } from '$lib/remote/boards.remote';
 
 	let { data, form } = $props();
+	let boards = $derived(data.boards);
+	let renameUnexpectedErrors = $state<Record<number, string>>({});
 
 	function confirmDelete(event: SubmitEvent, boardName: string) {
 		if (!confirm(`Delete "${boardName}"? This removes every pick on this board and cannot be undone.`)) {
 			event.preventDefault();
 		}
+	}
+
+	function enhanceRenameForm(draftBoardId: number) {
+		const renameForm = renameDraftBoardForm.for(draftBoardId);
+
+		return renameForm.enhance(async ({ submit }) => {
+			renameUnexpectedErrors[draftBoardId] = '';
+
+			if (renameForm.pending > 1) {
+				return;
+			}
+
+			try {
+				const succeeded = await submit();
+				const result = renameForm.result;
+
+				if (succeeded && result) {
+					boards = boards.map((board) =>
+						board.id === draftBoardId ? { ...board, name: result.name } : board
+					);
+				}
+			} catch {
+				renameUnexpectedErrors[draftBoardId] =
+					'Unable to rename this board right now. Your previous name is still saved.';
+			}
+		});
 	}
 </script>
 
@@ -70,13 +99,14 @@
 				<p class="border-[3px] border-black bg-red-100 p-3 font-bold text-red-700">{form.deleteError}</p>
 			{/if}
 
-			{#if data.boards.length === 0}
+			{#if boards.length === 0}
 				<div class="border-[4px] border-dashed border-black bg-white p-6 text-center font-bold">
 					No boards yet. Create one to get started.
 				</div>
 			{:else}
 				<div class="grid gap-4">
-					{#each data.boards as board}
+					{#each boards as board}
+						{@const renameForm = renameDraftBoardForm.for(board.id)}
 						<Card class="bg-white shadow-brut-shadow-sm">
 							<div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 								<div>
@@ -120,18 +150,25 @@
 							</div>
 
 							<div class="mt-5 grid gap-3 border-t-[3px] border-black pt-4 md:grid-cols-[1fr_auto]">
-								<form method="post" action="?/rename" class="flex min-w-0 flex-col gap-2 sm:flex-row">
-									<input type="hidden" name="draftBoardId" value={board.id} />
+								<form
+									{...enhanceRenameForm(board.id)}
+									class="flex min-w-0 flex-col gap-2 sm:flex-row"
+									aria-busy={renameForm.pending > 0}
+								>
 									<label class="sr-only" for={`board-name-${board.id}`}>Rename {board.name}</label>
 									<input
+										{...renameForm.fields.name.as('text')}
 										id={`board-name-${board.id}`}
-										name="name"
 										value={board.name}
 										maxlength="60"
 										class="min-w-0 flex-1 border-[3px] border-black px-3 py-2 font-bold"
 									/>
-									<button class={buttonOptions({ variant: 'outline', size: 'sm', shadow: 'none' })} type="submit">
-										Rename
+									<button
+										class={buttonOptions({ variant: 'outline', size: 'sm', shadow: 'none' })}
+										type="submit"
+										disabled={renameForm.pending > 0}
+									>
+										{renameForm.pending > 0 ? 'Renaming...' : 'Rename'}
 									</button>
 								</form>
 
@@ -140,15 +177,15 @@
 									<button
 										class={buttonOptions({
 											variant:
-												board.isDefault || board.globalEntryCount > 0 || board.leagueEntryCount > 0 || data.boards.length === 1
+												board.isDefault || board.globalEntryCount > 0 || board.leagueEntryCount > 0 || boards.length === 1
 													? 'disabled'
 													: 'danger',
 											size: 'sm',
 											shadow: 'none'
 										})}
 										type="submit"
-										disabled={board.isDefault || board.globalEntryCount > 0 || board.leagueEntryCount > 0 || data.boards.length === 1}
-										title={data.boards.length === 1
+										disabled={board.isDefault || board.globalEntryCount > 0 || board.leagueEntryCount > 0 || boards.length === 1}
+										title={boards.length === 1
 											? 'You must keep at least one board'
 											: board.isDefault || board.globalEntryCount > 0
 												? 'Choose another global board first'
@@ -160,6 +197,17 @@
 										Delete Board
 									</button>
 								</form>
+
+								<div class="md:col-span-2" aria-live="polite">
+									{#each renameForm.fields.allIssues() as issue}
+										<p class="font-bold text-red-700">{issue.message}</p>
+									{/each}
+									{#if renameUnexpectedErrors[board.id]}
+										<p class="font-bold text-red-700">{renameUnexpectedErrors[board.id]}</p>
+									{:else if renameForm.result}
+										<p class="font-bold text-green-700">Board renamed.</p>
+									{/if}
+								</div>
 							</div>
 
 							{#if form?.renameError && form.renameBoardId === board.id}
