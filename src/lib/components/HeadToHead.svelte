@@ -83,6 +83,9 @@
 						class="h-12 w-12"
 						src={draftSystem?.draftBoard[currentDraftPosition]?.teamLogo}
 						alt=""
+						width="48"
+						height="48"
+						decoding="async"
 					/>
 				</div>
 
@@ -133,6 +136,9 @@
 						class="h-12 w-12"
 						src={draftSystem?.draftBoard[currentDraftPosition]?.teamLogo}
 						alt=""
+						width="48"
+						height="48"
+						decoding="async"
 					/>
 				</div>
 				<!-- Right side - Status Badge (fixed position) -->

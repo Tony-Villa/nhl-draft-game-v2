@@ -194,7 +194,15 @@
 		>
 			{cell?.draftPosition}
 		</h3>
-		<img class="w-16 self-center md:w-20" src={cell?.teamLogo} alt="team logo" />
+		<img
+			class="w-16 self-center md:w-20"
+			src={cell?.teamLogo}
+			alt={`${cell?.teamName || 'NHL team'} logo`}
+			width="80"
+			height="80"
+			loading="lazy"
+			decoding="async"
+		/>
 	</button>
 {/snippet}
 

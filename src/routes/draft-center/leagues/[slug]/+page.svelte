@@ -6,6 +6,8 @@
 	import { getBoardSummaries } from '$lib/remote/boards.remote';
 	import { editLeagueForm, getLeagueStandings, leaveLeagueForm } from '$lib/remote/leagues.remote';
 	import { page } from '$app/state';
+	import { enhance } from '$app/forms';
+	import { PendingForm } from '$lib/forms/pending-form.svelte';
 
 	let { data, form } = $props();
 	let league = $derived(data.league);
@@ -15,6 +17,7 @@
 	const standingsQuery = $derived(getLeagueStandings({ slug: league.slug }));
 	let editUnexpectedError = $state('');
 	let leaveUnexpectedError = $state('');
+	const pageActions = new PendingForm();
 
 	const enhancedEditLeagueForm = editLeagueForm.enhance(async ({ submit }) => {
 		editUnexpectedError = '';
@@ -137,7 +140,10 @@
 					>
 				</label>
 				<button
-					class={buttonOptions({ variant: 'primary' })}
+					class={buttonOptions({
+						variant: 'primary',
+						class: editLeagueForm.pending > 0 ? 'pending-control' : ''
+					})}
 					type="submit"
 					disabled={editLeagueForm.pending > 0}
 				>
@@ -250,7 +256,10 @@
 			<form {...enhancedLeaveLeagueForm} class="mt-4">
 				<input {...leaveLeagueForm.fields.slug.as('hidden', league.slug)} />
 				<button
-					class={buttonOptions({ variant: 'danger' })}
+					class={buttonOptions({
+						variant: 'danger',
+						class: leaveLeagueForm.pending > 0 ? 'pending-control' : ''
+					})}
 					type="submit"
 					disabled={leaveLeagueForm.pending > 0}
 				>
@@ -288,6 +297,8 @@
 			action="?/setBoard"
 			class="flex flex-col gap-3 sm:flex-row"
 			data-league-boards-state="populated"
+			use:enhance={pageActions.enhance('set-board')}
+			aria-busy={pageActions.is('set-board')}
 		>
 			<select
 				name="draftBoardId"
@@ -303,7 +314,16 @@
 					</option>
 				{/each}
 			</select>
-			<button class={buttonOptions({ variant: 'primary' })} type="submit">Use Board</button>
+			<button
+				class={buttonOptions({
+					variant: 'primary',
+					class: pageActions.is('set-board') ? 'pending-control' : ''
+				})}
+				type="submit"
+				disabled={pageActions.is('set-board')}
+			>
+				{pageActions.is('set-board') ? 'Updating Board...' : 'Use Board'}
+			</button>
 			<a class={buttonOptions({ variant: 'outline' })} href="/draft-center/boards">Manage</a>
 		</form>
 	{/if}
@@ -332,6 +352,10 @@
 								class="h-10 w-10 rounded-full border-[3px] border-black"
 								src={entry.userAvatar}
 								alt={entry.userName || 'League member'}
+								width="40"
+								height="40"
+								loading="lazy"
+								decoding="async"
 							/>
 						{/if}
 						<div class="min-w-0 flex-1">

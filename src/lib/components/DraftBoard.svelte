@@ -115,7 +115,7 @@
 					<Button
 						onclick={handleDraftSubmission}
 						id="submit-draft"
-						class="rotate-[1.5deg] text-lg"
+						class={`rotate-[1.5deg] text-lg ${submitting || submitDraftBoardCommand.pending > 0 ? 'pending-control' : ''}`}
 						disabled={!currentUser?.user ||
 							draftState?.isDraftLocked ||
 							submitting ||
@@ -175,9 +175,25 @@
 								'top-[-80px]'} "
 						>
 							<div class="relative">
-								<img class="h-[300px] w-[300px] opacity-15" src={position.teamLogo} alt="" />
+								<img
+									class="h-[300px] w-[300px] opacity-15"
+									src={position.teamLogo}
+									alt=""
+									width="300"
+									height="300"
+									loading="lazy"
+									decoding="async"
+								/>
 								{#if position?.from}
-									<img class="absolute top-[64%] right-0 h-6 w-6" src={position.from} alt="" />
+									<img
+										class="absolute top-[64%] right-0 h-6 w-6"
+										src={position.from}
+										alt=""
+										width="24"
+										height="24"
+										loading="lazy"
+										decoding="async"
+									/>
 								{/if}
 							</div>
 						</div>

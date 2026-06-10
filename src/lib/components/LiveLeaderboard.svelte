@@ -119,6 +119,10 @@
 									src={entry.userAvatar}
 									alt={entry.userName || 'Leaderboard player'}
 									class="h-8 w-8 rounded-full border-2 border-black shadow-sm"
+									width="32"
+									height="32"
+									loading="lazy"
+									decoding="async"
 								/>
 							{/if}
 							<span class="truncate text-lg font-bold">{entry.userName || 'Anonymous player'}</span>

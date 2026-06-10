@@ -37,6 +37,7 @@
 	const draftState = getDraftState();
 	const draftSystem = getDraftSystem();
 	const userState = getCurrentUser();
+	let activeBoardId = initialData.selectedDraftBoard?.id ?? null;
 
 	let nhlDraftBoardLength = $state(
 		initialData.nhlBoard.filter((x: any) => x?.prospect?.name).length
@@ -98,6 +99,18 @@
 		// if(data.game.gamePhase !== draftState.currentState) {
 		draftState.currentState = data.game.gamePhase;
 		// }
+	});
+
+	$effect(() => {
+		const nextBoardId = data.selectedDraftBoard?.id ?? null;
+
+		if (nextBoardId !== activeBoardId) {
+			draftSystem.prospects = data.prospects;
+			draftSystem.replaceDraftBoard(data.draftBoard);
+			draftSystem.nhlDraftBoard = data.nhlBoard;
+			draftState.updateDraftStatus(false);
+			activeBoardId = nextBoardId;
+		}
 	});
 
 	function refresh() {

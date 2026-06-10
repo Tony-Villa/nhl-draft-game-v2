@@ -10,7 +10,7 @@
 <div class="card teamStats">
 	<p>{capitalizeFirstLetter(player)}</p>
 	<table rules="rows">
-		<tbody>	
+		<tbody>
 			<tr>
 				{#each columns as column}
 					<th>{column}</th>
@@ -19,7 +19,15 @@
 			{#each teams as team}
 				<tr>
 					<td>
-						<img class="teamStats__logo" src={team.logo} alt={`${team.teamName} logo`} />
+						<img
+							class="teamStats__logo"
+							src={team.logo}
+							alt={`${team.teamName} logo`}
+							width="50"
+							height="50"
+							loading="lazy"
+							decoding="async"
+						/>
 					</td>
 					<td>{team.gamesPlayed}</td>
 					<td>{team.gamesRemaining}</td>
@@ -34,16 +42,15 @@
 </div>
 
 <style lang="postcss">
-
 	p {
-    color: black;
-    font-weight: 700;
-    font-size: 20px;
+		color: black;
+		font-weight: 700;
+		font-size: 20px;
 
-    @media (max-width: 600px) {
-      font-size: 14px;
-    }
-  }
+		@media (max-width: 600px) {
+			font-size: 14px;
+		}
+	}
 
 	.teamStats {
 		flex: 1;

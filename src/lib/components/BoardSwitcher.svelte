@@ -107,7 +107,6 @@
 			{#each boards as board}
 				<a
 					href={`/draft-center?board=${board.id}`}
-					data-sveltekit-reload
 					aria-current={board.id === selectedBoard?.id ? 'page' : undefined}
 					class="hover:bg-accent flex min-h-11 items-center gap-3 border-b border-black px-3 py-2 font-bold"
 				>

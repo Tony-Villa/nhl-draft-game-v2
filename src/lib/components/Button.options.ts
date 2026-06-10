@@ -1,7 +1,7 @@
 import { tv, type VariantProps } from 'tailwind-variants';
 
 export const buttonOptions = tv({
-	base: `hover:bg-accent relative cursor-pointer border-[3px] border-black text-sm font-extrabold uppercase transition-all duration-100 ease-in-out hover:text-black active:translate-x-[5px] active:translate-y-[5px] active:shadow-none`,
+	base: `hover:bg-accent relative cursor-pointer border-[3px] border-black text-sm font-extrabold uppercase transition-all duration-100 ease-in-out hover:text-black active:translate-x-[5px] active:translate-y-[5px] active:shadow-none disabled:translate-x-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:shadow-none`,
 	variants: {
 		variant: {
 			primary: 'bg-primary text-black',
