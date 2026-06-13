@@ -42,7 +42,7 @@ describe('prospect browser query support', () => {
 		expect(prospectsQuerySchema.safeParse({ sortBy: 'score' }).success).toBe(false);
 	});
 
-	it('uses the same deterministic cache policy for both transports', () => {
+	it('caches stable browse pages but not search or position-filtered results', () => {
 		const query = prospectsQuerySchema.parse({
 			page: 2,
 			search: '',
@@ -52,8 +52,9 @@ describe('prospect browser query support', () => {
 		});
 
 		expect(getProspectsCacheKey(query)).toContain(`prospects:${query.year}:rank:asc:12::D:2`);
-		expect(shouldCacheProspects(query)).toBe(true);
-		expect(shouldCacheProspects({ page: 1, search: 'smith' })).toBe(false);
-		expect(shouldCacheProspects({ page: 11, search: '' })).toBe(false);
+		expect(shouldCacheProspects(query)).toBe(false);
+		expect(shouldCacheProspects({ page: 1, search: '', position: '' })).toBe(true);
+		expect(shouldCacheProspects({ page: 1, search: 'smith', position: '' })).toBe(false);
+		expect(shouldCacheProspects({ page: 11, search: '', position: '' })).toBe(false);
 	});
 });

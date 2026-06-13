@@ -14,8 +14,10 @@ export function getProspectsCacheKey(query: ProspectsQuery): string {
 	return `${CACHE_PREFIX}${query.year}:${query.sortBy}:${query.sortOrder}:${query.limit}:${encodeURIComponent(query.search)}:${encodeURIComponent(query.position)}:${query.page}`;
 }
 
-export function shouldCacheProspects(query: Pick<ProspectsQuery, 'page' | 'search'>): boolean {
-	return !query.search.trim() && query.page <= MAX_CACHED_PAGES;
+export function shouldCacheProspects(
+	query: Pick<ProspectsQuery, 'page' | 'search' | 'position'>
+): boolean {
+	return !query.search.trim() && !query.position.trim() && query.page <= MAX_CACHED_PAGES;
 }
 
 export async function getProspectsPage(query: ProspectsQuery): Promise<ProspectsPage> {
@@ -42,7 +44,7 @@ export async function getProspectsPage(query: ProspectsQuery): Promise<Prospects
 	if (query.position) {
 		const positions = query.position.split(',').map((position) => position.trim());
 		const positionConditions = positions.map((position) => {
-			if (position === 'F') {
+			if (position === 'F' && positions.length === 1) {
 				return sql`(${prospects.position} LIKE '%C%' OR ${prospects.position} LIKE '%LW%' OR ${prospects.position} LIKE '%RW%' OR ${prospects.position} LIKE '%F%')`;
 			}
 

@@ -81,6 +81,19 @@ test.describe('draft-center prospect browser', () => {
 		await expect(page.getByText('Updating prospects...', { exact: true })).toBeVisible();
 	});
 
+	test('filters by position without reusing stale prospect card fields', async ({ page }) => {
+		await page.goto('/draft-center');
+		await expect(page.getByText('Gavin McKenna', { exact: true })).toBeVisible();
+
+		await page.getByRole('button', { name: 'C', exact: true }).click();
+
+		const calebCard = page.locator('.prospect-card').filter({ hasText: 'Caleb Malhotra' });
+		await expect(calebCard.getByText('C', { exact: true })).toBeVisible();
+		await expect(calebCard).toContainText('183 lbs');
+		await expect(calebCard).toContainText('06/02/2008');
+		await expect(page.getByText('Gavin McKenna', { exact: true })).not.toBeVisible();
+	});
+
 	test('moves one page at a time with next and previous controls', async ({ page }) => {
 		await page.emulateMedia({ reducedMotion: 'reduce' });
 		await page.goto('/draft-center');
@@ -99,6 +112,22 @@ test.describe('draft-center prospect browser', () => {
 			'data-selected',
 			''
 		);
+	});
+
+	test('restores an anonymous draft board after reload', async ({ page }) => {
+		await page.goto('/draft-center');
+		const gavinCard = page.locator('.prospect-card').filter({ hasText: 'Gavin McKenna' });
+
+		await gavinCard.getByRole('button', { name: 'Draft', exact: true }).click();
+		await page.getByRole('button', { name: '1 Toronto Maple Leafs logo', exact: true }).click();
+		await expect(gavinCard.getByRole('button', { name: 'Undraft', exact: true })).toBeVisible();
+
+		await page.reload();
+
+		const restoredGavinCard = page.locator('.prospect-card').filter({ hasText: 'Gavin McKenna' });
+		await expect(
+			restoredGavinCard.getByRole('button', { name: 'Undraft', exact: true })
+		).toBeVisible();
 	});
 
 	test('scrolls to the prospect container with a buffer when changing pages', async ({ page }) => {

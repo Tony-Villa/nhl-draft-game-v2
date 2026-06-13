@@ -436,7 +436,7 @@
 		<div
 			class={`mb-12 grid ${innerWidth < 1001 ? 'grid-cols-1 justify-center' : 'grid-cols-2'} justify-between gap-6`}
 		>
-			{#each displayProspects as prospect}
+			{#each displayProspects as prospect (prospect.id)}
 				<ProspectCard {prospect} />
 			{/each}
 

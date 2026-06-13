@@ -20,7 +20,8 @@
 	import LiveLeaderboard from '$lib/components/LiveLeaderboard.svelte';
 	import { env } from '$env/dynamic/public';
 	import { buttonOptions } from '$lib/components/Button.options';
-	import { untrack } from 'svelte';
+	import { restoreDraftBoard } from '$lib/helpers/draftboard-to-map';
+	import { onMount, untrack } from 'svelte';
 
 	let { data }: { data: any } = $props();
 
@@ -44,39 +45,27 @@
 	);
 	let leaderboardOpen = $state(false);
 
+	onMount(() => {
+		if (initialData?.user?.user) {
+			return;
+		}
+
+		const restoredBoard = restoreDraftBoard(
+			localStorage.getItem('draftBoard'),
+			initialData.draftBoard
+		);
+
+		if (restoredBoard) {
+			draftSystem.setNewInitialDraftBoard(restoredBoard);
+		}
+	});
+
 	// Calculate next available pick position
 	const nextAvailablePickPosition = $derived(() => {
 		// Find the first position without a prospect
 		const nextPosition = draftSystem.draftBoard.find((cell) => !cell.prospect);
 		return nextPosition ? nextPosition.draftPosition : 1;
 	});
-
-	// TODO: figure out local storage for unsubmitted drafts or users that haven't logged in yet.
-
-	// function checkForSavedDraftBoard() {
-	// 	playersDrafted = data.draftBoard.filter((draft: any) => draft.prospect).length;
-	// }
-
-	// function checkForLocalDraftBoard() {
-	// 	if(globalThis) {
-	// 		const localStorageDraft = JSON.parse(localStorage.getItem('draftBoard') || '{}')
-
-	// 		checkForSavedDraftBoard();
-
-	// 		if (playersDrafted === 0 && localStorageDraft.hasOwnProperty('draft')) {
-	// 			storedDraftBoard.setNewInitialDraftBoard(localStorageDraft.draft);
-
-	// 		} else {
-	// 			draftBoard = data.draftBoard;
-	// 		}
-
-	// 		setDraftSystem(data.prospects, draftBoard, data.nhlBoard);
-	// 	} else {
-	// 		setDraftSystem(data.prospects, draftBoard, data.nhlBoard);
-	// 	}
-	// }
-
-	// checkForLocalDraftBoard();
 
 	let innerWidth = $state(0);
 	let tabs = $derived(
@@ -88,11 +77,6 @@
 	const switchScreens = (tab: string) => {
 		tabIndex = tabIndex === 1 ? 0 : 1;
 	};
-
-	// $effect(() => {
-	// 	checkForSavedDraftBoard();
-	// 	checkForLocalDraftBoard();
-	// })
 
 	$effect(() => {
 		// setDraftState(data.game.gamePhase)
