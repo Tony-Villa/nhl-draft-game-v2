@@ -66,6 +66,36 @@
 			year
 		})
 	);
+	let lastProspectsResponse = $state<ProspectsPage | null>(null);
+
+	$effect(() => {
+		if (prospectsQuery.ready) {
+			lastProspectsResponse = prospectsQuery.current;
+		}
+	});
+
+	const optimisticProspectsResponse = $derived.by(() => {
+		if (
+			prospectsQuery.ready ||
+			!lastProspectsResponse ||
+			lastProspectsResponse.pagination.currentPage !== currentPage
+		) {
+			return null;
+		}
+
+		const filteredProspects = lastProspectsResponse.prospects
+			.filter(matchesCurrentSearch)
+			.filter(matchesCurrentPosition);
+
+		return {
+			...lastProspectsResponse,
+			prospects: [...filteredProspects].sort(compareCurrentSort)
+		};
+	});
+
+	const displayedProspectsResponse = $derived(
+		prospectsQuery.ready ? prospectsQuery.current : optimisticProspectsResponse
+	);
 
 	let sortFilter: PositionFilter = $state({
 		C: false,
@@ -101,6 +131,55 @@
 		} catch (error) {
 			return [];
 		}
+	}
+
+	function matchesCurrentSearch(prospect: Prospect) {
+		if (!debouncedSearch) {
+			return true;
+		}
+
+		return (
+			prospect.name?.toLocaleLowerCase().includes(debouncedSearch.toLocaleLowerCase()) ?? false
+		);
+	}
+
+	function matchesCurrentPosition(prospect: Prospect) {
+		if (!derivedPositionFilter) {
+			return true;
+		}
+
+		const prospectPosition = prospect.position || '';
+
+		return derivedPositionFilter.split(',').some((position) => {
+			if (position === 'F') {
+				return ['C', 'LW', 'RW', 'F'].some((forwardPosition) =>
+					prospectPosition.includes(forwardPosition)
+				);
+			}
+
+			return prospectPosition.includes(position);
+		});
+	}
+
+	function compareCurrentSort(left: Prospect, right: Prospect) {
+		let comparison = 0;
+
+		if (sortBy === 'name') {
+			comparison = (left.name || '').localeCompare(right.name || '');
+		} else if (sortBy === 'height') {
+			comparison = Number(left.height) - Number(right.height);
+		} else if (sortBy === 'age') {
+			comparison = getBirthDate(right.birthDay) - getBirthDate(left.birthDay);
+		} else {
+			comparison = Number(left.rank) - Number(right.rank);
+		}
+
+		return sortOrder === 'asc' ? comparison : -comparison;
+	}
+
+	function getBirthDate(birthDay: string) {
+		const timestamp = Date.parse(birthDay);
+		return Number.isNaN(timestamp) ? 0 : timestamp;
 	}
 
 	let searchTimeout: number | undefined;
@@ -296,24 +375,40 @@
 		<MultipleSelect {sortFilter} onToggle={sortByPosition} />
 	</div>
 
-	<svelte:boundary>
-		{@render prospectResults(await prospectsQuery)}
-
-		{#snippet pending()}
-			{@render prospectSkeletons()}
-		{/snippet}
-
-		{#snippet failed(error, reset)}
+	{#if displayedProspectsResponse}
+		{#if prospectsQuery.error}
 			<div
-				class="shadow-button-shadow mb-12 border-[3px] border-black bg-white p-6 text-center"
-				data-prospect-source="error"
+				class="mb-4 flex flex-col items-start justify-between gap-3 border-[3px] border-black bg-red-100 p-4 sm:flex-row sm:items-center"
+				data-prospect-update="error"
 			>
-				<p class="text-lg font-bold">Unable to load prospects</p>
-				<p class="mt-2 text-sm text-gray-600">Your draft board has not been changed.</p>
-				<Button class="mt-4" onclick={() => retryProspects(reset)}>Try again</Button>
+				<p class="font-bold">Unable to update prospects. The previous results are still shown.</p>
+				<Button size="sm" variant="outline" onclick={() => void prospectsQuery.refresh()}>
+					Try again
+				</Button>
 			</div>
-		{/snippet}
-	</svelte:boundary>
+		{/if}
+
+		{@render prospectResults(displayedProspectsResponse, prospectsQuery.loading)}
+	{:else}
+		<svelte:boundary>
+			{@render prospectResults(await prospectsQuery)}
+
+			{#snippet pending()}
+				{@render prospectSkeletons()}
+			{/snippet}
+
+			{#snippet failed(error, reset)}
+				<div
+					class="shadow-button-shadow mb-12 border-[3px] border-black bg-white p-6 text-center"
+					data-prospect-source="error"
+				>
+					<p class="text-lg font-bold">Unable to load prospects</p>
+					<p class="mt-2 text-sm text-gray-600">Your draft board has not been changed.</p>
+					<Button class="mt-4" onclick={() => retryProspects(reset)}>Try again</Button>
+				</div>
+			{/snippet}
+		</svelte:boundary>
+	{/if}
 </div>
 
 {#snippet prospectSkeletons()}
@@ -327,9 +422,17 @@
 	</div>
 {/snippet}
 
-{#snippet prospectResults(prospectsResponse: ProspectsPage)}
+{#snippet prospectResults(prospectsResponse: ProspectsPage, isUpdating = false)}
 	{@const displayProspects = withDraftStatus(prospectsResponse.prospects)}
-	<div data-prospect-source="remote">
+	<div data-prospect-source={isUpdating ? 'optimistic' : 'remote'} aria-busy={isUpdating}>
+		{#if isUpdating}
+			<div
+				class="bg-accent mb-4 w-fit border-[3px] border-black px-3 py-1 text-xs font-black uppercase"
+				role="status"
+			>
+				Updating prospects...
+			</div>
+		{/if}
 		<div
 			class={`mb-12 grid ${innerWidth < 1001 ? 'grid-cols-1 justify-center' : 'grid-cols-2'} justify-between gap-6`}
 		>
@@ -339,60 +442,64 @@
 
 			{#if displayProspects.length === 0}
 				<div class="col-span-full py-8 text-center">
-					<p class="text-lg font-bold">No prospects found</p>
+					<p class="text-lg font-bold">
+						{isUpdating ? 'Checking the full prospect pool...' : 'No prospects found'}
+					</p>
 				</div>
 			{/if}
 		</div>
 
-		<div class="mx-auto mb-4 w-full">
-			<Pagination.Root
-				count={prospectsResponse.pagination.totalCount}
-				perPage={itemsPerPage}
-				siblingCount={1}
-				bind:page={currentPage}
-			>
-				{#snippet children({
-					pages,
-					currentPage: pageCurrent
-				}: {
-					pages: any[];
-					currentPage: number;
-				})}
-					<Pagination.Content onclickcapture={handlePageChange}>
-						<Pagination.Item>
-							<Pagination.PrevButton
-								class={`${buttonOptions({ variant: 'outline' })} mr-2 rounded-none`}
-								disabled={!prospectsResponse.pagination.hasPrevPage}
-							>
-								<IconPlaceholder name="chevron-left" class="size-4" />
-								<span class="hidden sm:block">Previous</span>
-							</Pagination.PrevButton>
-						</Pagination.Item>
-						{#each pages as page (page.key)}
-							{#if page.type === 'ellipsis'}
-								<Pagination.Item>
-									<Pagination.Ellipsis />
-								</Pagination.Item>
-							{:else}
-								<Pagination.Item>
-									<Pagination.Link {page} isActive={pageCurrent === page.value}>
-										{page.value}
-									</Pagination.Link>
-								</Pagination.Item>
-							{/if}
-						{/each}
-						<Pagination.Item>
-							<Pagination.NextButton
-								class={`${buttonOptions({ variant: 'outline' })} rounded-none`}
-								disabled={!prospectsResponse.pagination.hasNextPage}
-							>
-								<span class="hidden sm:block">Next</span>
-								<IconPlaceholder name="chevron-right" class="size-4" />
-							</Pagination.NextButton>
-						</Pagination.Item>
-					</Pagination.Content>
-				{/snippet}
-			</Pagination.Root>
-		</div>
+		{#if !isUpdating}
+			<div class="mx-auto mb-4 w-full">
+				<Pagination.Root
+					count={prospectsResponse.pagination.totalCount}
+					perPage={itemsPerPage}
+					siblingCount={1}
+					bind:page={currentPage}
+				>
+					{#snippet children({
+						pages,
+						currentPage: pageCurrent
+					}: {
+						pages: any[];
+						currentPage: number;
+					})}
+						<Pagination.Content onclickcapture={handlePageChange}>
+							<Pagination.Item>
+								<Pagination.PrevButton
+									class={`${buttonOptions({ variant: 'outline' })} mr-2 rounded-none`}
+									disabled={!prospectsResponse.pagination.hasPrevPage}
+								>
+									<IconPlaceholder name="chevron-left" class="size-4" />
+									<span class="hidden sm:block">Previous</span>
+								</Pagination.PrevButton>
+							</Pagination.Item>
+							{#each pages as page (page.key)}
+								{#if page.type === 'ellipsis'}
+									<Pagination.Item>
+										<Pagination.Ellipsis />
+									</Pagination.Item>
+								{:else}
+									<Pagination.Item>
+										<Pagination.Link {page} isActive={pageCurrent === page.value}>
+											{page.value}
+										</Pagination.Link>
+									</Pagination.Item>
+								{/if}
+							{/each}
+							<Pagination.Item>
+								<Pagination.NextButton
+									class={`${buttonOptions({ variant: 'outline' })} rounded-none`}
+									disabled={!prospectsResponse.pagination.hasNextPage}
+								>
+									<span class="hidden sm:block">Next</span>
+									<IconPlaceholder name="chevron-right" class="size-4" />
+								</Pagination.NextButton>
+							</Pagination.Item>
+						</Pagination.Content>
+					{/snippet}
+				</Pagination.Root>
+			</div>
+		{/if}
 	</div>
 {/snippet}

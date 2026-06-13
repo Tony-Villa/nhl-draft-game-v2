@@ -57,11 +57,10 @@ test.describe('draft-center prospect browser', () => {
 		await expect(page.locator('[data-prospect-source="remote"]')).toBeVisible();
 	});
 
-	test('keeps a position filter visually selected while its remote query is pending', async ({
-		page
-	}) => {
+	test('updates visible cards immediately while a position query is pending', async ({ page }) => {
 		await page.goto('/draft-center');
 		await expect(page.locator('[data-prospect-source="remote"]')).toBeVisible();
+		await expect(page.getByText('Chase Reid', { exact: true })).toBeVisible();
 
 		await page.route('**/_app/remote/**', async (route) => {
 			await new Promise((resolve) => setTimeout(resolve, 750));
@@ -73,6 +72,13 @@ test.describe('draft-center prospect browser', () => {
 
 		await expect(centerFilter).toHaveAttribute('aria-pressed', 'true');
 		await expect(centerFilter).toHaveClass(/translate-x-\[5px\]/);
+		await expect(page.locator('[data-prospect-source="optimistic"]')).toBeVisible({
+			timeout: 250
+		});
+		await expect(page.getByText('Chase Reid', { exact: true })).not.toBeVisible({
+			timeout: 250
+		});
+		await expect(page.getByText('Updating prospects...', { exact: true })).toBeVisible();
 	});
 
 	test('moves one page at a time with next and previous controls', async ({ page }) => {
