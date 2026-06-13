@@ -18,14 +18,7 @@ export async function getDraftInsights(input: DraftInsightsQuery): Promise<Draft
 	try {
 		const cachedResult = await redis.get(cacheKey);
 		if (cachedResult) {
-			const cached = JSON.parse(cachedResult) as DraftInsightsData | { data?: DraftInsightsData };
-
-			// Accept the endpoint's legacy cache shape during the migration window.
-			if ('data' in cached && cached.data) {
-				return cached.data;
-			}
-
-			return cached as DraftInsightsData;
+			return JSON.parse(cachedResult) as DraftInsightsData;
 		}
 	} catch (cacheError) {
 		console.warn('Redis cache read error:', cacheError);
@@ -40,45 +33,6 @@ export async function getDraftInsights(input: DraftInsightsQuery): Promise<Draft
 	}
 
 	return data;
-}
-
-export async function addUserDraftStatus(
-	data: DraftInsightsData,
-	userId: string
-): Promise<DraftInsightsData> {
-	if (data.prospects.length === 0) {
-		return data;
-	}
-
-	const prospectIds = data.prospects.map((prospect) => prospect.prospectId).filter(Boolean);
-	const userDrafts = await db
-		.select({
-			prospectId: draftBoardPicks.prospectId,
-			positionDrafted: draftBoardPicks.positionDrafted
-		})
-		.from(draftBoardPicks)
-		.innerJoin(draftBoards, eq(draftBoardPicks.draftBoardId, draftBoards.id))
-		.where(
-			and(
-				eq(draftBoards.gameId, data.gameId),
-				eq(draftBoards.userId, userId),
-				sql`${draftBoardPicks.prospectId} IN (${sql.join(
-					prospectIds.map((id) => sql`${id}`),
-					sql`, `
-				)})`
-			)
-		);
-
-	return {
-		...data,
-		prospects: data.prospects.map((prospect) => {
-			const userDraft = userDrafts.find((draft) => draft.prospectId === prospect.prospectId);
-			return {
-				...prospect,
-				userDraftedAt: userDraft?.positionDrafted
-			};
-		})
-	};
 }
 
 async function queryDraftInsights(input: DraftInsightsQuery): Promise<DraftInsightsData> {

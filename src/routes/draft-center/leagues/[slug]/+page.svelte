@@ -159,9 +159,6 @@
 				{:else if editLeagueForm.result}
 					<p class="mt-3 font-bold text-green-700">League details updated.</p>
 				{/if}
-				{#if form?.editError}
-					<p class="mt-3 font-bold text-red-700">{form.editError}</p>
-				{/if}
 			</div>
 		</section>
 	{/if}
@@ -272,9 +269,6 @@
 				{/each}
 				{#if leaveUnexpectedError}
 					<p class="mt-3 font-bold text-red-700">{leaveUnexpectedError}</p>
-				{/if}
-				{#if form?.leaveError}
-					<p class="mt-3 font-bold text-red-700">{form.leaveError}</p>
 				{/if}
 			</div>
 		{/if}

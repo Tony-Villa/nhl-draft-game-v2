@@ -58,7 +58,7 @@
 					<input
 						{...joinLeagueForm.fields.inviteCode.as('text')}
 						id="inviteCode"
-						value={form?.inviteCode || data.inviteCode}
+						value={data.inviteCode}
 						class="min-w-0 flex-1 border-[3px] border-black px-3 py-2 font-bold uppercase"
 						placeholder="ABC123XY"
 					/>
@@ -81,9 +81,6 @@
 						<p class="mt-3 font-bold text-red-700">{joinUnexpectedError}</p>
 					{/if}
 				</div>
-				{#if form?.joinError}
-					<p class="mt-3 font-bold text-red-700">{form.joinError}</p>
-				{/if}
 			</form>
 		</div>
 	</section>

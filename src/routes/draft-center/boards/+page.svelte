@@ -313,10 +313,6 @@
 										{/if}
 									</div>
 								</div>
-
-								{#if form?.renameError && form.renameBoardId === board.id}
-									<p class="mt-3 font-bold text-red-700">{form.renameError}</p>
-								{/if}
 							</Card>
 						{/each}
 					</div>

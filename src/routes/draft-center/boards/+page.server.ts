@@ -11,8 +11,7 @@ import {
 	ensureGlobalGameEntry,
 	getSelectedGlobalDraftBoard,
 	getUserDraftBoardById,
-	getUserDraftBoards,
-	renameDraftBoard
+	getUserDraftBoards
 } from '$lib/server/services/draft-board-service.js';
 import { requireLeaguesAndBoards } from '$lib/server/feature-flags.js';
 
@@ -95,35 +94,6 @@ export const actions: Actions = {
 		}
 
 		throw redirect(303, `/draft-center?board=${board.id}`);
-	},
-	rename: async ({ request, locals }) => {
-		requireLeaguesAndBoards();
-
-		if (!locals.user) {
-			throw redirect(303, '/auth/login');
-		}
-
-		const formData = await request.formData();
-		const draftBoardId = Number(formData.get('draftBoardId'));
-		const name = String(formData.get('name') || '').trim();
-
-		try {
-			await renameDraftBoard({
-				userId: locals.user.id,
-				gameId: CURRENT_GAME,
-				draftBoardId,
-				name
-			});
-		} catch (error) {
-			return fail(400, {
-				renameError: error instanceof Error ? error.message : 'Failed to rename board.',
-				renameBoardId: draftBoardId
-			});
-		}
-
-		return {
-			success: true
-		};
 	},
 	delete: async ({ request, locals }) => {
 		requireLeaguesAndBoards();

@@ -152,6 +152,33 @@ test.describe('draft-center prospect browser', () => {
 	});
 });
 
+test.describe('retired remote-function rollback endpoints', () => {
+	test('returns 404 for removed read adapters', async ({ request }) => {
+		for (const endpoint of [
+			'/api/draft-insights',
+			'/api/leaderboard',
+			'/api/ladder',
+			'/api/draft-board',
+			'/api/drafted-prospects'
+		]) {
+			const response = await request.get(endpoint);
+			expect(response.status(), endpoint).toBe(404);
+		}
+	});
+
+	test('returns 404 for the removed draft submission adapter', async ({ request }) => {
+		const response = await request.post('/api/draft', {
+			data: {
+				data: {
+					draftboard: []
+				}
+			}
+		});
+
+		expect(response.status()).toBe(404);
+	});
+});
+
 test.describe('authentication pages', () => {
 	test('login page exposes both OAuth providers', async ({ page }) => {
 		await page.goto('/auth/login');
