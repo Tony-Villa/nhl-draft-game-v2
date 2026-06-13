@@ -5,7 +5,7 @@ import { db } from '$lib/server/db';
 import { sessions, users } from '$lib/server/db/schema';
 import { eq, or } from 'drizzle-orm';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleValidationError } from '@sveltejs/kit';
 
 const SESSION_COOKIE_NAME = 'auth_session';
 
@@ -66,4 +66,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.user = null;
 
 	return svelteKitHandler({ event, resolve, auth, building });
+};
+
+export const handleValidationError: HandleValidationError = () => {
+	return {
+		message: 'Invalid remote function input'
+	};
 };

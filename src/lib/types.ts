@@ -51,15 +51,10 @@ export interface DraftInsightProspect {
 	mostCommonPosition: number;
 	consistency: 'HIGH' | 'MEDIUM' | 'LOW';
 	heatmapData: Record<number, number>;
-	userDraftedAt?: number; // Position where user drafted this prospect, if any
 }
 
-export interface DraftInsightsResponse {
-	success: boolean;
-	data?: {
-		targetPosition: number;
-		gameId: string;
-		prospects: DraftInsightProspect[];
-	};
-	error?: string;
+export interface DraftInsightsData {
+	targetPosition: number;
+	gameId: string;
+	prospects: DraftInsightProspect[];
 }

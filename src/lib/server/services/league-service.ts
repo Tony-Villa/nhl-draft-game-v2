@@ -18,6 +18,23 @@ import {
 	getUserDraftBoardById
 } from './draft-board-service.js';
 
+export class LeagueMutationError extends Error {
+	constructor(
+		public readonly code:
+			| 'not_found'
+			| 'closed'
+			| 'draft_required'
+			| 'not_member'
+			| 'not_owner'
+			| 'invalid_details'
+			| 'owner_cannot_leave',
+		message: string
+	) {
+		super(message);
+		this.name = 'LeagueMutationError';
+	}
+}
+
 function slugify(value: string) {
 	return value
 		.toLowerCase()
@@ -43,7 +60,10 @@ async function createUniqueSlug(name: string) {
 
 	for (let attempt = 0; attempt < 6; attempt += 1) {
 		const slug = attempt === 0 ? baseSlug : `${baseSlug}-${randomToken(4).toLowerCase()}`;
-		const [existing] = await db.select({ id: leagues.id }).from(leagues).where(eq(leagues.slug, slug));
+		const [existing] = await db
+			.select({ id: leagues.id })
+			.from(leagues)
+			.where(eq(leagues.slug, slug));
 
 		if (!existing) {
 			return slug;
@@ -169,13 +189,7 @@ export async function createLeague({
 	return league;
 }
 
-export async function joinLeague({
-	userId,
-	inviteCode
-}: {
-	userId: string;
-	inviteCode: string;
-}) {
+export async function joinLeague({ userId, inviteCode }: { userId: string; inviteCode: string }) {
 	const normalizedInviteCode = inviteCode.trim().toUpperCase();
 
 	const [league] = await db
@@ -185,7 +199,7 @@ export async function joinLeague({
 		.limit(1);
 
 	if (!league) {
-		throw new Error('No active league found for that invite code.');
+		throw new LeagueMutationError('not_found', 'No active league found for that invite code.');
 	}
 
 	const [game] = await db.select().from(games).where(eq(games.id, league.gameId)).limit(1);
@@ -195,13 +209,19 @@ export async function joinLeague({
 	}
 
 	if (game.gamePhase === 'started' || game.gamePhase === 'finalized') {
-		throw new Error('This league is closed because the draft has already started.');
+		throw new LeagueMutationError(
+			'closed',
+			'This league is closed because the draft has already started.'
+		);
 	}
 
 	const selectedBoard = await getSubmittedBoardForLeagueEntry(userId, league.gameId);
 
 	if (!selectedBoard) {
-		throw new Error('Submit a draft board before joining a league.');
+		throw new LeagueMutationError(
+			'draft_required',
+			'Submit a draft board before joining a league.'
+		);
 	}
 
 	await db
@@ -221,6 +241,75 @@ export async function joinLeague({
 		});
 
 	return league;
+}
+
+export async function leaveLeague({ userId, slug }: { userId: string; slug: string }) {
+	const league = await getLeagueForMember(slug, userId);
+
+	if (!league) {
+		throw new LeagueMutationError('not_member', 'League membership not found.');
+	}
+
+	if (league.role === 'owner' || league.ownerUserId === userId) {
+		throw new LeagueMutationError(
+			'owner_cannot_leave',
+			'League owners cannot leave until ownership transfer is supported.'
+		);
+	}
+
+	await db
+		.delete(leagueMembers)
+		.where(and(eq(leagueMembers.leagueId, league.id), eq(leagueMembers.userId, userId)));
+
+	return {
+		leagueId: league.id,
+		slug: league.slug
+	};
+}
+
+export async function editLeague({
+	userId,
+	slug,
+	name,
+	description
+}: {
+	userId: string;
+	slug: string;
+	name: string;
+	description: string;
+}) {
+	const league = await getLeagueForMember(slug, userId);
+
+	if (!league) {
+		throw new LeagueMutationError('not_member', 'League membership not found.');
+	}
+
+	if (league.role !== 'owner' || league.ownerUserId !== userId) {
+		throw new LeagueMutationError('not_owner', 'Only the league owner can edit league details.');
+	}
+
+	const trimmedName = name.trim();
+	const trimmedDescription = description.trim();
+
+	if (trimmedName.length < 3 || trimmedName.length > 80 || trimmedDescription.length > 500) {
+		throw new LeagueMutationError('invalid_details', 'League details are invalid.');
+	}
+
+	await db
+		.update(leagues)
+		.set({
+			name: trimmedName,
+			description: trimmedDescription || null,
+			updatedAt: sql`(cast (unixepoch() as int))`
+		})
+		.where(and(eq(leagues.id, league.id), eq(leagues.ownerUserId, userId)));
+
+	return {
+		leagueId: league.id,
+		slug: league.slug,
+		name: trimmedName,
+		description: trimmedDescription || null
+	};
 }
 
 export async function getUserLeagues(userId: string, gameId = CURRENT_GAME) {

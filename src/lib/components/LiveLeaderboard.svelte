@@ -1,101 +1,155 @@
 <script lang="ts">
+	import type { LiveLeaderboardData } from '$lib/leaderboard/types';
+	import { getLiveLeaderboardRows } from '$lib/remote/leaderboard.remote';
+	import { untrack } from 'svelte';
+	import Button from './Button.svelte';
 	import Card from './Card.svelte';
-	
-	interface LeaderboardEntry {
-		userId: string;
-		userName: string;
-		userAvatar: string | null;
-		score: number;
-	}
 
-	let { gameId }: { gameId: string } = $props();
-	
-	let leaderboard: LeaderboardEntry[] = $state([]);
-	let isLoading = $state(true);
-	let lastUpdated = $state('');
+	let {
+		gameId,
+		enabled = true
+	}: {
+		gameId: string;
+		enabled?: boolean;
+	} = $props();
 
-	async function fetchLeaderboard() {
-		try {
-			const response = await fetch(`/api/leaderboard?limit=3`);
-			const data = await response.json();
-			
-			if (data.success) {
-				leaderboard = data.leaderboard;
-				lastUpdated = new Date(data.lastUpdated).toLocaleTimeString();
-			}
-		} catch (error) {
-			console.error('Failed to fetch leaderboard:', error);
-		} finally {
-			isLoading = false;
-		}
-	}
+	let hasBeenEnabled = $state(untrack(() => enabled));
+	const leaderboardQuery = $derived(
+		getLiveLeaderboardRows({
+			gameId,
+			limit: 3
+		})
+	);
 
-	// Fetch leaderboard initially and every 10 seconds
 	$effect(() => {
-		fetchLeaderboard();
-		const interval = setInterval(fetchLeaderboard, 10000);
-		
+		if (enabled) hasBeenEnabled = true;
+	});
+
+	$effect(() => {
+		if (!enabled) return;
+
+		const interval = setInterval(() => {
+			void leaderboardQuery.refresh();
+		}, 10_000);
+
 		return () => clearInterval(interval);
 	});
 
+	function refreshLeaderboard() {
+		void leaderboardQuery.refresh();
+	}
+
+	function retryLeaderboard(reset: () => void) {
+		void leaderboardQuery.refresh();
+		reset();
+	}
+
 	function getRankIcon(index: number) {
 		switch (index) {
-			case 0: return '🥇';
-			case 1: return '🥈';
-			case 2: return '🥉';
-			default: return `${index + 1}`;
+			case 0:
+				return '🥇';
+			case 1:
+				return '🥈';
+			case 2:
+				return '🥉';
+			default:
+				return `${index + 1}`;
 		}
+	}
+
+	function formatLastUpdated(value: string) {
+		return new Intl.DateTimeFormat('en-US', {
+			hour: 'numeric',
+			minute: '2-digit',
+			second: '2-digit',
+			timeZone: 'UTC',
+			timeZoneName: 'short'
+		}).format(new Date(value));
 	}
 </script>
 
-<div class="text-center pt-4">
-	<h2 class="mb-4 text-lg font-bold uppercase tracking-wide">Top Players</h2>
-	
-	{#if isLoading}
-		<div class="flex justify-center items-center py-6">
-			<div class="animate-pulse">
-				<div class="h-4 bg-gray-300 rounded w-24 mb-2"></div>
-				<div class="h-4 bg-gray-300 rounded w-16"></div>
-			</div>
+{#if hasBeenEnabled}
+	<div hidden={!enabled} class="pt-4 text-center">
+		<h2 class="mb-4 text-lg font-bold tracking-wide uppercase">Top Players</h2>
+
+		<svelte:boundary>
+			{@render leaderboardResults(await leaderboardQuery)}
+
+			{#snippet pending()}
+				<div class="flex items-center justify-center py-6" data-leaderboard-state="loading">
+					<div class="animate-pulse space-y-2">
+						<div class="h-4 w-24 rounded bg-gray-300"></div>
+						<div class="h-4 w-16 rounded bg-gray-300"></div>
+					</div>
+				</div>
+			{/snippet}
+
+			{#snippet failed(error, reset)}
+				<div data-leaderboard-state="error">
+					<Card class="bg-white">
+						<p class="py-2 font-bold text-black">Unable to load the leaderboard</p>
+						<p class="text-sm text-gray-600">Your draft selections have not been changed.</p>
+						<Button class="mt-4" onclick={() => retryLeaderboard(reset)}>Try again</Button>
+					</Card>
+				</div>
+			{/snippet}
+		</svelte:boundary>
+	</div>
+{/if}
+
+{#snippet leaderboardResults(data: LiveLeaderboardData)}
+	{#if data.leaderboard.length === 0}
+		<div data-leaderboard-state="empty">
+			<Card class="bg-white">
+				<p class="py-2 font-bold text-black">No scores yet</p>
+			</Card>
 		</div>
-	{:else if leaderboard.length === 0}
-		<Card class="bg-white">
-			<p class="text-black py-2 font-bold">No scores yet</p>
-		</Card>
 	{:else}
-		<div class="space-y-3">
-			{#each leaderboard as entry, index}
+		<div class="space-y-3" data-leaderboard-state="populated">
+			{#each data.leaderboard as entry, index}
 				<Card class="shadow-brut-shadow-sm bg-white">
 					<div class="flex items-center gap-4 px-2 py-1">
-						<div class="text-2xl w-10 text-center font-bold">
+						<div class="w-10 text-center text-2xl font-bold">
 							{getRankIcon(index)}
 						</div>
-						
-						<div class="flex items-center gap-3 flex-1 min-w-0">
+
+						<div class="flex min-w-0 flex-1 items-center gap-3">
 							{#if entry.userAvatar}
-								<img 
-									src={entry.userAvatar} 
-									alt={entry.userName}
-									class="w-8 h-8 rounded-full border-2 border-black shadow-sm"
+								<img
+									src={entry.userAvatar}
+									alt={entry.userName || 'Leaderboard player'}
+									class="h-8 w-8 rounded-full border-2 border-black shadow-sm"
+									width="32"
+									height="32"
+									loading="lazy"
+									decoding="async"
 								/>
 							{/if}
-							<span class="font-bold truncate text-lg">{entry.userName}</span>
+							<span class="truncate text-lg font-bold">{entry.userName || 'Anonymous player'}</span>
 						</div>
-						
-						<Card class="bg-primary text-white shadow-brut-shadow-sm">
+
+						<Card class="bg-primary shadow-brut-shadow-sm text-white">
 							<div class="px-3 py-1">
-								<span class="font-bold text-xl">{entry.score}</span>
+								<span class="text-xl font-bold">{entry.score}</span>
 							</div>
 						</Card>
 					</div>
 				</Card>
 			{/each}
 		</div>
-		
-		{#if lastUpdated}
-			<p class="text-xs text-gray-600 mt-3 font-mono">
-				Last updated: {lastUpdated}
-			</p>
-		{/if}
 	{/if}
-</div>
+
+	<div class="mt-3 flex flex-col items-center gap-2">
+		<p class="font-mono text-xs text-gray-600">
+			Last updated: {formatLastUpdated(data.lastUpdated)}
+		</p>
+		<Button
+			variant="outline"
+			size="sm"
+			disabled={leaderboardQuery.loading}
+			onclick={refreshLeaderboard}
+		>
+			{leaderboardQuery.loading ? 'Refreshing...' : 'Refresh rankings'}
+		</Button>
+	</div>
+{/snippet}

@@ -9,7 +9,10 @@ const RATE_LIMIT = 3;
 const RATE_WINDOW = 60 * 60 * 1000; // 1 hour
 
 // Image cache: cache identical draft picks for 24 hours
-const imageCache = new Map<string, { image: Buffer; timestamp: number; contentType: string; accessCount: number }>();
+const imageCache = new Map<
+	string,
+	{ image: Buffer; timestamp: number; contentType: string; accessCount: number }
+>();
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 const POPULAR_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days for popular drafts
 
@@ -27,7 +30,7 @@ const usageStats = {
 
 async function getBrowser(): Promise<Browser> {
 	const now = Date.now();
-	
+
 	if (!browserInstance || now - browserLastUsed > BROWSER_TIMEOUT) {
 		if (browserInstance) {
 			try {
@@ -41,19 +44,19 @@ async function getBrowser(): Promise<Browser> {
 			args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
 		});
 	}
-	
+
 	browserLastUsed = now;
 	return browserInstance;
 }
 
 function trackUsage(type: 'generation' | 'cache-hit') {
 	const today = new Date().toISOString().split('T')[0];
-	
+
 	if (type === 'generation') {
 		usageStats.totalGenerations++;
 		const daily = usageStats.dailyGenerations.get(today) || 0;
 		usageStats.dailyGenerations.set(today, daily + 1);
-		
+
 		// Alert if daily usage is high
 		if (daily > 50) {
 			console.warn(`High daily usage detected: ${daily} generations today`);
@@ -66,14 +69,14 @@ function trackUsage(type: 'generation' | 'cache-hit') {
 function checkRateLimit(ip: string): boolean {
 	const now = Date.now();
 	const requests = rateLimits.get(ip) || [];
-	
+
 	// Remove old requests outside the window
-	const recentRequests = requests.filter(time => now - time < RATE_WINDOW);
-	
+	const recentRequests = requests.filter((time) => now - time < RATE_WINDOW);
+
 	if (recentRequests.length >= RATE_LIMIT) {
 		return false;
 	}
-	
+
 	// Add current request
 	recentRequests.push(now);
 	rateLimits.set(ip, recentRequests);
@@ -82,7 +85,7 @@ function checkRateLimit(ip: string): boolean {
 
 function createCacheKey(picks: any[]): string {
 	// Create a hash of the picks data for caching
-	const picksData = picks.map(pick => ({
+	const picksData = picks.map((pick) => ({
 		position: pick.position,
 		name: pick.name,
 		team: pick.team,
@@ -93,17 +96,17 @@ function createCacheKey(picks: any[]): string {
 
 function resolveTeamLogoUrl(logoUrl: string, baseUrl: string): string {
 	if (!logoUrl) return '';
-	
+
 	// If it's already a full URL, return as-is
 	if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) {
 		return logoUrl;
 	}
-	
+
 	// If it's a relative URL, convert to fully qualified URL
 	if (logoUrl.startsWith('/')) {
 		return baseUrl + logoUrl;
 	}
-	
+
 	return logoUrl;
 }
 
@@ -127,60 +130,60 @@ function cleanupCache() {
 export const POST: RequestHandler = async ({ request, getClientAddress, setHeaders, url }) => {
 	try {
 		const clientIP = getClientAddress();
-		
+
 		// Rate limiting
 		if (!checkRateLimit(clientIP)) {
 			throw error(429, 'Rate limit exceeded. Maximum 3 images per hour.');
 		}
-		
+
 		const { picks } = await request.json();
-		
+
 		// Validate picks data
 		if (!picks || !Array.isArray(picks) || picks.length !== 10) {
 			throw error(400, 'Invalid picks data. Must provide exactly 10 picks.');
 		}
-		
+
 		// Check cache first
 		const cacheKey = createCacheKey(picks);
 		const cached = imageCache.get(cacheKey);
-		
+
 		if (cached && Date.now() - cached.timestamp < getCacheDuration(cacheKey)) {
 			console.log('Serving cached image for', cacheKey);
 			// Increment access count for popularity tracking
 			cached.accessCount = (cached.accessCount || 0) + 1;
 			imageCache.set(cacheKey, cached);
-			
+
 			trackUsage('cache-hit');
 			setHeaders({
 				'Content-Type': cached.contentType,
-				'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+				'Cache-Control': 'public, max-age=3600' // Cache for 1 hour
 			});
-			return new Response(cached.image);
+			return new Response(new Uint8Array(cached.image));
 		}
-		
+
 		// Clean up old cache entries
 		cleanupCache();
-		
+
 		// Generate new image with Playwright
 		console.log('Generating new image for', cacheKey);
 		trackUsage('generation');
-		
+
 		const browser = await getBrowser();
-		
+
 		const page = await browser.newPage({
 			viewport: { width: 864, height: 640 },
 			deviceScaleFactor: 2 // High DPI for better quality
 		});
-		
+
 		// Get the base URL for resolving relative logo URLs
 		const baseUrl = `${url.protocol}//${url.host}`;
-		
+
 		// Resolve team logo URLs to fully qualified URLs
-		const resolvedPicks = picks.map(pick => ({
+		const resolvedPicks = picks.map((pick) => ({
 			...pick,
 			teamLogo: pick.teamLogo ? resolveTeamLogoUrl(pick.teamLogo, baseUrl) : ''
 		}));
-		
+
 		// Create the HTML content with your styling
 		const html = `
 		<!DOCTYPE html>
@@ -338,7 +341,10 @@ export const POST: RequestHandler = async ({ request, getClientAddress, setHeade
 				
 				<div class="grid">
 					<div class="column">
-						${resolvedPicks.slice(0, 5).map(pick => `
+						${resolvedPicks
+							.slice(0, 5)
+							.map(
+								(pick) => `
 							<div class="pick">
 								<span class="position">${pick.position}</span>
 								${pick.teamLogo ? `<img class="logo" src="${pick.teamLogo}" alt="Team logo" />` : ''}
@@ -347,10 +353,15 @@ export const POST: RequestHandler = async ({ request, getClientAddress, setHeade
 									<p class="team-info">${pick.team} • ${pick.position_played}</p>
 								</div>
 							</div>
-						`).join('')}
+						`
+							)
+							.join('')}
 					</div>
 					<div class="column">
-						${resolvedPicks.slice(5, 10).map(pick => `
+						${resolvedPicks
+							.slice(5, 10)
+							.map(
+								(pick) => `
 							<div class="pick">
 								<span class="position">${pick.position}</span>
 								${pick.teamLogo ? `<img class="logo" src="${pick.teamLogo}" alt="Team logo" />` : ''}
@@ -359,7 +370,9 @@ export const POST: RequestHandler = async ({ request, getClientAddress, setHeade
 									<p class="team-info">${pick.team} • ${pick.position_played}</p>
 								</div>
 							</div>
-						`).join('')}
+						`
+							)
+							.join('')}
 					</div>
 				</div>
 				
@@ -369,13 +382,13 @@ export const POST: RequestHandler = async ({ request, getClientAddress, setHeade
 			</div>
 		</body>
 		</html>`;
-		
+
 		await page.setContent(html);
-		
+
 		// Wait for images to load
 		await page.waitForLoadState('networkidle');
 		await page.waitForTimeout(1000); // Extra wait for logos
-		
+
 		// Take screenshot of the entire container without clipping
 		const screenshot = await page.screenshot({
 			type: 'png',
@@ -387,9 +400,9 @@ export const POST: RequestHandler = async ({ request, getClientAddress, setHeade
 				height: 640
 			}
 		});
-		
+
 		await page.close(); // Close page but keep browser for reuse
-		
+
 		// Cache the result with access count
 		imageCache.set(cacheKey, {
 			image: screenshot,
@@ -397,16 +410,15 @@ export const POST: RequestHandler = async ({ request, getClientAddress, setHeade
 			contentType: 'image/png',
 			accessCount: 1
 		});
-		
+
 		console.log('Image generated and cached:', cacheKey);
-		
+
 		setHeaders({
 			'Content-Type': 'image/png',
-			'Cache-Control': 'public, max-age=3600',
+			'Cache-Control': 'public, max-age=3600'
 		});
-		
-		return new Response(screenshot);
-		
+
+		return new Response(new Uint8Array(screenshot));
 	} catch (err) {
 		console.error('Error generating share image:', err);
 		throw error(500, 'Failed to generate share image');

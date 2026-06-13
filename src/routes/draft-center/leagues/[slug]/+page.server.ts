@@ -3,11 +3,9 @@ import { CURRENT_GAME } from '$env/static/private';
 import type { PageServerLoad } from './$types';
 import {
 	getLeagueForMember,
-	getLeagueLeaderboard,
 	requireLeagueMember,
 	setLeagueMemberBoard
 } from '$lib/server/services/league-service.js';
-import { getUserDraftBoards } from '$lib/server/services/draft-board-service.js';
 import { requireLeaguesAndBoards } from '$lib/server/feature-flags.js';
 
 export const load: PageServerLoad = async ({ locals, params, url }) => {
@@ -23,14 +21,10 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	}
 
 	const league = requireLeagueMember(await getLeagueForMember(slug, locals.user.id));
-	const leaderboard = await getLeagueLeaderboard(league.id, league.gameId);
-	const boards = await getUserDraftBoards(locals.user.id, league.gameId);
 
 	return {
 		isLoggedIn: true,
-		league,
-		leaderboard,
-		boards
+		league
 	};
 };
 

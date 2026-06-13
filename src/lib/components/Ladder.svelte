@@ -1,135 +1,241 @@
 <script lang="ts">
-	import { ordinalNumbers } from "$lib/helpers/ordinal-numbers";
-	import Crown from "$lib/icons/crown.svelte";
+	import { ordinalNumbers } from '$lib/helpers/ordinal-numbers';
+	import type { LadderEntry } from '$lib/leaderboard/types';
+	import { getLadderRows } from '$lib/remote/leaderboard.remote';
+	import { untrack } from 'svelte';
 	import { twMerge } from 'tailwind-merge';
-	import { ladderOptions, ladderTextOptions, type LadderProps } from './Ladder.options';
+	import { ladderOptions, ladderTextOptions } from './Ladder.options';
+	import Button from './Button.svelte';
 	import Card from './Card.svelte';
-	import StanleyCup from "$lib/icons/StanleyCup.svelte";
+	import StanleyCup from '$lib/icons/StanleyCup.svelte';
 
-    
-  interface Ladder {
-    id: string;
-    score: number;
-    playerName: string;
-    avarar: string;
-  }
+	let {
+		year,
+		enabled = true
+	}: {
+		year: number;
+		enabled?: boolean;
+	} = $props();
 
-  let {ladder = []}: {ladder: Ladder[]} = $props()
+	let hasBeenEnabled = $state(untrack(() => enabled));
+	const ladderQuery = $derived(getLadderRows({ year }));
 
+	$effect(() => {
+		if (enabled) hasBeenEnabled = true;
+	});
+
+	function refreshLadder() {
+		void ladderQuery.refresh();
+	}
+
+	function retryLadder(reset: () => void) {
+		void ladderQuery.refresh();
+		reset();
+	}
+
+	function playerName(player: LadderEntry) {
+		return player.playerName || 'Anonymous player';
+	}
 </script>
-    
-{#if ladder.length < 3}
-  <div class="w-full flex justify-center my-10">
-    <Card class="w-full max-w-md mx-4 bg-white text-center">
-      <h1 class={ladderTextOptions({type: 'title', class: 'text-xl sm:text-2xl'})}>Leaderboard loading</h1>
-      <p class="mt-3 text-sm font-bold uppercase">Scores will appear here once they are available.</p>
-    </Card>
-  </div>
-{:else}
 
+{#if hasBeenEnabled}
+	<div hidden={!enabled}>
+		<svelte:boundary>
+			{@render ladderResults(await ladderQuery)}
 
-<!-- Winner Card - 1st Place -->
-<div class="w-full flex justify-center mb-6 sm:mb-8 mt-10 z-0">
-  <Card class={twMerge(ladderOptions({variant: 'player', position: 'first'}), 'flex flex-col justify-center w-full min-h-52 max-w-xs sm:max-w-md mx-4 sm:mx-auto')}>
-    <!-- Crown Icon -->
-    <div class="absolute z-10 -right-4 sm:-right-6 -top-8 sm:-top-10 rotate-[-16deg]">
-      <div class="sm:hidden">
-        <StanleyCup size={90} color="#ffd700" />
-      </div>
-      <div class="hidden sm:block">
-        <StanleyCup size={100} color="#ffd700" />
-      </div>
-    </div>
+			{#snippet pending()}
+				<div class="my-10 flex w-full justify-center" data-ladder-state="loading">
+					<Card class="mx-4 w-full max-w-md bg-white text-center">
+						<div class="animate-pulse space-y-3">
+							<div class="mx-auto h-7 w-52 rounded bg-gray-300"></div>
+							<div class="mx-auto h-4 w-64 rounded bg-gray-200"></div>
+						</div>
+					</Card>
+				</div>
+			{/snippet}
 
-    <!-- Winner Name -->
-    <h1 class={ladderTextOptions({type: 'title', class: 'text-center text-xl sm:text-2xl'})}>{ladder[0].playerName}</h1>
-
-    <!-- Winner Score -->
-    <div class={ladderOptions({variant: 'score', size: 'md'})}>
-      <h3 class={ladderTextOptions({type: 'score', class: 'text-center text-4xl sm:text-6xl'})}>{ladder[0].score}</h3>
-    </div>
-  </Card>
-</div>
-
-<!-- Runners-up: 2nd and 3rd Place -->
-<div class="runners-up flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mb-6 sm:mb-8 mx-4">
-  <!-- Second Place Card -->
-  <Card class={twMerge(ladderOptions({variant: 'player', position: 'first'}), 'w-full max-w-[280px] sm:w-auto sm:min-w-[200px] sm:max-w-[220px]')}>
-    <!-- Silver Crown -->
-    <div class="absolute z-10 -right-4 sm:-right-6 -top-5 sm:-top-7 rotate-[-16deg]">
-      <div class="sm:hidden">
-        <StanleyCup size={70} color="#c0c0c0" />
-      </div>
-      <div class="hidden sm:block">
-        <StanleyCup size={80} color="#c0c0c0" />
-      </div>
-    </div>
-  
-    <!-- Second Place Content -->
-    <div class="flex flex-col gap-2 mb-3">
-      <div class="relative">
-        <div class="absolute left-2 top-6 w-1/4 h-[3px] bg-primary"></div>
-        <h1 class={ladderTextOptions({type: 'rank', class: 'text-base sm:text-lg'})}>{ordinalNumbers(2)}</h1>
-      </div>
-      <h1 class={ladderTextOptions({type: 'title', class: 'text-center text-base sm:text-lg mb-2'})}>{ladder[1].playerName}</h1>
-    </div>
-  
-    <!-- Second Score -->
-    <div class={ladderOptions({variant: 'score', size: 'sm'})}>
-      <h3 class={ladderTextOptions({type: 'score', class: 'text-center text-2xl sm:text-3xl'})}>{ladder[1].score}</h3>
-    </div>
-  </Card>
-  
-  <!-- Third Place Card -->
-  <Card class={twMerge(ladderOptions({variant: 'player', position: 'first'}), 'w-full max-w-[280px] sm:w-auto sm:min-w-[200px] sm:max-w-[220px]')}>
-    <!-- Bronze Crown -->
-    <div class="absolute z-10 -right-4 sm:-right-6 -top-5 sm:-top-7 rotate-[-16deg]">
-      <div class="sm:hidden">
-        <StanleyCup size={70} color="#cd7f32" />
-      </div>
-      <div class="hidden sm:block">
-        <StanleyCup size={80} color="#cd7f32" />
-      </div>
-    </div>
-  
-    <!-- Third Place Content -->
-    <div class="flex flex-col gap-2 mb-3">
-      <div class="relative">
-        <div class="absolute left-2 top-6 w-1/4 h-[3px] bg-primary"></div>
-        <h1 class={ladderTextOptions({type: 'rank', class: 'text-base sm:text-lg'})}>{ordinalNumbers(3)}</h1>
-      </div>
-      <h1 class={ladderTextOptions({type: 'title', class: 'text-center text-base sm:text-lg mb-2'})}>{ladder[2].playerName}</h1>
-    </div>
-    
-    <!-- Third Score -->
-    <div class={ladderOptions({variant: 'score', size: 'sm'})}>
-      <h3 class={ladderTextOptions({type: 'score', class: 'text-center text-2xl sm:text-3xl'})}>{ladder[2].score}</h3>
-    </div>
-  </Card>
-</div>
-
-
-
-<!-- Remaining Players -->
-<div class="flex flex-wrap gap-4 justify-center mx-4 sm:mx-6 mb-5">
-  {#each ladder as player, i}
-    {#if player.score > 0 && i > 2}
-      <Card class={twMerge(ladderOptions({variant: 'player', size: 'sm'}), 'w-full max-w-44 sm:max-w-48')}>
-        <!-- Player Info -->
-        <div class="flex flex-col gap-1 mb-2">
-          <div class="relative">
-            <div class="absolute left-1 top-4 w-1/4 h-[2px] bg-primary"></div>
-            <h1 class={ladderTextOptions({type: 'rank', class: 'text-sm'})}>{ordinalNumbers(i+1)}</h1>
-          </div>
-          <h1 class={ladderTextOptions({type: 'name', class: 'text-xs sm:text-sm'})}>{player.playerName}</h1>
-        </div>
-
-        <!-- Player Score -->
-        <div class={ladderOptions({variant: 'score', size: 'sm'})}>
-          <h3 class={ladderTextOptions({type: 'scoreSmall', class: 'text-lg sm:text-xl'})}>{player.score}</h3>
-        </div>
-      </Card>
-    {/if}
-  {/each}
-</div>
+			{#snippet failed(error, reset)}
+				<div class="my-10 flex w-full justify-center" data-ladder-state="error">
+					<Card class="mx-4 w-full max-w-md bg-white text-center">
+						<h1 class={ladderTextOptions({ type: 'title', class: 'text-xl sm:text-2xl' })}>
+							Unable to load final standings
+						</h1>
+						<p class="mt-3 text-sm font-bold uppercase">
+							Your draft selections have not been changed.
+						</p>
+						<Button class="mt-4" onclick={() => retryLadder(reset)}>Try again</Button>
+					</Card>
+				</div>
+			{/snippet}
+		</svelte:boundary>
+	</div>
 {/if}
+
+{#snippet ladderResults(ladder: LadderEntry[])}
+	{#if ladder.length === 0}
+		<div class="my-10 flex w-full justify-center" data-ladder-state="empty">
+			<Card class="mx-4 w-full max-w-md bg-white text-center">
+				<h1 class={ladderTextOptions({ type: 'title', class: 'text-xl sm:text-2xl' })}>
+					No final scores yet
+				</h1>
+				<p class="mt-3 text-sm font-bold uppercase">
+					Scores will appear here once they are available.
+				</p>
+				<Button
+					class="mt-4"
+					variant="outline"
+					disabled={ladderQuery.loading}
+					onclick={refreshLadder}
+				>
+					{ladderQuery.loading ? 'Refreshing...' : 'Refresh standings'}
+				</Button>
+			</Card>
+		</div>
+	{:else}
+		<div data-ladder-state="populated">
+			<div class="z-0 mt-10 mb-6 flex w-full justify-center sm:mb-8">
+				<Card
+					class={twMerge(
+						ladderOptions({ variant: 'player', position: 'first' }),
+						'mx-4 flex min-h-52 w-full max-w-xs flex-col justify-center sm:mx-auto sm:max-w-md'
+					)}
+				>
+					<div class="absolute -top-8 -right-4 z-10 rotate-[-16deg] sm:-top-10 sm:-right-6">
+						<div class="sm:hidden">
+							<StanleyCup size={90} color="#ffd700" />
+						</div>
+						<div class="hidden sm:block">
+							<StanleyCup size={100} color="#ffd700" />
+						</div>
+					</div>
+
+					<h1
+						class={ladderTextOptions({
+							type: 'title',
+							class: 'text-center text-xl sm:text-2xl'
+						})}
+					>
+						{playerName(ladder[0])}
+					</h1>
+
+					<div class={ladderOptions({ variant: 'score', size: 'md' })}>
+						<h3
+							class={ladderTextOptions({
+								type: 'score',
+								class: 'text-center text-4xl sm:text-6xl'
+							})}
+						>
+							{ladder[0].score}
+						</h3>
+					</div>
+				</Card>
+			</div>
+
+			{#if ladder.length > 1}
+				<div
+					class="runners-up mx-4 mb-6 flex flex-col items-center justify-center gap-4 sm:mb-8 sm:flex-row sm:gap-6"
+				>
+					{#each ladder.slice(1, 3) as player, index}
+						<Card
+							class={twMerge(
+								ladderOptions({ variant: 'player', position: 'first' }),
+								'w-full max-w-[280px] sm:w-auto sm:max-w-[220px] sm:min-w-[200px]'
+							)}
+						>
+							<div class="absolute -top-5 -right-4 z-10 rotate-[-16deg] sm:-top-7 sm:-right-6">
+								<div class="sm:hidden">
+									<StanleyCup size={70} color={index === 0 ? '#c0c0c0' : '#cd7f32'} />
+								</div>
+								<div class="hidden sm:block">
+									<StanleyCup size={80} color={index === 0 ? '#c0c0c0' : '#cd7f32'} />
+								</div>
+							</div>
+
+							<div class="mb-3 flex flex-col gap-2">
+								<div class="relative">
+									<div class="bg-primary absolute top-6 left-2 h-[3px] w-1/4"></div>
+									<h1
+										class={ladderTextOptions({
+											type: 'rank',
+											class: 'text-base sm:text-lg'
+										})}
+									>
+										{ordinalNumbers(index + 2)}
+									</h1>
+								</div>
+								<h1
+									class={ladderTextOptions({
+										type: 'title',
+										class: 'mb-2 text-center text-base sm:text-lg'
+									})}
+								>
+									{playerName(player)}
+								</h1>
+							</div>
+
+							<div class={ladderOptions({ variant: 'score', size: 'sm' })}>
+								<h3
+									class={ladderTextOptions({
+										type: 'score',
+										class: 'text-center text-2xl sm:text-3xl'
+									})}
+								>
+									{player.score}
+								</h3>
+							</div>
+						</Card>
+					{/each}
+				</div>
+			{/if}
+
+			{#if ladder.length > 3}
+				<div class="mx-4 mb-5 flex flex-wrap justify-center gap-4 sm:mx-6">
+					{#each ladder.slice(3) as player, index}
+						{#if player.score > 0}
+							<Card
+								class={twMerge(
+									ladderOptions({ variant: 'player', size: 'sm' }),
+									'w-full max-w-44 sm:max-w-48'
+								)}
+							>
+								<div class="mb-2 flex flex-col gap-1">
+									<div class="relative">
+										<div class="bg-primary absolute top-4 left-1 h-[2px] w-1/4"></div>
+										<h1 class={ladderTextOptions({ type: 'rank', class: 'text-sm' })}>
+											{ordinalNumbers(index + 4)}
+										</h1>
+									</div>
+									<h1
+										class={ladderTextOptions({
+											type: 'name',
+											class: 'text-xs sm:text-sm'
+										})}
+									>
+										{playerName(player)}
+									</h1>
+								</div>
+
+								<div class={ladderOptions({ variant: 'score', size: 'sm' })}>
+									<h3
+										class={ladderTextOptions({
+											type: 'scoreSmall',
+											class: 'text-lg sm:text-xl'
+										})}
+									>
+										{player.score}
+									</h3>
+								</div>
+							</Card>
+						{/if}
+					{/each}
+				</div>
+			{/if}
+
+			<div class="mb-8 flex justify-center">
+				<Button variant="outline" disabled={ladderQuery.loading} onclick={refreshLadder}>
+					{ladderQuery.loading ? 'Refreshing...' : 'Refresh standings'}
+				</Button>
+			</div>
+		</div>
+	{/if}
+{/snippet}

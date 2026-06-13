@@ -1,69 +1,54 @@
-import type { DraftStateType } from "$lib/global-state/draft-state.svelte";
-import type { DraftBoard, User } from "$lib/types";
-import toast from "svelte-french-toast";
-import type { ProspectDraftSystem } from "$lib/global-state/prospect-state.svelte";
+import type { DraftStateType } from '$lib/global-state/draft-state.svelte';
+import type { ProspectDraftSystem } from '$lib/global-state/prospect-state.svelte';
+import { submitDraftBoardCommand } from '$lib/remote/drafts.remote';
+import type { DraftBoard } from '$lib/types';
+import toast from 'svelte-french-toast';
 
-
-export async function submitDraftBoard({draftboard, user, draftState, draftSystem}: {
-  draftboard: DraftBoard[];
-  user: User | object
-  draftState: DraftStateType;
-  draftSystem?: ProspectDraftSystem;
+export async function submitDraftBoard({
+	draftboard,
+	draftState,
+	draftSystem
+}: {
+	draftboard: DraftBoard[];
+	draftState: DraftStateType;
+	draftSystem?: ProspectDraftSystem;
 }) {
-  // Include undrafted prospect IDs in the payload so API can remove them from DB
-  const undraftedProspectIds = draftSystem ? Array.from(draftSystem.undraftedProspectIds) : [];
-  
-  const draftBoardId = new URLSearchParams(window.location.search).get('board');
+	const draftBoardId = new URLSearchParams(window.location.search).get('board');
 
-  const payload = {
-    draftboard,
-    user,
-    draftBoardId: draftBoardId ? Number(draftBoardId) : undefined,
-    undraftedProspectIds // Add this to let the API know which prospects to remove
-  };
+	try {
+		const result = await submitDraftBoardCommand({
+			draftBoardId: draftBoardId ? Number(draftBoardId) : undefined,
+			picks: draftboard
+				.filter((draft) => draft.teamName)
+				.map((draft) => ({
+					draftPosition: draft.draftPosition,
+					team: draft.teamName as string,
+					prospectId: draft.prospect?.id || null
+				}))
+		});
 
-  try {
-    const draft = await fetch('/api/draft', {
-      method: 'POST',
-      body: JSON.stringify({ data: payload }),
-      headers: {
-        'content-type': 'application/json'
-      }
-    });
-    
-    const response = await draft.json();
-    
-    if (response?.message === 'success') {
-      // Update draft state
-      draftState.updateDraftStatus(true);
-      
-      // Move temporary drafts to permanent in the prospect system if provided
-      if (draftSystem) {
-        // Extract prospect IDs from submitted draft board
-        const submittedProspectIds: string[] = [];
-        for (const draft of draftboard) {
-          if (draft.prospect?.id) {
-            submittedProspectIds.push(draft.prospect.id);
-          }
-        }
-        
-        // Set these as permanently drafted and clear temporary drafts
-        draftSystem.setPermanentDrafted(submittedProspectIds);
-        draftSystem.clearTemporaryDrafts();
-      }
-      
-      toast.success('Draft submitted successfully', {
-        duration: 4000
-      });
-    } else {
-      toast.error('Something went wrong with your draft, please try again', {
-        duration: 4000
-      })
-    }
-  } catch (error) {
-    // Error submitting draft board - logged on server side
-    toast.error('Failed to submit draft', {
-      duration: 4000
-    });
-  }
+		draftState.updateDraftStatus(true);
+
+		if (draftSystem) {
+			draftSystem.setPermanentDrafted(result.submittedProspectIds);
+			draftSystem.clearTemporaryDrafts();
+		}
+
+		toast.success('Draft submitted successfully', {
+			duration: 4000
+		});
+
+		return { success: true as const };
+	} catch (cause) {
+		const message = cause instanceof Error ? cause.message : 'Failed to submit draft';
+
+		toast.error(message, {
+			duration: 4000
+		});
+
+		return {
+			success: false as const,
+			error: message
+		};
+	}
 }

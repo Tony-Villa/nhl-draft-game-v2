@@ -1,6 +1,6 @@
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { createLeague, getUserLeagues, joinLeague } from '$lib/server/services/league-service.js';
+import { createLeague, getUserLeagues } from '$lib/server/services/league-service.js';
 import { requireLeaguesAndBoards } from '$lib/server/feature-flags.js';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -50,39 +50,6 @@ export const actions: Actions = {
 				createError: error instanceof Error ? error.message : 'Failed to create league.',
 				name,
 				description
-			});
-		}
-
-		throw redirect(303, `/draft-center/leagues/${league.slug}`);
-	},
-	join: async ({ request, locals }) => {
-		requireLeaguesAndBoards();
-
-		if (!locals.user) {
-			throw redirect(303, '/auth/login');
-		}
-
-		const formData = await request.formData();
-		const inviteCode = String(formData.get('inviteCode') || '').trim();
-
-		if (!inviteCode) {
-			return fail(400, {
-				joinError: 'Enter an invite code.',
-				inviteCode
-			});
-		}
-
-		let league;
-
-		try {
-			league = await joinLeague({
-				userId: locals.user.id,
-				inviteCode
-			});
-		} catch (error) {
-			return fail(400, {
-				joinError: error instanceof Error ? error.message : 'Failed to join league.',
-				inviteCode
 			});
 		}
 

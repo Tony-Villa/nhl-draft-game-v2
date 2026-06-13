@@ -4,6 +4,8 @@ node_modules
 /.vercel
 /.svelte-kit
 /package
+/playwright-report/
+/test-results/
 .env
 .env.*
 !.env.example
@@ -19,3 +21,5 @@ db-backup/*
 *.sqlite
 
 /tmp-db-data/*
+
+MANUAL_SMOKE.md

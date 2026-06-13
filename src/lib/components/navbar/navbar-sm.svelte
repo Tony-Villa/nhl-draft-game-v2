@@ -1,92 +1,93 @@
 <script lang="ts">
-	import Hamburger from "$lib/icons/Hamburger.svelte";
-	import { buttonOptions } from "../Button.options";
-	import HowToPlay from "../HowToPlay.svelte";
-    
-  let {
-    isAuthenticated,
-    leaguesAndBoardsEnabled = false
-  } : {
-    isAuthenticated: boolean;
-    leaguesAndBoardsEnabled?: boolean;
-  } = $props() 
+	import Hamburger from '$lib/icons/Hamburger.svelte';
+	import { buttonOptions } from '../Button.options';
+	import HowToPlay from '../HowToPlay.svelte';
+	import SignOutForm from '../SignOutForm.svelte';
+	import { page } from '$app/state';
 
-    function clearLocalDraft() {
-		localStorage.removeItem('draftBoard');
-	}
-
+	let {
+		isAuthenticated,
+		leaguesAndBoardsEnabled = false
+	}: {
+		isAuthenticated: boolean;
+		leaguesAndBoardsEnabled?: boolean;
+	} = $props();
 </script>
 
-<nav class="flex justify-between px-3 pt-5 z-50">
+<nav class="z-50 flex justify-between px-3 pt-5">
+	<HowToPlay />
 
-    <HowToPlay />
-
-
-      <div class="dropdown z-50">
-         <Hamburger />
-        <div class="dropdown-content bg-white overflow-hidden shadow-button-shadow border-2 border-black right-0 z-50">
-          {#if isAuthenticated}
-          <div>
-              <ul class="flex flex-col gap-3">
-                  {#if leaguesAndBoardsEnabled}
-                    <li>
-                      <a class={buttonOptions({ variant: 'outline', class: 'block w-full text-center' })} href="/draft-center/leagues">
-                        Leagues
-                      </a>
-                    </li>
-                    <li>
-                      <a class={buttonOptions({ variant: 'secondary', class: 'block w-full text-center' })} href="/draft-center/boards">
-                        Boards
-                      </a>
-                    </li>
-                  {/if}
-                  <form method="post" action="/draft-center?/logout" class="w-full">
-                    <button
-                      type="submit"
-                      class={buttonOptions({
-                        variant: 'danger',
-                        shadow: 'sm',
-                        skew: 'left',
-                        class: 'w-full whitespace-nowrap px-3 py-2'
-                      })}
-                      onclick={clearLocalDraft}
-                    >
-                      Sign out
-                    </button>
-                  </form>
-              </ul>
-          </div>
-          {:else}
-          <div class="flex flex-col gap-4 bg-[#FFF4E8] ">
-            <a class={`${buttonOptions({variant: 'outline', class: 'justify-self-center'})}`} href="/auth/login/google">
-              Google Login
-            </a>
-            <a class={`${buttonOptions({variant: 'secondary'})}`} href="/auth/login/discord">
-              Discord Login
-            </a>
-          </div>
-          {/if}
-        </div>
-      </div>
-
+	<div class="dropdown z-50">
+		<Hamburger />
+		<div
+			class="dropdown-content shadow-button-shadow right-0 z-50 overflow-hidden border-2 border-black bg-white"
+		>
+			{#if isAuthenticated}
+				<div>
+					<ul class="flex flex-col gap-3">
+						{#if leaguesAndBoardsEnabled}
+							<li>
+								<a
+									class={buttonOptions({
+										variant: 'outline',
+										class: `block w-full text-center ${page.url.pathname.startsWith('/draft-center/leagues') ? 'ring-accent ring-4 ring-inset' : ''}`
+									})}
+									href="/draft-center/leagues"
+									aria-current={page.url.pathname.startsWith('/draft-center/leagues')
+										? 'page'
+										: undefined}
+								>
+									Leagues
+								</a>
+							</li>
+							<li>
+								<a
+									class={buttonOptions({
+										variant: 'secondary',
+										class: `block w-full text-center ${page.url.pathname === '/draft-center/boards' ? 'ring-accent ring-4 ring-inset' : ''}`
+									})}
+									href="/draft-center/boards"
+									aria-current={page.url.pathname === '/draft-center/boards' ? 'page' : undefined}
+								>
+									Boards
+								</a>
+							</li>
+						{/if}
+						<SignOutForm class="w-full" buttonClass="w-full" />
+					</ul>
+				</div>
+			{:else}
+				<div class="flex flex-col gap-4 bg-[#FFF4E8]">
+					<a
+						class={`${buttonOptions({ variant: 'outline', class: 'justify-self-center' })}`}
+						href="/auth/login/google"
+					>
+						Google Login
+					</a>
+					<a class={`${buttonOptions({ variant: 'secondary' })}`} href="/auth/login/discord">
+						Discord Login
+					</a>
+				</div>
+			{/if}
+		</div>
+	</div>
 </nav>
 
-
 <style>
-  .dropdown {
-    position: relative;
-    display: inline-block;
-  }
-  
-  .dropdown-content {
-    display: none;
-    position: absolute;
-    min-width: 200px;
-    padding: 20px;
-    z-index: 1;
-  }
-  
-  .dropdown:hover .dropdown-content {
-    display: block;
-  }
-  </style>
+	.dropdown {
+		position: relative;
+		display: inline-block;
+	}
+
+	.dropdown-content {
+		display: none;
+		position: absolute;
+		min-width: 200px;
+		padding: 20px;
+		z-index: 1;
+	}
+
+	.dropdown:hover .dropdown-content {
+		display: block;
+	}
+</style>

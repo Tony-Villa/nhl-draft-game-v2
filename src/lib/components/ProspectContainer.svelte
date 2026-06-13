@@ -5,23 +5,27 @@
 	import ProspectCard from './ProspectCard.svelte';
 	import ProspectCardSkeleton from './ProspectCardSkeleton.svelte';
 	import Searchbar from './Searchbar.svelte';
-	import { fetchProspects, type ProspectsResponse } from '$lib/helpers/fetch-prospects';
+	import { getProspects } from '$lib/remote/prospects.remote';
+	import type { ProspectsPage } from '$lib/prospects/types';
+	import type { Prospect } from '$lib/types';
+	import { flushSync } from 'svelte';
 
 	import IconPlaceholder from '$lib/components/IconPlaceholder.svelte';
-  import * as Pagination from "$lib/components/ui/pagination/index.js";
+	import * as Pagination from '$lib/components/ui/pagination/index.js';
 	import Button from './Button.svelte';
 	import { buttonOptions } from './Button.options';
-	import { dev } from '$app/environment';
+
+	let { year }: { year: number } = $props();
 
 	const prospectSystem = getDraftSystem();
 
-	const verbeekJoke = `Verbeek's only important stat (Height)`
+	const verbeekJoke = `Verbeek's only important stat (Height)`;
 
 	const prospectSortOptions = [
 		{ label: 'Rank', value: 'rank' },
-		{ label: verbeekJoke , value: 'height' },
+		{ label: verbeekJoke, value: 'height' },
 		{ label: 'Age', value: 'age' },
-		{ label: 'Name', value: 'name' },
+		{ label: 'Name', value: 'name' }
 	];
 
 	// Filters and pagination
@@ -30,41 +34,70 @@
 	let currentPage = $state(1);
 	let sortBy: 'rank' | 'name' | 'height' | 'age' = $state('rank');
 	let sortOrder: 'asc' | 'desc' = $state('asc');
-	let isLoading = $state(false);
 	let isDropdownOpen = $state(false);
-	
-	const itemsPerPage = 12;
-	const currentYear = new Date().getFullYear();
+	let debouncedSearch = $state('');
+	let prospectContainer: HTMLDivElement;
 
-	// API response state
-	let prospectsResponse: ProspectsResponse = $state({
-		prospects: [],
-		pagination: {
-			currentPage: 1,
-			totalPages: 1,
-			totalCount: 0,
-			limit: itemsPerPage,
-			hasNextPage: false,
-			hasPrevPage: false
-		}
-	});
+	const itemsPerPage = 12;
+	const scrollBuffer = 240;
 
 	let innerWidth = $state(0);
 	let shouldtakeHalfScreen = $derived.by(() => {
-			return innerWidth < 1250 && innerWidth > 768
-		})
-
+		return innerWidth < 1250 && innerWidth > 768;
+	});
 
 	let derivedPositionFilter = $derived.by(() => {
 		let p = [...positions];
-		
+
 		if (p.includes('C') || p.includes('LW') || p.includes('RW')) {
 			p.push('F');
 		}
 		return p.length > 0 ? p.join(',') : '';
 	});
-	
-	let sortFilter = $state({
+
+	const prospectsQuery = $derived(
+		getProspects({
+			page: currentPage,
+			limit: itemsPerPage,
+			search: debouncedSearch,
+			position: derivedPositionFilter,
+			sortBy,
+			sortOrder,
+			year
+		})
+	);
+	let lastProspectsResponse = $state<ProspectsPage | null>(null);
+
+	$effect(() => {
+		if (prospectsQuery.ready) {
+			lastProspectsResponse = prospectsQuery.current;
+		}
+	});
+
+	const optimisticProspectsResponse = $derived.by(() => {
+		if (
+			prospectsQuery.ready ||
+			!lastProspectsResponse ||
+			lastProspectsResponse.pagination.currentPage !== currentPage
+		) {
+			return null;
+		}
+
+		const filteredProspects = lastProspectsResponse.prospects
+			.filter(matchesCurrentSearch)
+			.filter(matchesCurrentPosition);
+
+		return {
+			...lastProspectsResponse,
+			prospects: [...filteredProspects].sort(compareCurrentSort)
+		};
+	});
+
+	const displayedProspectsResponse = $derived(
+		prospectsQuery.ready ? prospectsQuery.current : optimisticProspectsResponse
+	);
+
+	let sortFilter: PositionFilter = $state({
 		C: false,
 		LW: false,
 		RW: false,
@@ -72,21 +105,22 @@
 		G: false
 	});
 
-	let currentProspects = $derived.by(() => {
+	function withDraftStatus(prospects: Prospect[]) {
 		prospectSystem.temporaryDraftedIds.size;
 		prospectSystem.permanentDraftedIds.size;
-		
-		if (prospectsResponse.prospects.length === 0) {
+
+		if (prospects.length === 0) {
 			return [];
 		}
-		
-		try {
 
-			const result = prospectsResponse.prospects.map((prospect) => {
+		try {
+			return prospects.map((prospect) => {
 				const isDrafted = prospect.id ? prospectSystem.isDrafted(prospect.id) : false;
 				const isTemporary = prospect.id ? prospectSystem.isTemporarilyDrafted(prospect.id) : false;
-				const isPermanent = prospect.id ? prospectSystem.permanentDraftedIds.has(prospect.id) : false;
-				
+				const isPermanent = prospect.id
+					? prospectSystem.permanentDraftedIds.has(prospect.id)
+					: false;
+
 				return {
 					...prospect,
 					isDrafted,
@@ -94,99 +128,119 @@
 					isPermanent
 				};
 			});
-			
-			return result;
 		} catch (error) {
 			return [];
 		}
-	});
-
-	let displayProspects = $derived.by(() => {
-		return currentProspects;
-	});
-
-	// Debounced search function
-	let searchTimeout: number | undefined;
-	
-	async function loadProspects() {
-		if (isLoading) return;
-		
-		isLoading = true;
-		try {
-			const response = await fetchProspects({
-				page: currentPage,
-				limit: itemsPerPage,
-				search: searchInput.trim() || undefined,
-				position: derivedPositionFilter || undefined,
-				sortBy,
-				sortOrder,
-				year: currentYear
-			});
-			
-			prospectsResponse = response;
-		} catch (error) {
-			// Error loading prospects - logged on server side
-		} finally {
-			isLoading = false;
-		}
 	}
 
-	// Load initial prospects only once on mount
-	let mounted = false;
-	$effect(() => {
-		if (!mounted) {
-			mounted = true;
-			loadProspects();
+	function matchesCurrentSearch(prospect: Prospect) {
+		if (!debouncedSearch) {
+			return true;
 		}
-	});
 
-	// Debounced search (but not on initial mount)
-	$effect(() => {
-		if (!mounted) return;
-		
-		searchInput;
-		
-		if (searchTimeout) clearTimeout(searchTimeout);
-		searchTimeout = Number(setTimeout(() => {
-			currentPage = 1;
-			loadProspects();
-		}, 300));
-	});
+		return (
+			prospect.name?.toLocaleLowerCase().includes(debouncedSearch.toLocaleLowerCase()) ?? false
+		);
+	}
 
+	function matchesCurrentPosition(prospect: Prospect) {
+		if (!derivedPositionFilter) {
+			return true;
+		}
 
-	const sortByPosition = (options: PositionFilter, option: string) => {
-		options[option] = !options[option];
-		for (const position of positions) {
-			if (position === option && !options[option]) {
-				positions = positions.filter((pos) => pos !== option);
+		const prospectPosition = prospect.position || '';
+
+		return derivedPositionFilter.split(',').some((position) => {
+			if (position === 'F') {
+				return ['C', 'LW', 'RW', 'F'].some((forwardPosition) =>
+					prospectPosition.includes(forwardPosition)
+				);
 			}
+
+			return prospectPosition.includes(position);
+		});
+	}
+
+	function compareCurrentSort(left: Prospect, right: Prospect) {
+		let comparison = 0;
+
+		if (sortBy === 'name') {
+			comparison = (left.name || '').localeCompare(right.name || '');
+		} else if (sortBy === 'height') {
+			comparison = Number(left.height) - Number(right.height);
+		} else if (sortBy === 'age') {
+			comparison = getBirthDate(right.birthDay) - getBirthDate(left.birthDay);
+		} else {
+			comparison = Number(left.rank) - Number(right.rank);
 		}
-		if (options[option]) {
-			positions.push(option);
-		}
-		
+
+		return sortOrder === 'asc' ? comparison : -comparison;
+	}
+
+	function getBirthDate(birthDay: string) {
+		const timestamp = Date.parse(birthDay);
+		return Number.isNaN(timestamp) ? 0 : timestamp;
+	}
+
+	let searchTimeout: number | undefined;
+
+	$effect(() => {
+		const nextSearch = searchInput.trim();
+
+		if (searchTimeout) clearTimeout(searchTimeout);
+
+		searchTimeout = Number(
+			setTimeout(() => {
+				debouncedSearch = nextSearch;
+				currentPage = 1;
+			}, 300)
+		);
+
+		return () => clearTimeout(searchTimeout);
+	});
+
+	const sortByPosition = (option: string) => {
+		const nextSortFilter = {
+			...sortFilter,
+			[option]: !sortFilter[option]
+		};
+
+		// Commit the pressed state before changing the remote query arguments.
+		flushSync(() => {
+			sortFilter = nextSortFilter;
+		});
+
+		positions = Object.entries(nextSortFilter)
+			.filter(([, selected]) => selected)
+			.map(([position]) => position);
 		currentPage = 1;
-		loadProspects();
 	};
 
-	function handlePageChange(page: number) {
-		currentPage = page;
-		loadProspects();
-		window.scrollTo(0, 0);
+	function handlePageChange() {
+		let containerTop = 0;
+		let element: HTMLElement | null = prospectContainer;
+
+		while (element) {
+			containerTop += element.offsetTop;
+			element = element.offsetParent as HTMLElement | null;
+		}
+
+		window.scrollTo({
+			top: Math.max(0, containerTop - scrollBuffer),
+			behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+		});
 	}
 
 	function handleSortChange(value: string | undefined) {
 		if (value && (value === 'rank' || value === 'name' || value === 'height' || value === 'age')) {
-			if(value === 'height') {
+			if (value === 'height') {
 				sortBy = value;
 				sortOrder = 'desc'; // Default to descending for height
 				currentPage = 1;
-				loadProspects();
 			} else {
 				sortBy = value;
 				sortOrder = 'asc'; // Default to ascending for other fields
 				currentPage = 1;
-				loadProspects();
 			}
 		}
 	}
@@ -194,7 +248,11 @@
 	function toggleSortOrder() {
 		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
 		currentPage = 1;
-		loadProspects();
+	}
+
+	function retryProspects(reset: () => void) {
+		void prospectsQuery.refresh();
+		reset();
 	}
 
 	// Handle select change from native select
@@ -231,21 +289,23 @@
 	});
 </script>
 
-
 <svelte:window bind:innerWidth />
-<div class={`
-	max-h-fit overflow-auto p-6 bg-white border-black border-[5px] relative mb-7 min-h-dvh md:shadow-section-shadow md:rotate-[0.3deg]
-	${shouldtakeHalfScreen ? "max-w-[60%]" : "max-w-[880px]"} 
-	flex flex-[4] flex-col flex-wrap gap-2 pb-4`
-}>
-
+<div
+	bind:this={prospectContainer}
+	data-prospect-container
+	class={`
+	md:shadow-section-shadow relative mb-7 max-h-fit min-h-dvh overflow-auto border-[5px] border-black bg-white p-6 md:rotate-[0.3deg]
+	${shouldtakeHalfScreen ? 'max-w-[60%]' : 'max-w-[880px]'}
+	flex flex-[4] flex-col flex-wrap gap-2 pb-4`}
+>
 	<div class="flex w-full justify-between">
-
-		<h2 class={`
-			text-3xl font-extrabold uppercase tracking-[-1px] relative inline-block mb-7
-			after:content-[''] after:absolute after:left-0 after:bottom-[-5px] after:w-[40%] after:h-[5px] after:bg-primary
-			`}>
-			Available Prospects	
+		<h2
+			class={`
+			after:bg-primary relative mb-7 inline-block text-3xl font-extrabold tracking-[-1px]
+			uppercase after:absolute after:bottom-[-5px] after:left-0 after:h-[5px] after:w-[40%] after:content-['']
+			`}
+		>
+			Available Prospects
 		</h2>
 	</div>
 
@@ -255,27 +315,40 @@
 	</div>
 
 	<!-- Sort and position filters row -->
-	<div class="flex flex-col gap-5 lg:flex-row mb-4">
+	<div class="mb-4 flex flex-col gap-5 lg:flex-row">
 		<div class="flex gap-2">
 			<!-- Custom Neo-Brutalist Select Dropdown -->
-			<div class="relative w-[180px] custom-select">
+			<div class="custom-select relative w-[180px]">
 				<button
-					onclick={() => isDropdownOpen = !isDropdownOpen}
-					class="w-full p-4 border-black border-[3px] bg-white text-black font-bold shadow-button-shadow focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] hover:bg-accent hover:text-black uppercase cursor-pointer transition-all duration-100 ease-in-out text-left flex justify-between items-center"
+					onclick={() => (isDropdownOpen = !isDropdownOpen)}
+					class="shadow-button-shadow hover:bg-accent flex w-full cursor-pointer items-center justify-between border-[3px] border-black bg-white p-4 text-left font-bold text-black uppercase transition-all duration-100 ease-in-out hover:text-black focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none focus:outline-none"
 				>
-					<span>{prospectSortOptions.find(option => option.value === sortBy)?.label === verbeekJoke ? 'Height' : prospectSortOptions.find(option => option.value === sortBy)?.label  || 'Sort by'}</span>
-					<IconPlaceholder name="arrow-down" class="size-4 {isDropdownOpen ? 'rotate-180' : ''} transition-transform duration-100" />
+					<span
+						>{prospectSortOptions.find((option) => option.value === sortBy)?.label === verbeekJoke
+							? 'Height'
+							: prospectSortOptions.find((option) => option.value === sortBy)?.label ||
+								'Sort by'}</span
+					>
+					<IconPlaceholder
+						name="arrow-down"
+						class="size-4 {isDropdownOpen ? 'rotate-180' : ''} transition-transform duration-100"
+					/>
 				</button>
-				
+
 				{#if isDropdownOpen}
-					<div class="absolute top-full left-0 w-full mt-1 bg-white border-black border-[3px] shadow-button-shadow z-50 animate-in fade-in duration-100">
+					<div
+						class="shadow-button-shadow animate-in fade-in absolute top-full left-0 z-50 mt-1 w-full border-[3px] border-black bg-white duration-100"
+					>
 						{#each prospectSortOptions as sortOption (sortOption.value)}
 							<button
 								onclick={() => {
 									handleSortChange(sortOption.value);
 									isDropdownOpen = false;
 								}}
-								class="w-full p-4 text-left font-bold uppercase cursor-pointer transition-all duration-100 ease-in-out hover:bg-accent hover:text-black hover:translate-x-[2px] hover:shadow-none border-b border-black last:border-b-0 active:translate-x-[2px] active:shadow-none {sortBy === sortOption.value ? 'bg-accent text-black shadow-none translate-x-[2px]' : 'bg-white text-black'}"
+								class="hover:bg-accent w-full cursor-pointer border-b border-black p-4 text-left font-bold uppercase transition-all duration-100 ease-in-out last:border-b-0 hover:translate-x-[2px] hover:text-black hover:shadow-none active:translate-x-[2px] active:shadow-none {sortBy ===
+								sortOption.value
+									? 'bg-accent translate-x-[2px] text-black shadow-none'
+									: 'bg-white text-black'}"
 							>
 								{sortOption.label}
 							</button>
@@ -299,95 +372,134 @@
 				{/if}
 			</Button>
 		</div>
-		<MultipleSelect bind:sortFilter sortPosition={sortByPosition} />
+		<MultipleSelect {sortFilter} onToggle={sortByPosition} />
 	</div>
 
-	{#if isLoading}
-		<div class={`mb-12 grid ${innerWidth < 1001 ? 'grid-cols-1 justify-center' : 'grid-cols-2'} justify-between gap-6`}>
-			{#each Array(12) as _, i}
-				<ProspectCardSkeleton />
-			{/each}
-		</div>
+	{#if displayedProspectsResponse}
+		{#if prospectsQuery.error}
+			<div
+				class="mb-4 flex flex-col items-start justify-between gap-3 border-[3px] border-black bg-red-100 p-4 sm:flex-row sm:items-center"
+				data-prospect-update="error"
+			>
+				<p class="font-bold">Unable to update prospects. The previous results are still shown.</p>
+				<Button size="sm" variant="outline" onclick={() => void prospectsQuery.refresh()}>
+					Try again
+				</Button>
+			</div>
+		{/if}
+
+		{@render prospectResults(displayedProspectsResponse, prospectsQuery.loading)}
 	{:else}
-		<div class={`mb-12 grid ${innerWidth < 1001 ? 'grid-cols-1 mx-auto' : 'grid-cols-2'} justify-between gap-6`}>
-			{#each displayProspects as prospect}
+		<svelte:boundary>
+			{@render prospectResults(await prospectsQuery)}
+
+			{#snippet pending()}
+				{@render prospectSkeletons()}
+			{/snippet}
+
+			{#snippet failed(error, reset)}
+				<div
+					class="shadow-button-shadow mb-12 border-[3px] border-black bg-white p-6 text-center"
+					data-prospect-source="error"
+				>
+					<p class="text-lg font-bold">Unable to load prospects</p>
+					<p class="mt-2 text-sm text-gray-600">Your draft board has not been changed.</p>
+					<Button class="mt-4" onclick={() => retryProspects(reset)}>Try again</Button>
+				</div>
+			{/snippet}
+		</svelte:boundary>
+	{/if}
+</div>
+
+{#snippet prospectSkeletons()}
+	<div
+		class={`mb-12 grid ${innerWidth < 1001 ? 'grid-cols-1 justify-center' : 'grid-cols-2'} justify-between gap-6`}
+		data-prospect-source="loading"
+	>
+		{#each Array(12) as _}
+			<ProspectCardSkeleton />
+		{/each}
+	</div>
+{/snippet}
+
+{#snippet prospectResults(prospectsResponse: ProspectsPage, isUpdating = false)}
+	{@const displayProspects = withDraftStatus(prospectsResponse.prospects)}
+	<div data-prospect-source={isUpdating ? 'optimistic' : 'remote'} aria-busy={isUpdating}>
+		{#if isUpdating}
+			<div
+				class="bg-accent mb-4 w-fit border-[3px] border-black px-3 py-1 text-xs font-black uppercase"
+				role="status"
+			>
+				Updating prospects...
+			</div>
+		{/if}
+		<div
+			class={`mb-12 grid ${innerWidth < 1001 ? 'grid-cols-1 justify-center' : 'grid-cols-2'} justify-between gap-6`}
+		>
+			{#each displayProspects as prospect (prospect.id)}
 				<ProspectCard {prospect} />
 			{/each}
 
 			{#if displayProspects.length === 0}
-				<div class="col-span-full text-center py-8">
-					<p class="text-lg font-bold">No prospects found</p>
-					{#if dev} 
-					<p class="text-sm text-gray-600">
-						API Response: {prospectsResponse.prospects.length} prospects
-						<br>
-						Display: {displayProspects.length} prospects
-						<br>
-						Total: {prospectsResponse.pagination.totalCount}
+				<div class="col-span-full py-8 text-center">
+					<p class="text-lg font-bold">
+						{isUpdating ? 'Checking the full prospect pool...' : 'No prospects found'}
 					</p>
-					{/if}
 				</div>
 			{/if}
 		</div>
-	{/if}
 
-	<div class="w-full mx-auto mb-4">
-		<Pagination.Root 
-			count={prospectsResponse.pagination.totalCount} 
-			perPage={itemsPerPage} 
-			siblingCount={1} 
-			bind:page={currentPage}
-		>
-			{#snippet children({ pages, currentPage: pageCurrent }: { pages: any[]; currentPage: number })}
-				<Pagination.Content>
-					<Pagination.Item>
-						<Pagination.PrevButton 
-							class={`${buttonOptions({variant: 'outline'})} rounded-none mr-2`} 
-							onclick={() => handlePageChange(pageCurrent - 1)}
-							disabled={!prospectsResponse.pagination.hasPrevPage || isLoading}
-						>
-							<IconPlaceholder name="chevron-left" class="size-4" />
-							<span class="hidden sm:block">Previous</span>
-						</Pagination.PrevButton>
-					</Pagination.Item>
-					{#each pages as page (page.key)}
-						{#if page.type === "ellipsis"}
+		{#if !isUpdating}
+			<div class="mx-auto mb-4 w-full">
+				<Pagination.Root
+					count={prospectsResponse.pagination.totalCount}
+					perPage={itemsPerPage}
+					siblingCount={1}
+					bind:page={currentPage}
+				>
+					{#snippet children({
+						pages,
+						currentPage: pageCurrent
+					}: {
+						pages: any[];
+						currentPage: number;
+					})}
+						<Pagination.Content onclickcapture={handlePageChange}>
 							<Pagination.Item>
-								<Pagination.Ellipsis />
-							</Pagination.Item>
-						{:else}
-							<Pagination.Item>
-								<Pagination.Link 
-									{page} 
-									isActive={pageCurrent === page.value} 
-									onclick={() => handlePageChange(page.value)}
-									disabled={isLoading}
+								<Pagination.PrevButton
+									class={`${buttonOptions({ variant: 'outline' })} mr-2 rounded-none`}
+									disabled={!prospectsResponse.pagination.hasPrevPage}
 								>
-									{page.value}
-								</Pagination.Link>
+									<IconPlaceholder name="chevron-left" class="size-4" />
+									<span class="hidden sm:block">Previous</span>
+								</Pagination.PrevButton>
 							</Pagination.Item>
-						{/if}
-					{/each}
-					<Pagination.Item>
-						<Pagination.NextButton 
-							class={`${buttonOptions({variant: 'outline'})} rounded-none`} 
-							onclick={() => handlePageChange(pageCurrent + 1)}
-							disabled={!prospectsResponse.pagination.hasNextPage || isLoading}
-						>
-							<span class="hidden sm:block">Next</span>
-							<IconPlaceholder name="chevron-right" class="size-4" />
-						</Pagination.NextButton>
-					</Pagination.Item>
-				</Pagination.Content>
-			{/snippet}
-		</Pagination.Root>
-		
-
-		<!-- <div class="text-center mt-2 text-sm text-gray-600">
-			Showing {displayProspects.length} prospects 
-			({prospectsResponse.prospects.length} from API)
-			of {prospectsResponse.pagination.totalCount} total
-			(Page {prospectsResponse.pagination.currentPage} of {prospectsResponse.pagination.totalPages})
-		</div> -->
+							{#each pages as page (page.key)}
+								{#if page.type === 'ellipsis'}
+									<Pagination.Item>
+										<Pagination.Ellipsis />
+									</Pagination.Item>
+								{:else}
+									<Pagination.Item>
+										<Pagination.Link {page} isActive={pageCurrent === page.value}>
+											{page.value}
+										</Pagination.Link>
+									</Pagination.Item>
+								{/if}
+							{/each}
+							<Pagination.Item>
+								<Pagination.NextButton
+									class={`${buttonOptions({ variant: 'outline' })} rounded-none`}
+									disabled={!prospectsResponse.pagination.hasNextPage}
+								>
+									<span class="hidden sm:block">Next</span>
+									<IconPlaceholder name="chevron-right" class="size-4" />
+								</Pagination.NextButton>
+							</Pagination.Item>
+						</Pagination.Content>
+					{/snippet}
+				</Pagination.Root>
+			</div>
+		{/if}
 	</div>
-</div>
+{/snippet}
