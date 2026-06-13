@@ -23,3 +23,6 @@ db-backup/*
 /tmp-db-data/*
 
 MANUAL_SMOKE.md
+
+/docs
+/docs/*
