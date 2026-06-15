@@ -32,7 +32,7 @@
 	<main class="bg-offWhite font-medium">
 		<Toaster />
 		<div>
-			{#if innerWidth < 768}
+			{#if innerWidth < 1024}
 				<Navbar.Small
 					isAuthenticated={data?.isAuthenticated}
 					leaguesAndBoardsEnabled={data?.leaguesAndBoardsEnabled}

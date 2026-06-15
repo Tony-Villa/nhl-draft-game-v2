@@ -14,10 +14,24 @@
 	} = $props();
 
 	let boardsRequested = $state(false);
+	let switcherElement = $state<HTMLDetailsElement>();
+	let switcherOpen = $state(false);
 	const boardsQuery = $derived(getBoardSummaries({ gameId }));
 
 	function handleToggle(event: Event) {
-		boardsRequested ||= (event.currentTarget as HTMLDetailsElement).open;
+		switcherOpen = (event.currentTarget as HTMLDetailsElement).open;
+		boardsRequested ||= switcherOpen;
+	}
+
+	function handleWindowPointerDown(event: PointerEvent) {
+		if (
+			!switcherOpen ||
+			(event.target instanceof Node && switcherElement?.contains(event.target))
+		) {
+			return;
+		}
+
+		switcherOpen = false;
 	}
 
 	function retryBoards(reset: () => void) {
@@ -26,10 +40,17 @@
 	}
 </script>
 
+<svelte:window onpointerdown={handleWindowPointerDown} />
+
 {#if selectedBoard}
-	<details ontoggle={handleToggle} class="group relative min-w-0">
+	<details
+		bind:this={switcherElement}
+		bind:open={switcherOpen}
+		ontoggle={handleToggle}
+		class="group relative min-w-0"
+	>
 		<summary
-			class="shadow-button-sm hover:bg-accent flex min-h-10 max-w-full cursor-pointer list-none items-center gap-2 border-[3px] border-black bg-white px-3 py-2 font-bold transition-all duration-100 group-open:translate-x-[2px] group-open:translate-y-[2px] group-open:shadow-none [&::-webkit-details-marker]:hidden"
+			class="shadow-button-sm hover:bg-accent flex min-h-10 max-w-full cursor-pointer list-none items-center gap-2 border-[3px] border-black bg-white px-3 py-2 font-bold transition-all duration-100 group-open:translate-x-0.5 group-open:translate-y-0.5 group-open:shadow-none [&::-webkit-details-marker]:hidden"
 		>
 			<LayoutTemplate class="size-4 shrink-0" aria-hidden="true" />
 			<span class="shrink-0 text-xs text-gray-600 uppercase">Board:</span>

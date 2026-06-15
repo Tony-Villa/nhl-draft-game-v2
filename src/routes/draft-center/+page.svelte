@@ -75,7 +75,10 @@
 	let selectedTab = $derived(tabs[tabIndex]);
 
 	const switchScreens = (tab: string) => {
-		tabIndex = tabIndex === 1 ? 0 : 1;
+		const nextTabIndex = tabs.indexOf(tab);
+		if (nextTabIndex !== -1) {
+			tabIndex = nextTabIndex;
+		}
 	};
 
 	$effect(() => {
@@ -318,7 +321,7 @@
 
 		<div class=" flex gap-8 px-1">
 			{#if innerWidth < 768}
-				<div class="w-full pb-10">
+				<div class="mobile-draft-content w-full">
 					{#if selectedTab === tabs[1]}
 						<DraftBoard draftType="user" />
 					{:else if selectedTab === tabs[0]}
@@ -353,7 +356,7 @@
 
 		<div class=" flex gap-5 px-2">
 			{#if innerWidth < 768}
-				<div class="w-full pb-10">
+				<div class="mobile-draft-content w-full">
 					{#if selectedTab === tabs[0]}
 						<DraftBoard draftType="user" />
 					{:else if selectedTab === tabs[1]}
@@ -389,8 +392,18 @@
 
 {#snippet slider({ left, right }: { left: string; right: string })}
 	<div
-		class="fixed bottom-0 z-50 flex h-15 w-full justify-center border-t-4 bg-white shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden lg:hidden"
+		class="mobile-switcher fixed inset-x-0 bottom-0 z-50 flex justify-center border-t-4 border-black bg-white px-3 pt-3 shadow-[0_-17px_20px_-25px_rgba(0,0,0,0.3)] md:hidden"
 	>
 		<SliderSwitch switchVariable={switchScreens} {left} {right} />
 	</div>
 {/snippet}
+
+<style>
+	.mobile-draft-content {
+		padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+	}
+
+	.mobile-switcher {
+		padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+	}
+</style>

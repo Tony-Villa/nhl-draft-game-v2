@@ -44,7 +44,10 @@
 	});
 
 	const switchScreens = (tab: string) => {
-		tabIndex = tabIndex === 1 ? 0 : 1;
+		const nextTabIndex = tabs.indexOf(tab);
+		if (nextTabIndex !== -1) {
+			tabIndex = nextTabIndex;
+		}
 	};
 
 	function scheduleNextPick() {
@@ -263,7 +266,7 @@
 		{/if}
 
 		{#if innerWidth < 768}
-			<div class="flex">
+			<div class="mt-2 mb-6 flex justify-center px-2">
 				<SliderSwitch left={tabs[0]} right={tabs[1]} switchVariable={switchScreens} />
 			</div>
 		{/if}
