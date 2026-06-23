@@ -51,7 +51,7 @@ describe('prospect browser query support', () => {
 			sortOrder: 'asc'
 		});
 
-		expect(getProspectsCacheKey(query)).toContain(`prospects:${query.year}:rank:asc:12::D:2`);
+		expect(getProspectsCacheKey(query)).toContain(`prospects:v2:${query.year}:rank:asc:12::D:2`);
 		expect(shouldCacheProspects(query)).toBe(false);
 		expect(shouldCacheProspects({ page: 1, search: '', position: '' })).toBe(true);
 		expect(shouldCacheProspects({ page: 1, search: 'smith', position: '' })).toBe(false);

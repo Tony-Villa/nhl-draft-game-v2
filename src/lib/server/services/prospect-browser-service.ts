@@ -6,7 +6,7 @@ import type { ProspectsQuery } from '$lib/remote/prospects.schemas';
 import type { Prospect } from '$lib/types.js';
 import { and, asc, desc, eq, like, sql } from 'drizzle-orm';
 
-const CACHE_PREFIX = 'prospects:';
+const CACHE_PREFIX = 'prospects:v2:';
 const CACHE_TTL = 86400;
 const MAX_CACHED_PAGES = 10;
 

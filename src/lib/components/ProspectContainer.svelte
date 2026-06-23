@@ -255,6 +255,10 @@
 		reset();
 	}
 
+	function getProspectCardKey(prospect: Prospect, index: number) {
+		return prospect.id ?? `${prospect.rank}-${prospect.name ?? 'unknown'}-${index}`;
+	}
+
 	// Handle select change from native select
 	function handleNativeSortChange(event: Event) {
 		const target = event.target as HTMLSelectElement;
@@ -436,7 +440,7 @@
 		<div
 			class={`mb-12 grid ${innerWidth < 1001 ? 'grid-cols-1 justify-center' : 'grid-cols-2'} justify-between gap-6`}
 		>
-			{#each displayProspects as prospect (prospect.id)}
+			{#each displayProspects as prospect, index (getProspectCardKey(prospect, index))}
 				<ProspectCard {prospect} />
 			{/each}
 

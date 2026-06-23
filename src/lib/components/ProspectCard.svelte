@@ -148,38 +148,46 @@
 					</button>
 				{:else}
 					<!-- Show normal "Draft" button -->
-					<Dialog.Trigger
+					<button
+						type="button"
 						class={buttonOptions({
 							class: 'w-[60%]',
 							variant: 'primary'
 						})}
+						aria-haspopup="dialog"
+						aria-expanded={dialogOpen}
+						onclick={() => (dialogOpen = true)}
 					>
 						Draft
-					</Dialog.Trigger>
+					</button>
 				{/if}
 			</div>
 		</div>
 	</Card>
 
-	<Dialog.Content
-		class="shadow-button-shadow md:shadow-button-shadow max-w-[90%] rounded-none md:max-w-[50%] md:rounded-none"
-	>
-		<Dialog.Header class="md:mx-auto">
-			<Dialog.Title>
-				<h2
-					class="mb-2 h-6 self-center pb-0 text-center text-[20px] font-extrabold text-black md:h-8 md:text-[28px]"
-				>
-					Who will be drafting {prospect.name}?
-				</h2>
-			</Dialog.Title>
-		</Dialog.Header>
+	{#if dialogOpen}
+		<Dialog.Content
+			class="shadow-button-shadow md:shadow-button-shadow max-w-[90%] rounded-none md:max-w-[50%] md:rounded-none"
+		>
+			<Dialog.Header class="md:mx-auto">
+				<Dialog.Title>
+					<h2
+						class="mb-2 h-6 self-center pb-0 text-center text-[20px] font-extrabold text-black md:h-8 md:text-[28px]"
+					>
+						Who will be drafting {prospect.name}?
+					</h2>
+				</Dialog.Title>
+			</Dialog.Header>
 
-		<div class="flex max-h-[75dvh] flex-wrap justify-center gap-1 overflow-y-scroll pb-10 md:gap-2">
-			{#each draftSystem.draftBoard as cell}
-				{@render teamPicker(cell)}
-			{/each}
-		</div>
-	</Dialog.Content>
+			<div
+				class="flex max-h-[75dvh] flex-wrap justify-center gap-1 overflow-y-scroll pb-10 md:gap-2"
+			>
+				{#each draftSystem.draftBoard as cell}
+					{@render teamPicker(cell)}
+				{/each}
+			</div>
+		</Dialog.Content>
+	{/if}
 </Dialog.Root>
 
 {#snippet teamPicker(cell: DraftBoard)}
